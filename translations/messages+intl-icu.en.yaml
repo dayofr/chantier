@@ -48,6 +48,7 @@ portfolio:
         tickets: Tickets
         progress: Progress
         last_activity: 'Last activity {when}'
+        alerts: '{count, plural, one {# alert} other {# alerts}}'
         no_activity: No activity
 
 project:
@@ -74,9 +75,18 @@ project:
         hint: Should be attached to an epic.
     alerts:
         title: Needs attention
-        blocked: Blocked tickets
-        orphans: Orphan tickets
         none: Nothing to report.
+        stale_rule: 'An in-progress or in-review ticket is flagged after {hours} h without movement.'
+        type:
+            bottleneck: Bottleneck
+            stale: Stalled
+            blocked: Blocked
+            orphan: No epic
+        detail:
+            bottleneck: '{count, plural, other {Blocks # tickets}}: {keys}'
+            stale: '{status}, last movement {when}'
+            blocked_status: Blocked status, no known blocker
+            orphan: Should be attached to an epic
     show_closed: Show closed tickets
     repository: Repository
 

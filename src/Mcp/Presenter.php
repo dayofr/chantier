@@ -10,6 +10,7 @@ use App\Entity\Ticket;
 use App\Enum\DependencyType;
 use App\Enum\TicketStatus;
 use App\Repository\ActivityRepository;
+use App\Service\ProjectAlerts;
 use App\Service\TicketStats;
 
 /**
@@ -17,8 +18,10 @@ use App\Service\TicketStats;
  */
 final readonly class Presenter
 {
-    public function __construct(private ActivityRepository $activities)
-    {
+    public function __construct(
+        private ActivityRepository $activities,
+        private ProjectAlerts $alerts,
+    ) {
     }
 
     public function project(Project $project): array
@@ -44,7 +47,22 @@ final readonly class Presenter
                 ])->getValues(),
             ])->getValues(),
             'orphanTickets' => $this->ticketList($orphans, $includeClosed),
+            'alerts' => $this->alerts($project),
         ];
+    }
+
+    /** Points d'attention : goulots, tickets sans mouvement, bloqués, sans epic. */
+    public function alerts(Project $project): array
+    {
+        return array_map(static fn (array $a) => array_filter([
+            'type' => $a['type'],
+            'severity' => $a['severity'],
+            'ticket' => $a['ticket']->getKey(),
+            'title' => $a['ticket']->getTitle(),
+            'blocks' => isset($a['blocks']) ? array_map(static fn (Ticket $t) => $t->getKey(), $a['blocks']) : null,
+            'blockedBy' => isset($a['blockers']) ? array_map(static fn (Ticket $t) => $t->getKey(), $a['blockers']) ?: null : null,
+            'idleHours' => $a['idleHours'] ?? null,
+        ], static fn ($v) => null !== $v), $this->alerts->for($project));
     }
 
     public function initiative(Initiative $initiative): array

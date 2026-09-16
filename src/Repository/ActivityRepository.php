@@ -87,4 +87,22 @@ class ActivityRepository extends ServiceEntityRepository
 
         return array_column(array_map(static fn ($r) => [$r['projectKey'], new \DateTimeImmutable($r['lastAt'])], $rows), 1, 0);
     }
+
+    /** @return array<int, \DateTimeImmutable> dernière activité par id de ticket */
+    public function lastActivityByTicket(Project $project): array
+    {
+        $rows = $this->createQueryBuilder('a')
+            ->select('IDENTITY(a.ticket) AS ticketId, MAX(a.createdAt) AS lastAt')
+            ->andWhere('a.project = :project')->setParameter('project', $project)
+            ->andWhere('a.ticket IS NOT NULL')
+            ->groupBy('a.ticket')
+            ->getQuery()->getArrayResult();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[(int) $row['ticketId']] = new \DateTimeImmutable($row['lastAt']);
+        }
+
+        return $result;
+    }
 }

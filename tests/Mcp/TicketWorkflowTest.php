@@ -53,6 +53,7 @@ final class TicketWorkflowTest extends McpTestCase
         self::assertSame(33, $tree['stats']['progress']);
         self::assertSame(['CHANT-2'], array_column($tree['initiatives'][0]['epics'][0]['tickets'], 'key'));
         self::assertSame(['CHANT-3'], array_column($tree['orphanTickets'], 'key'));
+        self::assertContains(['type' => 'orphan', 'severity' => 'low', 'ticket' => 'CHANT-3', 'title' => 'Orphelin'], $tree['alerts']);
 
         $activity = $this->callTool('list_activity', ['ticket' => 'CHANT-1'])['activities'];
         self::assertSame(['status_changed', 'note', 'status_changed', 'created'], array_column($activity, 'type'));

@@ -7,6 +7,7 @@ use App\Entity\Project;
 use App\Entity\Ticket;
 use App\Enum\TicketStatus;
 use App\Repository\ActivityRepository;
+use App\Service\ProjectAlerts;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,14 +28,12 @@ final class ProjectController extends AbstractController
     ];
 
     #[Route('', name: 'project_show')]
-    public function show(#[MapEntity(mapping: ['key' => 'key'])] Project $project): Response
+    public function show(#[MapEntity(mapping: ['key' => 'key'])] Project $project, ProjectAlerts $alerts): Response
     {
-        $tickets = $project->getTickets();
-
         return $this->render('project/show.html.twig', [
             'project' => $project,
-            'blocked' => $tickets->filter(static fn (Ticket $t) => !$t->getStatus()->isClosed() && $t->isBlocked())->getValues(),
-            'orphans' => $tickets->filter(static fn (Ticket $t) => null === $t->getEpic() && !$t->getStatus()->isClosed())->getValues(),
+            'alerts' => $alerts->for($project),
+            'staleHours' => $alerts->staleHours(),
         ]);
     }
 

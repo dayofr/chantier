@@ -29,12 +29,13 @@
             {% for project in projects %}
                 {% set s = ticket_stats(project.tickets) %}
                 {% set epic_count = project.initiatives|reduce((carry, i) => carry + i.epics|length, 0) %}
-                <a href="{{ path('project_show', {key: project.key}) }}" class="card card-link flex flex-col gap-4 p-5 {{ s.blocked > 0 ? 'border-progress/50' }}">
+                <a href="{{ path('project_show', {key: project.key}) }}" class="card card-link flex flex-col gap-4 p-5">
                     <div class="flex items-center gap-2">
                         {{ ui.status(project.status) }}
                         <span class="key">{{ project.key }}</span>
-                        {% if s.blocked > 0 %}
-                            <span class="ml-auto">{{ ui.chip(s.blocked ~ ' ' ~ ('portfolio.kpi.blocked'|trans|lower), 'blocked', 'block') }}</span>
+                        {% set serious = project_alerts(project)|filter(a => a.severity != 'low') %}
+                        {% if serious|length %}
+                            <span class="ml-auto">{{ ui.chip('portfolio.card.alerts'|trans({count: serious|length}), serious|filter(a => a.severity == 'high')|length ? 'blocked' : 'progress', 'notifications_active') }}</span>
                         {% endif %}
                     </div>
                     <div>

@@ -8,6 +8,7 @@ use App\Live\DataVersion;
 use App\Enum\ProjectStatus;
 use App\Enum\TicketStatus;
 use App\Repository\ProjectRepository;
+use App\Service\ProjectAlerts;
 use App\Service\TicketStats;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -25,7 +26,15 @@ final class AppExtension
         private readonly ProjectRepository $projectRepository,
         private readonly TranslatorInterface $translator,
         private readonly DataVersion $dataVersion,
+        private readonly ProjectAlerts $alerts,
     ) {
+    }
+
+    /** @return list<array<string, mixed>> */
+    #[AsTwigFunction('project_alerts')]
+    public function projectAlerts(Project $project): array
+    {
+        return $this->alerts->for($project);
     }
 
     #[AsTwigFunction('live_version')]

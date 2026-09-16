@@ -1,0 +1,31 @@
+{# Une alerte de ProjectAlerts. Variables : alert. #}
+{% set t = alert.ticket %}
+{% set cfg = {
+    bottleneck: {icon: 'call_split'},
+    stale: {icon: 'hourglass_empty'},
+    blocked: {icon: 'block'},
+    orphan: {icon: 'link_off'},
+}[alert.type] %}
+{% set tone = {high: 'border-blocked/40 bg-blocked-soft/60', medium: 'border-progress/40 bg-progress-soft/60', low: 'border-outline-variant/60 bg-surface-low'}[alert.severity] %}
+{% set text = {high: 'text-blocked', medium: 'text-progress', low: 'text-on-surface-variant'}[alert.severity] %}
+<li class="rounded-lg border px-3 py-2 {{ tone }}">
+    <p class="flex items-center gap-1.5 text-label-md font-semibold uppercase tracking-wide {{ text }}">
+        <span class="icon text-[16px]">{{ cfg.icon }}</span>{{ ('project.alerts.type.' ~ alert.type)|trans }}
+    </p>
+    <a href="{{ path('ticket_show', {key: t.key}) }}" class="mt-1 block text-body-sm hover:underline"><span class="key">{{ t.key }}</span> {{ t.title }}</a>
+    <p class="mt-0.5 text-label-md text-on-surface-variant">
+        {%- if alert.type == 'bottleneck' -%}
+            {{ 'project.alerts.detail.bottleneck'|trans({count: alert.blocks|length, keys: alert.blocks|map(b => b.key)|join(', ')}) }}
+        {%- elseif alert.type == 'stale' -%}
+            {{ 'project.alerts.detail.stale'|trans({status: t.status|trans, when: alert.lastMoveAt|ago}) }}
+        {%- elseif alert.type == 'blocked' -%}
+            {% if alert.blockers|length %}
+                {{ 'ticket.blocked_by'|trans }} {{ alert.blockers|map(b => b.key)|join(', ') }}
+            {% else %}
+                {{ 'project.alerts.detail.blocked_status'|trans }}
+            {% endif %}
+        {%- else -%}
+            {{ 'project.alerts.detail.orphan'|trans }}
+        {%- endif -%}
+    </p>
+</li>

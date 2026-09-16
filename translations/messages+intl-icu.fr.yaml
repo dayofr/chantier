@@ -48,6 +48,7 @@ portfolio:
         tickets: Tickets
         progress: Avancement
         last_activity: 'Dernière activité {when}'
+        alerts: '{count, plural, one {# alerte} other {# alertes}}'
         no_activity: Aucune activité
 
 project:
@@ -74,9 +75,18 @@ project:
         hint: À rattacher à un epic.
     alerts:
         title: Points d'attention
-        blocked: Tickets bloqués
-        orphans: Tickets orphelins
         none: Rien à signaler.
+        stale_rule: 'Un ticket en cours ou en revue est signalé après {hours} h sans mouvement.'
+        type:
+            bottleneck: Goulot
+            stale: Sans mouvement
+            blocked: Bloqué
+            orphan: Sans epic
+        detail:
+            bottleneck: '{count, plural, other {Bloque # tickets}} : {keys}'
+            stale: '{status}, dernier mouvement {when}'
+            blocked_status: Statut bloqué, aucun bloquant identifié
+            orphan: À rattacher à un epic
     show_closed: Afficher les tickets terminés
     repository: Dépôt
 

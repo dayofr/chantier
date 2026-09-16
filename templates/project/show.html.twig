@@ -115,32 +115,45 @@
 
     <aside class="flex flex-col gap-4">
         <section class="card p-5">
+            {% set serious = alerts|filter(a => a.severity != 'low') %}
+            {% set minor = alerts|filter(a => a.severity == 'low') %}
             <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
                 <span class="icon text-primary">notifications_active</span>{{ 'project.alerts.title'|trans }}
+                {% if serious|length %}<span class="ml-auto">{{ ui.chip(serious|length, serious|filter(a => a.severity == 'high')|length ? 'blocked' : 'progress') }}</span>{% endif %}
             </h2>
-            {% if blocked is empty and orphans is empty %}
-                <p class="mt-3 text-body-sm text-on-surface-variant">{{ 'project.alerts.none'|trans }}</p>
-            {% endif %}
-            {% if blocked is not empty %}
-                <h3 class="mt-4 text-label-md font-semibold uppercase tracking-wide text-blocked">{{ 'project.alerts.blocked'|trans }} · {{ blocked|length }}</h3>
-                <ul class="mt-2 flex flex-col gap-2">
-                    {% for t in blocked %}
-                        <li class="rounded-lg border border-blocked/30 bg-blocked-soft/60 px-3 py-2">
-                            <a href="{{ path('ticket_show', {key: t.key}) }}" class="block text-body-sm hover:underline"><span class="key">{{ t.key }}</span> {{ t.title }}</a>
-                            {% if t.openBlockers|length %}
-                                <p class="mt-1 text-label-md text-blocked">{{ 'ticket.blocked_by'|trans }} {{ t.openBlockers|map(b => b.key)|join(', ') }}</p>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-            {% if orphans is not empty %}
-                <h3 class="mt-4 text-label-md font-semibold uppercase tracking-wide text-progress">{{ 'project.alerts.orphans'|trans }} · {{ orphans|length }}</h3>
-                <ul class="mt-2 flex flex-col gap-1">
-                    {% for t in orphans %}
-                        <li><a href="{{ path('ticket_show', {key: t.key}) }}" class="block truncate text-body-sm hover:underline"><span class="key">{{ t.key }}</span> {{ t.title }}</a></li>
-                    {% endfor %}
-                </ul>
+            {% if alerts is empty %}
+                <p class="mt-3 flex items-center gap-2 text-body-sm text-on-surface-variant"><span class="icon text-[18px] text-done">check_circle</span>{{ 'project.alerts.none'|trans }}</p>
+            {% else %}
+                {% if serious|length %}
+                    <ul class="mt-3 flex flex-col gap-2">
+                        {% for alert in serious %}
+                            {% include 'project/_alert.html.twig' %}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {# Alertes mineures regroupées par type, pour ne pas noyer les importantes. #}
+                {% for type in ['bottleneck', 'stale', 'blocked', 'orphan'] %}
+                    {% set group = minor|filter(a => a.type == type) %}
+                    {% if group|length %}
+                        <div class="mt-3 rounded-lg border border-outline-variant/60 bg-surface-low px-3 py-2">
+                            <p class="flex items-center gap-1.5 text-label-md font-semibold uppercase tracking-wide text-on-surface-variant">
+                                <span class="icon text-[16px]">{{ {bottleneck: 'call_split', stale: 'hourglass_empty', blocked: 'block', orphan: 'link_off'}[type] }}</span>
+                                {{ ('project.alerts.type.' ~ type)|trans }} · {{ group|length }}
+                            </p>
+                            <ul class="mt-1 flex flex-col">
+                                {% for alert in group %}
+                                    <li class="flex min-w-0 items-baseline gap-2 text-body-sm">
+                                        <a href="{{ path('ticket_show', {key: alert.ticket.key}) }}" class="min-w-0 truncate hover:underline" title="{{ alert.ticket.title }}"><span class="key">{{ alert.ticket.key }}</span> {{ alert.ticket.title }}</a>
+                                        {% if alert.blockers is defined and alert.blockers|length %}
+                                            <span class="shrink-0 font-mono text-label-sm text-outline">← {{ alert.blockers|map(b => b.key)|join(', ') }}</span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <p class="mt-3 text-label-md text-outline">{{ 'project.alerts.stale_rule'|trans({hours: staleHours}) }}</p>
             {% endif %}
         </section>
     </aside>
