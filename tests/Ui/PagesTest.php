@@ -68,6 +68,15 @@ final class PagesTest extends WebTestCase
         self::assertSelectorTextContains('body', $expected);
     }
 
+    public function testTicketShowsDependencyGraph(): void
+    {
+        $this->client->request('GET', '/fr/tickets/DEMO-1');
+        self::assertSelectorExists('svg[role="img"] a[href="/fr/tickets/DEMO-2"]');
+
+        $this->client->request('GET', '/fr/tickets/DEMO-3');
+        self::assertSelectorNotExists('svg[role="img"]');
+    }
+
     public function testSidebarCanBeCollapsed(): void
     {
         $this->client->request('GET', '/en');

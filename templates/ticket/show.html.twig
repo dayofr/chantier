@@ -63,6 +63,9 @@
 
         <section class="card p-5">
             <h2 class="mb-4 font-display text-headline-sm font-semibold">{{ 'ticket.dependencies'|trans }}</h2>
+            {% if graph %}
+                <div class="mb-5">{% include 'ticket/_graph.html.twig' %}</div>
+            {% endif %}
             {% if dependencies is empty %}
                 <p class="text-body-sm text-outline">{{ 'ticket.no_dependencies'|trans }}</p>
             {% else %}

@@ -1,0 +1,52 @@
+{#
+    Graphe SVG des dépendances. graph : résultat de DependencyGraph::around().
+    Flèche rouge : blocage encore actif. Grise : bloquant terminé. Pointillés : simple lien.
+#}
+{% set w = constant('App\\Service\\DependencyGraph::NODE_WIDTH') %}
+{% set h = constant('App\\Service\\DependencyGraph::NODE_HEIGHT') %}
+<div class="-mx-5 overflow-x-auto px-5">
+    <svg width="{{ graph.width }}" height="{{ graph.height }}" viewBox="0 0 {{ graph.width }} {{ graph.height }}"
+         role="img" aria-label="{{ 'ticket.graph'|trans }}" class="block font-sans">
+        <defs>
+            <marker id="arrow-open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="fill-blocked"/>
+            </marker>
+            <marker id="arrow-closed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" class="fill-outline"/>
+            </marker>
+        </defs>
+
+        {% for edge in graph.edges %}
+            {% if edge.type == 'blocks' %}
+                <path d="{{ edge.path }}" fill="none" stroke-width="1.5"
+                      class="{{ edge.open ? 'stroke-blocked' : 'stroke-outline' }}"
+                      marker-end="url(#{{ edge.open ? 'arrow-open' : 'arrow-closed' }})"/>
+            {% else %}
+                <path d="{{ edge.path }}" fill="none" stroke-width="1.5" stroke-dasharray="4 4" class="stroke-outline-variant"/>
+            {% endif %}
+        {% endfor %}
+
+        {% for node in graph.nodes %}
+            {% set t = node.ticket %}
+            {% set title = t.title|length > 28 ? t.title|slice(0, 27)|trim ~ '…' : t.title %}
+            <a href="{{ path('ticket_show', {key: t.key}) }}" class="group/node">
+                <title>{{ t.key }} · {{ t.title }} · {{ t.status|trans }}</title>
+                <rect x="{{ node.x }}" y="{{ node.y }}" width="{{ w }}" height="{{ h }}" rx="10"
+                      class="{{ node.current ? 'fill-primary-soft stroke-primary' : 'fill-surface-lowest stroke-outline-variant group-hover/node:stroke-primary' }}"
+                      stroke-width="{{ node.current ? 2 : 1 }}"/>
+                <circle cx="{{ node.x + 14 }}" cy="{{ node.y + 19 }}" r="4" class="{{ {done: 'fill-done', progress: 'fill-progress', review: 'fill-review', planned: 'fill-planned', blocked: 'fill-blocked'}[tone(t.status)] ?? 'fill-muted' }}"/>
+                <text x="{{ node.x + 24 }}" y="{{ node.y + 23 }}" class="fill-on-surface-variant font-mono text-[11px]">{{ t.key }}</text>
+                <text x="{{ node.x + w - 12 }}" y="{{ node.y + 23 }}" text-anchor="end" class="fill-on-surface-variant text-[11px]">{{ t.status|trans }}</text>
+                <text x="{{ node.x + 12 }}" y="{{ node.y + 44 }}" class="{{ t.status.closed ? 'fill-on-surface-variant' : 'fill-on-surface' }} text-[13px] font-medium {{ node.current ? 'font-semibold' }}">{{ title }}</text>
+            </a>
+        {% endfor %}
+    </svg>
+</div>
+<div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-label-md text-on-surface-variant">
+    <span class="flex items-center gap-1.5"><svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke-width="2" class="stroke-blocked"/></svg>{{ 'ticket.graph_legend.open'|trans }}</span>
+    <span class="flex items-center gap-1.5"><svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke-width="2" class="stroke-outline"/></svg>{{ 'ticket.graph_legend.closed'|trans }}</span>
+    <span class="flex items-center gap-1.5"><svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke-width="2" stroke-dasharray="4 3" class="stroke-outline-variant"/></svg>{{ 'ticket.graph_legend.related'|trans }}</span>
+    {% if graph.truncated %}
+        <span class="text-progress">{{ 'ticket.graph_legend.truncated'|trans({max: constant('App\\Service\\DependencyGraph::MAX_NODES')}) }}</span>
+    {% endif %}
+</div>

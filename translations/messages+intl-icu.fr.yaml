@@ -115,6 +115,11 @@ ticket:
     updated: Mis à jour
     blocked_badge: Bloqué
     subtasks_progress: '{done}/{total}'
+    graph_legend:
+        open: Blocage actif
+        closed: Bloquant terminé
+        related: Lien simple
+        truncated: 'Graphe limité à {max} tickets.'
     graph: Graphe des dépendances
 
 activity:
