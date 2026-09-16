@@ -6,12 +6,13 @@
         <title>{% block title %}{{ 'app.name'|trans }}{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%234f46e5%22/><path d=%22M9 22V10h6a4 4 0 010 8h-6%22 stroke=%22white%22 stroke-width=%222.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>">
         <script>
-            {# Pose le thème avant le rendu pour éviter un flash clair. #}
+            {# Pose thème et état de la barre latérale avant le rendu, sans flash. #}
             (function () {
                 var choice = 'system';
                 try { choice = localStorage.getItem('chantier-theme') || 'system'; } catch (e) {}
                 var dark = choice === 'dark' || (choice === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
                 document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+                try { if (localStorage.getItem('chantier-sidebar') === 'collapsed') document.documentElement.dataset.sidebar = 'collapsed'; } catch (e) {}
             })();
         </script>
         <link rel="preconnect" href="https://fonts.googleapis.com">

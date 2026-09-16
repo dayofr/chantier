@@ -68,6 +68,14 @@ final class PagesTest extends WebTestCase
         self::assertSelectorTextContains('body', $expected);
     }
 
+    public function testSidebarCanBeCollapsed(): void
+    {
+        $this->client->request('GET', '/en');
+
+        self::assertSelectorExists('aside#sidebar');
+        self::assertSelectorExists('[data-sidebar-toggle][aria-controls="sidebar"][data-label-expand="Expand menu"]');
+    }
+
     public function testRootRedirectsToPreferredLanguage(): void
     {
         $this->client->request('GET', '/', server: ['HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.9']);

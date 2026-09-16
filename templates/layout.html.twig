@@ -10,59 +10,66 @@
 
 {% block body %}
 <div class="flex min-h-screen" data-live data-live-url="{{ path('live_version') }}" data-live-version="{{ live_version() }}">
-    {# ---------- Barre latérale ---------- #}
-    <aside class="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-outline-variant/40 bg-surface-low lg:flex">
-        <a href="{{ path('portfolio') }}" class="flex items-center gap-3 px-5 py-4">
-            <span class="flex size-8 items-center justify-center rounded-lg bg-primary-container text-white shadow-sm">
+    {# ---------- Barre latérale (réductible en rail d'icônes) ---------- #}
+    <aside id="sidebar" class="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-outline-variant/40 bg-surface-low transition-[width] duration-200 collapsed:w-16 lg:flex">
+        <a href="{{ path('portfolio') }}" class="flex items-center gap-3 px-5 py-4 collapsed:justify-center collapsed:px-0" title="{{ 'app.name'|trans }}">
+            <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-container text-white shadow-sm">
                 <span class="icon text-[18px]">construction</span>
             </span>
-            <span class="min-w-0">
+            <span class="min-w-0 collapsed:hidden">
                 <span class="block font-display text-headline-sm font-bold">{{ 'app.name'|trans }}</span>
                 <span class="block truncate text-label-sm text-on-surface-variant">{{ 'app.tagline'|trans }}</span>
             </span>
         </a>
 
-        <nav class="flex flex-col gap-0.5 px-3">
-            <a href="{{ path('portfolio') }}" class="nav-link" {{ route == 'portfolio' ? 'aria-current="page"' }}>
-                <span class="icon text-[19px]">grid_view</span>{{ 'nav.portfolio'|trans }}
+        <nav class="flex flex-col gap-0.5 px-3 collapsed:px-2">
+            <a href="{{ path('portfolio') }}" class="nav-link" title="{{ 'nav.portfolio'|trans }}" {{ route == 'portfolio' ? 'aria-current="page"' }}>
+                <span class="icon text-[19px]">grid_view</span><span class="nav-label">{{ 'nav.portfolio'|trans }}</span>
             </a>
-            <a href="{{ path('activity') }}" class="nav-link" {{ route == 'activity' ? 'aria-current="page"' }}>
-                <span class="icon text-[19px]">history</span>{{ 'nav.all_activity'|trans }}
+            <a href="{{ path('activity') }}" class="nav-link" title="{{ 'nav.all_activity'|trans }}" {{ route == 'activity' ? 'aria-current="page"' }}>
+                <span class="icon text-[19px]">history</span><span class="nav-label">{{ 'nav.all_activity'|trans }}</span>
             </a>
         </nav>
 
-        <div class="mt-5 flex min-h-0 flex-1 flex-col px-3">
-            <p class="px-3 pb-2 text-label-sm font-semibold uppercase tracking-wider text-outline">{{ 'nav.projects'|trans }}</p>
-            <nav class="-mr-1 flex flex-col gap-0.5 overflow-y-auto pr-1 pb-4" id="live-sidebar" data-live-region>
+        <div class="mt-5 flex min-h-0 flex-1 flex-col px-3 collapsed:px-2">
+            <p class="px-3 pb-2 text-label-sm font-semibold uppercase tracking-wider text-outline collapsed:hidden">{{ 'nav.projects'|trans }}</p>
+            <hr class="mx-2 mb-3 hidden border-outline-variant/50 collapsed:block">
+            <nav class="-mr-1 flex flex-col gap-0.5 overflow-y-auto pr-1 pb-4 collapsed:mr-0 collapsed:pr-0" id="live-sidebar" data-live-region>
                 {% for p in sidebar_projects() %}
                     {% set is_current = current_project and current_project.key == p.key %}
-                    <a href="{{ path('project_show', {key: p.key}) }}" class="nav-link" {{ is_current ? 'aria-current="page"' }}>
+                    <a href="{{ path('project_show', {key: p.key}) }}" class="nav-link" title="{{ p.name }} ({{ p.key }})" {{ is_current ? 'aria-current="page"' }}>
                         <span class="flex size-6 shrink-0 items-center justify-center rounded-md bg-surface-lowest font-mono text-[10px] font-semibold text-on-surface-variant ring-1 ring-outline-variant/50">{{ p.key|slice(0, 2) }}</span>
-                        <span class="truncate {{ p.status.value == 'archived' ? 'text-outline' }}">{{ p.name }}</span>
+                        <span class="nav-label truncate {{ p.status.value == 'archived' ? 'text-outline' }}">{{ p.name }}</span>
                     </a>
                     {% if is_current %}
-                        <div class="mb-1 ml-6 flex flex-col gap-0.5 border-l border-outline-variant/50 pl-3">
+                        <div class="mb-1 ml-6 flex flex-col gap-0.5 border-l border-outline-variant/50 pl-3 collapsed:ml-0 collapsed:border-l-0 collapsed:pl-0">
                             {% for item in [
                                 {route: 'project_show', icon: 'account_tree', label: 'nav.overview'},
                                 {route: 'project_board', icon: 'view_kanban', label: 'nav.board'},
                                 {route: 'project_activity', icon: 'history', label: 'nav.activity'},
                             ] %}
-                                <a href="{{ path(item.route, {key: p.key}) }}" class="nav-link py-1.5" {{ route == item.route ? 'aria-current="page"' }}>
-                                    <span class="icon text-[17px]">{{ item.icon }}</span>{{ item.label|trans }}
+                                <a href="{{ path(item.route, {key: p.key}) }}" class="nav-link py-1.5" title="{{ item.label|trans }}" {{ route == item.route ? 'aria-current="page"' }}>
+                                    <span class="icon text-[17px]">{{ item.icon }}</span><span class="nav-label">{{ item.label|trans }}</span>
                                 </a>
                             {% endfor %}
                         </div>
                     {% endif %}
                 {% else %}
-                    <p class="px-3 text-body-sm text-outline">{{ 'nav.no_projects'|trans }}</p>
+                    <p class="px-3 text-body-sm text-outline collapsed:hidden">{{ 'nav.no_projects'|trans }}</p>
                 {% endfor %}
             </nav>
         </div>
 
-        <div class="border-t border-outline-variant/40 px-5 py-3">
-            <p class="flex items-center gap-2 text-label-md text-on-surface-variant" title="{{ 'app.read_only_hint'|trans }}">
-                <span class="icon text-[16px]">visibility</span>{{ 'app.read_only'|trans }}
+        <div class="flex items-center gap-2 border-t border-outline-variant/40 px-3 py-2 collapsed:flex-col collapsed:px-2">
+            <p class="flex flex-1 items-center gap-2 px-2 text-label-md text-on-surface-variant collapsed:px-0" title="{{ 'app.read_only_hint'|trans }}">
+                <span class="icon text-[16px]">visibility</span><span class="nav-label">{{ 'app.read_only'|trans }}</span>
             </p>
+            <button type="button" data-sidebar-toggle aria-controls="sidebar"
+                    data-label-collapse="{{ 'nav.collapse'|trans }}" data-label-expand="{{ 'nav.expand'|trans }}"
+                    title="{{ 'nav.collapse'|trans }} ([)" aria-label="{{ 'nav.collapse'|trans }}"
+                    class="flex size-8 shrink-0 items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-high hover:text-on-surface">
+                <span class="icon text-[20px]">left_panel_close</span>
+            </button>
         </div>
     </aside>
 

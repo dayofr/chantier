@@ -5,6 +5,8 @@
 
 /* Thème : data-theme="light|dark" sur <html>, posé avant le rendu par base.html.twig. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+/* Barre latérale réduite : data-sidebar="collapsed" sur <html>. */
+@custom-variant collapsed (&:where([data-sidebar="collapsed"], [data-sidebar="collapsed"] *));
 
 /*
  * Tokens tirés des maquettes Stitch (Synthetica Linear en clair, Obsidian Kinetic en sombre).
@@ -200,11 +202,15 @@
     }
 
     .nav-link {
-        @apply flex items-center gap-3 rounded-lg px-3 py-2 text-label-md font-medium text-on-surface-variant transition-colors hover:bg-surface-high hover:text-on-surface;
+        @apply flex items-center gap-3 rounded-lg px-3 py-2 text-label-md font-medium text-on-surface-variant transition-colors hover:bg-surface-high hover:text-on-surface collapsed:justify-center collapsed:px-0;
     }
 
     .nav-link[aria-current="page"] {
         @apply bg-primary/10 text-primary;
+    }
+
+    .nav-label {
+        @apply collapsed:hidden;
     }
 
     /* Markdown rendu (descriptions, notes). */

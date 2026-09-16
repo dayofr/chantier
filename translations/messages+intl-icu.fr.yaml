@@ -23,6 +23,8 @@ nav:
     board: Kanban
     activity: Activité
     all_activity: Toute l'activité
+    collapse: Réduire le menu
+    expand: Déplier le menu
     no_projects: Aucun projet
 
 portfolio:
