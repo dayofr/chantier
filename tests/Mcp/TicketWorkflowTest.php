@@ -91,6 +91,16 @@ final class TicketWorkflowTest extends McpTestCase
         self::assertSame([], $this->callTool('list_activity', ['query' => '%'])['activities'], 'Les jokers SQL sont échappés.');
     }
 
+    public function testToolCallsCreateSessionCard(): void
+    {
+        $this->callTool('list_projects');
+        $this->callTool('list_projects');
+
+        $sessions = static::getContainer()->get(\App\Repository\AgentSessionRepository::class)->findAll();
+        self::assertCount(1, $sessions);
+        self::assertSame('phpunit', $sessions[0]->getClient());
+    }
+
     public function testDependencyCycleIsRejected(): void
     {
         $this->seedProject();

@@ -5,6 +5,8 @@ namespace App\Mcp\Processor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Activity\ActorContext;
+use App\Activity\SessionTracker;
+use App\Entity\AgentSession;
 use App\Mcp\Lookup;
 use App\Mcp\Presenter;
 use App\Mcp\ToolError;
@@ -30,6 +32,8 @@ abstract class AbstractToolProcessor implements ProcessorInterface
     protected Presenter $presenter;
     protected ValidatorInterface $validator;
     private ActorContext $actor;
+    private SessionTracker $sessionTracker;
+    private ?AgentSession $currentSession = null;
 
     #[Required]
     public function setDependencies(
@@ -38,12 +42,14 @@ abstract class AbstractToolProcessor implements ProcessorInterface
         Presenter $presenter,
         ValidatorInterface $validator,
         ActorContext $actor,
+        SessionTracker $sessionTracker,
     ): void {
         $this->em = $em;
         $this->lookup = $lookup;
         $this->presenter = $presenter;
         $this->validator = $validator;
         $this->actor = $actor;
+        $this->sessionTracker = $sessionTracker;
     }
 
     /** @param T $data */
@@ -53,8 +59,9 @@ abstract class AbstractToolProcessor implements ProcessorInterface
     {
         $session = $context['mcp_session'] ?? null;
         if ($session instanceof SessionInterface) {
-            $client = $session->get('client_info');
-            $this->actor->set($client['name'] ?? 'mcp', $session->getId()->toRfc4122());
+            $client = $session->get('client_info')['name'] ?? 'mcp';
+            $this->actor->set($client, $session->getId()->toRfc4122());
+            $this->currentSession = $this->sessionTracker->track($session->getId()->toRfc4122(), $client);
         } else {
             $this->actor->set('mcp');
         }
@@ -66,6 +73,12 @@ abstract class AbstractToolProcessor implements ProcessorInterface
         }
 
         return new CallToolResult([new TextContent(json_encode($result, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES))]);
+    }
+
+    /** Fiche de la session MCP en cours ; erreur si l'appel ne vient pas d'une session. */
+    protected function currentSession(): AgentSession
+    {
+        return $this->currentSession ?? throw new ToolError('Cet outil doit être appelé depuis une session MCP.');
     }
 
     /** Valide les entités modifiées, puis enregistre. */

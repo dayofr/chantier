@@ -6,6 +6,7 @@ use App\Activity\ActivityFilter;
 use App\Entity\Project;
 use App\Enum\ActivityType;
 use App\Repository\ActivityRepository;
+use App\Repository\AgentSessionRepository;
 use Psr\Clock\ClockInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,6 +24,7 @@ final class ActivityController extends AbstractController
     public function index(
         Request $request,
         ActivityRepository $activities,
+        AgentSessionRepository $agentSessions,
         ClockInterface $clock,
         #[Autowire(env: 'APP_TIMEZONE')] string $timezone,
         #[MapEntity(mapping: ['key' => 'key'])] ?Project $project = null,
@@ -55,6 +57,12 @@ final class ActivityController extends AbstractController
             ]);
         }
 
+        $sessions = $activities->findSessions($project);
+        $sessionCards = $agentSessions->findBySessionIds(array_column($sessions, 'sessionId'));
+        if (null !== $filter->session && !isset($sessionCards[$filter->session])) {
+            $sessionCards += $agentSessions->findBySessionIds([$filter->session]);
+        }
+
         return $this->render('activity/index.html.twig', [
             'project' => $project,
             'filter' => $filter,
@@ -62,7 +70,8 @@ final class ActivityController extends AbstractController
             'hasMore' => $hasMore,
             'typeCounts' => $activities->countByType($filter, $project, $since),
             'types' => ActivityType::cases(),
-            'sessions' => $activities->findSessions($project),
+            'sessions' => $sessions,
+            'sessionCards' => $sessionCards,
             'session' => $filter->session,
         ]);
     }
