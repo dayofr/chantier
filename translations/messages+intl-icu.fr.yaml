@@ -159,12 +159,33 @@ activity:
         reset: Réinitialiser
         apply: Appliquer
         no_match: Aucune entrée ne correspond aux filtres.
+    open_session: Fiche de la session
     load_more: Plus ancien
     event:
         created: '{kind, select, project {Projet créé} initiative {Initiative créée} epic {Epic créé} other {Ticket créé}}'
         status_changed: 'Statut : {from} → {to}'
 
+session:
+    title: Session
+    untitled: Session sans titre
+    duration: 'Durée {duration}'
+    entries: '{count, plural, =0 {aucune entrée} one {# entrée} other {# entrées}}'
+    open_in_log: Voir dans le journal
+    summary: Résumé de la conversation
+    summary_updated: 'Mis à jour {when}'
+    no_summary: Pas encore de résumé. L'agent l'envoie avec l'outil save_session_summary.
+    decisions: Décisions
+    no_decisions: Aucune décision enregistrée.
+    log: Journal de la session
+    report: Bilan
+    report_created: Créés
+    report_done: Terminés
+    report_inReview: En revue
+    report_blocked: Bloqués
+    report_touched: Autres tickets touchés
+
 time:
+    duration: '{hours, plural, =0 {{total} min} other {# h {minutes} min}}'
     just_now: à l'instant
     ago: '{unit, select, minute {il y a {count, plural, one {# minute} other {# minutes}}} hour {il y a {count, plural, one {# heure} other {# heures}}} day {il y a {count, plural, one {# jour} other {# jours}}} other {il y a {count, plural, other {# {unit}}}}}'
 

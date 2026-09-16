@@ -1,0 +1,150 @@
+{% extends 'layout.html.twig' %}
+{% import '_ui.html.twig' as ui %}
+
+{% block title %}{{ session.label }} · {{ 'session.title'|trans }} · {{ parent() }}{% endblock %}
+
+{% block breadcrumb %}
+    <a href="{{ path('activity') }}" class="hover:text-on-surface">{{ 'activity.title'|trans }}</a>
+    <span class="icon text-[16px] text-outline">chevron_right</span>
+    <span class="truncate font-medium text-on-surface">{{ session.label }}</span>
+{% endblock %}
+
+{% block header %}
+    <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="min-w-0">
+            <p class="flex items-center gap-2 text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">
+                <span class="icon text-[16px]">terminal</span>{{ 'session.title'|trans }} <span class="font-mono normal-case">#{{ session.shortId }}</span>
+            </p>
+            <h1 class="mt-1 font-display text-headline-lg font-bold">{{ session.title ?? 'session.untitled'|trans }}</h1>
+            <div class="mt-2 flex flex-wrap items-center gap-2">
+                {{ ui.chip(session.client, 'review', 'smart_toy') }}
+                {% if session.branch %}{{ ui.chip(session.branch, 'muted', 'fork_right') }}{% endif %}
+                {{ ui.chip(session.startedAt|format_datetime('medium', 'short'), 'muted', 'schedule') }}
+                {{ ui.chip('session.duration'|trans({duration: report.durationSeconds|duration}), 'muted', 'timer') }}
+                {{ ui.chip('session.entries'|trans({count: report.entries}), 'muted', 'history') }}
+            </div>
+        </div>
+        <a href="{{ path('activity', {session: session.sessionId}) }}" class="inline-flex items-center gap-1.5 rounded-md border border-outline-variant/70 px-3 py-1.5 text-label-md font-medium text-on-surface-variant hover:border-primary/40 hover:text-primary">
+            <span class="icon text-[16px]">filter_alt</span>{{ 'session.open_in_log'|trans }}
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <div class="flex min-w-0 flex-col gap-6">
+        <section class="card p-5">
+            <h2 class="mb-3 flex items-center gap-2 font-display text-headline-sm font-semibold">
+                <span class="icon text-primary">summarize</span>{{ 'session.summary'|trans }}
+                {% if session.summaryUpdatedAt %}
+                    <span class="ml-auto font-sans text-label-md font-normal text-outline">{{ 'session.summary_updated'|trans({when: session.summaryUpdatedAt|ago}) }}</span>
+                {% endif %}
+            </h2>
+            {% if session.summary %}
+                <div class="prose-md">{{ session.summary|markdown }}</div>
+            {% else %}
+                <p class="text-body-sm text-outline">{{ 'session.no_summary'|trans }}</p>
+            {% endif %}
+        </section>
+
+        <section class="card p-5">
+            <h2 class="mb-3 flex items-center gap-2 font-display text-headline-sm font-semibold">
+                <span class="icon text-primary">gavel</span>{{ 'session.decisions'|trans }}
+                {% if report.decisions|length %}{{ ui.chip(report.decisions|length, 'review') }}{% endif %}
+            </h2>
+            {% if report.decisions is empty %}
+                <p class="text-body-sm text-outline">{{ 'session.no_decisions'|trans }}</p>
+            {% else %}
+                <ol class="flex flex-col gap-3">
+                    {% for decision in report.decisions %}
+                        <li class="flex gap-3">
+                            <span class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-review-soft font-mono text-[11px] font-semibold text-review">{{ loop.index }}</span>
+                            <div class="min-w-0 flex-1">
+                                <div class="prose-md">{{ decision.message|markdown }}</div>
+                                <p class="mt-1 flex flex-wrap items-center gap-2 text-label-md text-outline">
+                                    {% if decision.ticket %}
+                                        <a href="{{ path('ticket_show', {key: decision.ticket.key}) }}" class="key hover:text-primary">{{ decision.ticket.key }}</a>
+                                        <span class="truncate">{{ decision.ticket.title }}</span>
+                                    {% else %}
+                                        <a href="{{ path('project_show', {key: decision.project.key}) }}" class="key hover:text-primary">{{ decision.subjectKey }}</a>
+                                    {% endif %}
+                                    <time datetime="{{ decision.createdAt|date('c') }}" class="ml-auto">{{ decision.createdAt|ago }}</time>
+                                </p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% endif %}
+        </section>
+
+        <section class="card min-w-0 p-5">
+            <h2 class="mb-4 flex items-center gap-2 font-display text-headline-sm font-semibold"><span class="icon text-primary">history</span>{{ 'session.log'|trans }}</h2>
+            {% if entries is empty %}
+                <p class="text-body-sm text-outline">{{ 'activity.empty'|trans }}</p>
+            {% else %}
+                <ol id="activity-feed" data-feed data-page-size="{{ constant('App\\Activity\\ActivityFilter::PAGE_SIZE') }}" data-count="{{ entries|length }}" aria-live="polite">
+                    {% include 'activity/_entries.html.twig' with {continued: false} %}
+                </ol>
+                {% if hasMore %}{% include 'activity/_load_more.html.twig' %}{% endif %}
+            {% endif %}
+        </section>
+    </div>
+
+    <aside class="flex flex-col gap-4">
+        <section class="card p-5">
+            <h2 class="mb-3 flex items-center gap-2 font-display text-headline-sm font-semibold"><span class="icon text-primary">fact_check</span>{{ 'session.report'|trans }}</h2>
+            <dl class="grid grid-cols-2 gap-2">
+                {% for item in [
+                    {key: 'created', icon: 'add_circle', tone: 'planned'},
+                    {key: 'done', icon: 'done_all', tone: 'done'},
+                    {key: 'inReview', icon: 'rate_review', tone: 'review'},
+                    {key: 'blocked', icon: 'block', tone: 'blocked'},
+                ] %}
+                    <div class="rounded-lg bg-surface-low px-3 py-2">
+                        <dt class="flex items-center gap-1.5 text-label-md text-on-surface-variant"><span class="icon text-[16px] {{ ui.tone_classes(item.tone)|split(' ')|last }}">{{ item.icon }}</span>{{ ('session.report_' ~ item.key)|trans }}</dt>
+                        <dd class="font-display text-headline-md font-bold">{{ report[item.key]|length }}</dd>
+                    </div>
+                {% endfor %}
+            </dl>
+
+            {% for item in [
+                {key: 'done', label: 'session.report_done'},
+                {key: 'inReview', label: 'session.report_inReview'},
+                {key: 'blocked', label: 'session.report_blocked'},
+                {key: 'created', label: 'session.report_created'},
+            ] %}
+                {% if report[item.key]|length %}
+                    <h3 class="mt-4 text-label-md font-semibold uppercase tracking-wide text-on-surface-variant">{{ item.label|trans }}</h3>
+                    <ul class="mt-1 flex flex-col">
+                        {% for t in report[item.key] %}
+                            <li class="flex min-w-0 items-center gap-2 text-body-sm">
+                                <a href="{{ path('ticket_show', {key: t.key}) }}" class="min-w-0 truncate hover:underline" title="{{ t.title }}"><span class="key">{{ t.key }}</span> {{ t.title }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+
+            {% set others = report.touched|filter(t => t not in report.created and t not in report.done and t not in report.inReview and t not in report.blocked) %}
+            {% if others|length %}
+                <h3 class="mt-4 text-label-md font-semibold uppercase tracking-wide text-on-surface-variant">{{ 'session.report_touched'|trans }}</h3>
+                <ul class="mt-1 flex flex-col">
+                    {% for t in others %}
+                        <li class="flex min-w-0 items-center gap-2 text-body-sm">
+                            <a href="{{ path('ticket_show', {key: t.key}) }}" class="min-w-0 truncate hover:underline" title="{{ t.title }}"><span class="key">{{ t.key }}</span> {{ t.title }}</a>
+                            <span class="ml-auto shrink-0">{{ ui.status(t.status) }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if report.projects|length %}
+                <h3 class="mt-4 text-label-md font-semibold uppercase tracking-wide text-on-surface-variant">{{ 'nav.projects'|trans }}</h3>
+                <p class="mt-1 flex flex-wrap gap-1.5">
+                    {% for p in report.projects %}<a href="{{ path('project_show', {key: p.key}) }}" class="rounded-md bg-surface-low px-2 py-0.5 text-body-sm hover:text-primary"><span class="key">{{ p.key }}</span> {{ p.name }}</a>{% endfor %}
+                </p>
+            {% endif %}
+        </section>
+    </aside>
+</div>
+{% endblock %}

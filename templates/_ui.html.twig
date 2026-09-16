@@ -167,8 +167,8 @@
             <div class="mt-1 flex flex-wrap items-center gap-2 text-label-md text-outline">
                 <span>{{ 'activity.by'|trans({author: entry.author}) }}</span>
                 {% if entry.sessionId %}
-                    <a href="{{ path(entry.project and app.current_route starts with 'project_' ? 'project_activity' : 'activity', entry.project and app.current_route starts with 'project_' ? {key: entry.project.key, session: entry.sessionId} : {session: entry.sessionId}) }}"
-                       class="font-mono hover:text-primary" title="{{ 'activity.session'|trans }} {{ entry.sessionId }}">#{{ entry.sessionId|slice(0, 8) }}</a>
+                    <a href="{{ path('session_show', {sessionId: entry.sessionId}) }}"
+                       class="font-mono hover:text-primary" title="{{ 'activity.open_session'|trans }}">#{{ entry.sessionId|slice(0, 8) }}</a>
                 {% endif %}
             </div>
         </div>

@@ -125,6 +125,15 @@ final class AppExtension
         return implode('', $parts);
     }
 
+    /** Durée lisible : "45 min", "2 h 05 min". */
+    #[AsTwigFilter('duration')]
+    public function duration(int $seconds): string
+    {
+        $minutes = intdiv(max(0, $seconds), 60);
+
+        return $this->translator->trans('time.duration', ['hours' => intdiv($minutes, 60), 'minutes' => \sprintf('%02d', $minutes % 60), 'total' => $minutes]);
+    }
+
     /** Markdown en HTML, sans HTML brut ni liens dangereux. */
     #[AsTwigFilter('markdown', isSafe: ['html'])]
     public function markdown(?string $text): string

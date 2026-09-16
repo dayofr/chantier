@@ -31,19 +31,7 @@ final class ActivityController extends AbstractController
         #[MapQueryString(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)] ActivityFilter $filter = new ActivityFilter(),
     ): Response {
         $since = $filter->since($clock, $timezone);
-        // "until" remplace la taille de page, dans la limite de MAX_LIMIT.
-        $limit = null !== $filter->until ? ActivityFilter::MAX_LIMIT : $filter->limit;
-        // Une entrée de plus pour savoir s'il reste des entrées plus anciennes.
-        $entries = $activities->feed($filter, $project, $since, $limit + 1);
-        $hasMore = \count($entries) > $limit;
-        $entries = \array_slice($entries, 0, $limit);
-        if (null !== $filter->until && !$hasMore) {
-            // Reste-t-il des entrées plus anciennes que la plus ancienne demandée ?
-            $older = clone $filter;
-            $older->before = $filter->until;
-            $older->until = null;
-            $hasMore = [] !== $activities->feed($older, $project, $since, 1);
-        }
+        ['entries' => $entries, 'hasMore' => $hasMore] = $activities->page($filter, $project, $since);
 
         // Chargement AJAX de « Plus ancien » : seulement les entrées et le lien suivant.
         if ($request->query->getBoolean('fragment')) {

@@ -30,6 +30,11 @@
         <div class="flex flex-wrap items-center gap-2">
             {% set card = sessionCards[session] ?? null %}
             {{ ui.filter_chip(card and card.title ? card.title : 'activity.filtered_session'|trans({id: session|slice(0, 8)}), path(feed_route, feed_params|merge(filter.toQuery({session: null}))), 'activity.clear_filter'|trans, 'terminal') }}
+            {% if card %}
+                <a href="{{ path('session_show', {sessionId: session}) }}" class="inline-flex items-center gap-1 text-label-md font-medium text-primary hover:underline">
+                    <span class="icon text-[16px]">summarize</span>{{ 'activity.open_session'|trans }}
+                </a>
+            {% endif %}
         </div>
     {% endif %}
 {% endblock %}

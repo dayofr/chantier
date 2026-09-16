@@ -159,12 +159,33 @@ activity:
         reset: Reset
         apply: Apply
         no_match: No entries match the filters.
+    open_session: Session details
     load_more: Older
     event:
         created: '{kind, select, project {Project created} initiative {Initiative created} epic {Epic created} other {Ticket created}}'
         status_changed: 'Status: {from} → {to}'
 
+session:
+    title: Session
+    untitled: Untitled session
+    duration: 'Duration {duration}'
+    entries: '{count, plural, =0 {no entries} one {# entry} other {# entries}}'
+    open_in_log: View in log
+    summary: Conversation summary
+    summary_updated: 'Updated {when}'
+    no_summary: No summary yet. The agent sends it with the save_session_summary tool.
+    decisions: Decisions
+    no_decisions: No decisions recorded.
+    log: Session log
+    report: Outcome
+    report_created: Created
+    report_done: Done
+    report_inReview: In review
+    report_blocked: Blocked
+    report_touched: Other tickets touched
+
 time:
+    duration: '{hours, plural, =0 {{total} min} other {# h {minutes} min}}'
     just_now: just now
     ago: '{unit, select, minute {{count, plural, one {# minute} other {# minutes}} ago} hour {{count, plural, one {# hour} other {# hours}} ago} day {{count, plural, one {# day} other {# days}} ago} other {{count, plural, other {# {unit}}} ago}}'
 

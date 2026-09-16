@@ -44,6 +44,29 @@ class ActivityRepository extends ServiceEntityRepository
     }
 
     /**
+     * Une page du journal. Avec "until", toutes les entrées jusqu'à cet id (dans la limite de MAX_LIMIT).
+     *
+     * @return array{entries: list<Activity>, hasMore: bool}
+     */
+    public function page(ActivityFilter $filter, ?Project $project, ?\DateTimeImmutable $since): array
+    {
+        $limit = null !== $filter->until ? ActivityFilter::MAX_LIMIT : $filter->limit;
+        // Une entrée de plus pour savoir s'il reste des entrées plus anciennes.
+        $entries = $this->feed($filter, $project, $since, $limit + 1);
+        $hasMore = \count($entries) > $limit;
+        $entries = \array_slice($entries, 0, $limit);
+
+        if (null !== $filter->until && !$hasMore) {
+            $older = clone $filter;
+            $older->before = $filter->until;
+            $older->until = null;
+            $hasMore = [] !== $this->feed($older, $project, $since, 1);
+        }
+
+        return ['entries' => $entries, 'hasMore' => $hasMore];
+    }
+
+    /**
      * Nombre d'entrées par type, avec les autres filtres appliqués.
      *
      * @return array<string, int>
