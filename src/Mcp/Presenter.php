@@ -3,6 +3,7 @@
 namespace App\Mcp;
 
 use App\Entity\Activity;
+use App\Entity\AgentSession;
 use App\Entity\Epic;
 use App\Entity\Initiative;
 use App\Entity\Project;
@@ -163,6 +164,20 @@ final readonly class Presenter
             'links' => $ticket->getLinks()->map(static fn ($l) => array_filter(['type' => $l->getType()->value, 'reference' => $l->getReference(), 'label' => $l->getLabel()]))->getValues(),
             'recentActivity' => array_map($this->activity(...), $this->activities->findBy(['ticket' => $ticket], ['createdAt' => 'DESC', 'id' => 'DESC'], 10)),
         ];
+    }
+
+    public function session(AgentSession $session): array
+    {
+        return array_filter([
+            'id' => $session->getSessionId(),
+            'title' => $session->getTitle(),
+            'client' => $session->getClient(),
+            'branch' => $session->getBranch(),
+            'startedAt' => $session->getStartedAt()->format(\DATE_ATOM),
+            'lastSeenAt' => $session->getLastSeenAt()->format(\DATE_ATOM),
+            'summary' => $session->getSummary(),
+            'summaryUpdatedAt' => $session->getSummaryUpdatedAt()?->format(\DATE_ATOM),
+        ], static fn ($v) => null !== $v);
     }
 
     public function activity(Activity $activity): array

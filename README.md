@@ -81,10 +81,11 @@ Pour qu'un autre projet soit suivi, ajouter à son `CLAUDE.md` :
 ```markdown
 ## Suivi de projet
 Ce projet est suivi dans Chantier (MCP `chantier`, clé projet `XXX`).
-- Début de session : `list_activity` puis `get_next_ticket`.
+- Début de session : `start_session` avec l'objectif, puis `get_next_ticket`.
 - Avant de coder : passer le ticket en `in_progress`. Pas de travail hors ticket : sinon `create_tickets`.
 - Pendant : `log_activity` pour décisions, blocages, commits, résultats de tests.
 - Fin : cocher les sous-tâches, `add_link` pour commits/PR, statut `in_review` ou `done`.
+- Après chaque étape importante et en fin de séance : `save_session_summary` (résumé complet + décisions).
 ```
 
 ## Outils MCP
@@ -104,7 +105,9 @@ Ce projet est suivi dans Chantier (MCP `chantier`, clé projet `XXX`).
 | `manage_subtasks` | Ajouter, cocher, décocher, supprimer |
 | `set_dependency` | `blocks` ou `relates_to`, détection des cycles |
 | `add_link` | PR, commit, branche, fichier, URL |
-| `log_activity`, `list_activity` | Journal |
+| `log_activity`, `list_activity` | Journal ; `list_activity` filtre par texte, type, ticket/epic/initiative, session |
+| `start_session` | Nomme la séance, renvoie les résumés des séances précédentes |
+| `save_session_summary` | Résumé complet de la conversation et décisions prises (sans doublon) |
 
 Chaque écriture MCP est journalisée avec le nom du client et l'id de session MCP.
 

@@ -10,7 +10,8 @@ final class TicketWorkflowTest extends McpTestCase
 
         foreach (['list_projects', 'get_project', 'create_project', 'update_project', 'create_initiative', 'update_initiative',
             'create_epic', 'update_epic', 'create_tickets', 'update_ticket', 'get_ticket', 'search_tickets',
-            'get_next_ticket', 'manage_subtasks', 'set_dependency', 'add_link', 'log_activity', 'list_activity'] as $name) {
+            'get_next_ticket', 'manage_subtasks', 'set_dependency', 'add_link', 'log_activity', 'list_activity',
+            'start_session', 'save_session_summary'] as $name) {
             self::assertArrayHasKey($name, $tools);
         }
         self::assertSame(['low', 'medium', 'high', 'urgent'], $tools['update_ticket']['inputSchema']['properties']['priority']['enum']);
@@ -99,6 +100,42 @@ final class TicketWorkflowTest extends McpTestCase
         $sessions = static::getContainer()->get(\App\Repository\AgentSessionRepository::class)->findAll();
         self::assertCount(1, $sessions);
         self::assertSame('phpunit', $sessions[0]->getClient());
+    }
+
+    public function testSessionTitleSummaryAndDecisions(): void
+    {
+        $this->seedProject();
+        $this->callTool('create_tickets', ['project' => 'CHANT', 'epic' => 'CHANT-E1', 'tickets' => [['title' => 'Sessions']]]);
+
+        $started = $this->callTool('start_session', ['title' => 'Sessions et résumés', 'branch' => 'feat/sessions']);
+        self::assertSame('Sessions et résumés', $started['session']['title']);
+        self::assertSame('feat/sessions', $started['session']['branch']);
+        self::assertSame([], $started['previousSessions']);
+
+        $summary = [
+            'summary' => "L'utilisateur veut des résumés de séance.\n\n- Entité créée",
+            'decisions' => [
+                ['text' => 'Pas de clé étrangère vers la session.', 'ticket' => 'CHANT-1'],
+                ['text' => 'Résumé complet à chaque appel.'],
+            ],
+            'project' => 'CHANT',
+        ];
+        $saved = $this->callTool('save_session_summary', $summary);
+        self::assertSame(['created' => 2, 'alreadyRecorded' => 0], $saved['decisions']);
+        self::assertStringContainsString('Entité créée', $saved['session']['summary']);
+
+        // Renvoyé une seconde fois : le résumé est remplacé, les décisions ne sont pas dupliquées.
+        $summary['summary'] = 'Résumé mis à jour';
+        $summary['decisions'][] = ['text' => 'Nouvelle décision.', 'ticket' => 'CHANT-1'];
+        $again = $this->callTool('save_session_summary', $summary);
+        self::assertSame(['created' => 1, 'alreadyRecorded' => 2], $again['decisions']);
+        self::assertSame('Résumé mis à jour', $again['session']['summary']);
+
+        $decisions = $this->callTool('list_activity', ['type' => ['decision']])['activities'];
+        self::assertCount(3, $decisions);
+        self::assertSame($started['session']['id'], $decisions[0]['session']);
+
+        self::assertStringContainsString('préciser', $this->callToolError('save_session_summary', ['summary' => 'x', 'decisions' => [['text' => 'Sans rattachement']]]));
     }
 
     public function testDependencyCycleIsRejected(): void
