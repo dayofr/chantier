@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
+use App\Activity\SearchText;
 use App\Enum\ActivityType;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Les entrées "created" et "status_changed" sont écrites automatiquement.
  */
 #[ORM\Entity(repositoryClass: ActivityRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Index(fields: ['createdAt'])]
 #[ApiResource(
     operations: [
@@ -86,6 +88,10 @@ class Activity
     #[Groups(['read'])]
     private \DateTimeImmutable $createdAt;
 
+    /** Texte normalisé pour la recherche : clé, message, titre. */
+    #[ORM\Column(type: 'text', options: ['default' => ''])]
+    private string $searchText = '';
+
     public function __construct(?Project $project = null, ActivityType $type = ActivityType::Note, ?string $message = null)
     {
         $this->project = $project;
@@ -93,6 +99,23 @@ class Activity
         $this->type = $type;
         $this->message = $message;
         $this->createdAt = new \DateTimeImmutable();
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updateSearchText(): void
+    {
+        $this->searchText = SearchText::normalize(
+            $this->subjectKey,
+            $this->message,
+            \is_string($this->data['title'] ?? null) ? $this->data['title'] : null,
+            $this->ticket?->getTitle(),
+        );
+    }
+
+    public function getSearchText(): string
+    {
+        return $this->searchText;
     }
 
     public function getId(): ?int

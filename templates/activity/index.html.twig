@@ -50,7 +50,7 @@
                             {% set current_day = day %}
                             <li class="mb-3 {{ not loop.first ? 'mt-6' }} text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">{{ day }}</li>
                         {% endif %}
-                        {{ ui.activity_entry(entry, true) }}
+                        {{ ui.activity_entry(entry, true, filter.terms) }}
                     {% endfor %}
                 </ol>
                 {% if hasMore %}

@@ -76,6 +76,21 @@ final class TicketWorkflowTest extends McpTestCase
         self::assertSame(2, $this->callTool('search_tickets', ['orphan' => true])['count']);
     }
 
+    public function testActivitySearch(): void
+    {
+        $this->seedProject();
+        $this->callTool('create_tickets', ['project' => 'CHANT', 'epic' => 'CHANT-E1', 'tickets' => [['title' => 'Stockage']]]);
+        $this->callTool('log_activity', ['ticket' => 'CHANT-1', 'type' => 'decision', 'message' => 'On garde SQLite, pas de Postgres.']);
+        $this->callTool('log_activity', ['project' => 'CHANT', 'type' => 'note', 'message' => 'Réunion d\'équipe']);
+
+        $found = $this->callTool('list_activity', ['query' => 'sqlite POSTGRES'])['activities'];
+        self::assertSame(['On garde SQLite, pas de Postgres.'], array_column($found, 'message'));
+
+        self::assertSame(['Réunion d\'équipe'], array_column($this->callTool('list_activity', ['query' => 'reunion equipe'])['activities'], 'message'));
+        self::assertSame(['decision'], array_column($this->callTool('list_activity', ['ticket' => 'CHANT-E1', 'type' => ['decision']])['activities'], 'type'));
+        self::assertSame([], $this->callTool('list_activity', ['query' => '%'])['activities'], 'Les jokers SQL sont échappés.');
+    }
+
     public function testDependencyCycleIsRejected(): void
     {
         $this->seedProject();

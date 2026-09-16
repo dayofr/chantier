@@ -48,6 +48,7 @@ radio_button_checked
 radio_button_unchecked
 schedule
 science
+search
 search_off
 sell
 sticky_note_2

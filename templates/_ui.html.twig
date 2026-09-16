@@ -125,7 +125,7 @@
 {% endmacro %}
 
 {# Entrée du journal. #}
-{% macro activity_entry(entry, show_subject = true) %}
+{% macro activity_entry(entry, show_subject = true, terms = []) %}
     {% set type = entry.type.value %}
     {% set icon = {created: 'add_circle', status_changed: 'swap_horiz', note: 'sticky_note_2', decision: 'gavel', progress: 'trending_up', blocker: 'block', commit: 'commit', test: 'science'}[type] %}
     {% set tone = {blocker: 'blocked', decision: 'review', progress: 'progress', commit: 'primary', test: 'done'}[type] ?? 'muted' %}
@@ -138,9 +138,9 @@
             <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm">
                 {% if show_subject %}
                     {% if entry.ticket %}
-                        <a href="{{ path('ticket_show', {key: entry.ticket.key}) }}" class="key hover:text-primary">{{ entry.subjectKey }}</a>
+                        <a href="{{ path('ticket_show', {key: entry.ticket.key}) }}" class="key hover:text-primary">{{ entry.subjectKey|highlight(terms) }}</a>
                     {% else %}
-                        <a href="{{ path('project_show', {key: entry.project.key}) }}" class="key hover:text-primary">{{ entry.subjectKey }}</a>
+                        <a href="{{ path('project_show', {key: entry.project.key}) }}" class="key hover:text-primary">{{ entry.subjectKey|highlight(terms) }}</a>
                     {% endif %}
                 {% endif %}
                 <span class="font-semibold">
@@ -155,14 +155,14 @@
                     {%- endif -%}
                 </span>
                 {% if type == 'created' and entry.data.title is defined %}
-                    <span class="truncate text-on-surface-variant">{{ entry.data.title }}</span>
+                    <span class="truncate text-on-surface-variant">{{ entry.data.title|highlight(terms) }}</span>
                 {% endif %}
                 <span class="ml-auto flex items-center gap-2 text-label-md text-outline">
                     <time datetime="{{ entry.createdAt|date('c') }}" title="{{ entry.createdAt|format_datetime('medium', 'short') }}">{{ entry.createdAt|ago }}</time>
                 </span>
             </div>
             {% if entry.message %}
-                <div class="prose-md mt-2 rounded-lg bg-surface-low px-3 py-2 text-body-sm">{{ entry.message|markdown }}</div>
+                <div class="prose-md mt-2 rounded-lg bg-surface-low px-3 py-2 text-body-sm">{{ entry.message|markdown|highlight(terms) }}</div>
             {% endif %}
             <div class="mt-1 flex flex-wrap items-center gap-2 text-label-md text-outline">
                 <span>{{ 'activity.by'|trans({author: entry.author}) }}</span>

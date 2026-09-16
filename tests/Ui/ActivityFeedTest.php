@@ -110,6 +110,23 @@ final class ActivityFeedTest extends WebTestCase
         self::assertSame(1, $counts['blocker']);
     }
 
+    public function testSearchIsAccentAndCaseInsensitiveAndHighlights(): void
+    {
+        self::assertSame(['Décision sur l\'epic'], $this->messages('/fr/activity?q=DECISION'));
+        self::assertSame(['Note hors epic'], $this->messages('/fr/projects/FEED/activity?q=note+hors'));
+        self::assertSame([], $this->messages('/fr/projects/FEED/activity?q=note+absent'));
+
+        $crawler = $this->client->request('GET', '/fr/activity?q=decision');
+        self::assertSame('Décision', $crawler->filter('main li.group .prose-md mark')->text());
+        // Recherche combinée aux filtres et conservée par les liens de session.
+        self::assertStringContainsString('q=decision', $crawler->filter('aside a[href*="session=s1"]')->attr('href'));
+    }
+
+    public function testSearchIndexIncludesTicketTitle(): void
+    {
+        self::assertEqualsCanonicalizing(['Note hors epic', 'Blocage ancien'], $this->messages('/fr/projects/FEED/activity?q=hors+epic&period=30d'));
+    }
+
     public function testNoMatchMessage(): void
     {
         $this->client->request('GET', '/fr/projects/FEED/activity?type[]=commit');

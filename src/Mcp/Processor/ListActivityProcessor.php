@@ -2,6 +2,7 @@
 
 namespace App\Mcp\Processor;
 
+use App\Activity\ActivityFilter;
 use App\Mcp\Tool\ListActivity;
 use App\Repository\ActivityRepository;
 
@@ -14,19 +15,17 @@ final class ListActivityProcessor extends AbstractToolProcessor
 
     protected function handle(object $data): array
     {
-        $criteria = [];
-        if (null !== $data->ticket && '' !== $data->ticket) {
-            $criteria['ticket'] = $this->lookup->ticket($data->ticket);
-        } elseif (null !== $data->project && '' !== $data->project) {
-            $criteria['project'] = $this->lookup->project($data->project);
-        }
-        if (null !== $data->session && '' !== $data->session) {
-            $criteria['sessionId'] = $data->session;
-        }
+        $project = null !== $data->project && '' !== $data->project ? $this->lookup->project($data->project) : null;
+        $filter = new ActivityFilter(
+            type: array_values($data->type),
+            ticket: $data->ticket,
+            q: $data->query,
+            session: $data->session,
+        );
 
         return ['activities' => array_map(
             $this->presenter->activity(...),
-            $this->activities->findBy($criteria, ['createdAt' => 'DESC', 'id' => 'DESC'], $data->limit),
+            $this->activities->feed($filter, $project, null, $data->limit),
         )];
     }
 }

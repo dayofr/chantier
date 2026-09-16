@@ -144,6 +144,9 @@ activity:
     clear_filter: Clear filter
     by: 'by {author}'
     filters:
+        search: Search the log
+        search_placeholder: Search notes, decisions, titles…
+        clear_search: Clear search
         subject: Ticket, epic or initiative
         subject_placeholder: Ticket, epic or initiative (CHANT-12)
         period: Period

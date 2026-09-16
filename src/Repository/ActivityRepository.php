@@ -81,6 +81,12 @@ class ActivityRepository extends ServiceEntityRepository
         if (null !== $since) {
             $qb->andWhere('a.createdAt >= :since')->setParameter('since', $since);
         }
+        // Chaque terme doit apparaître, dans le texte indexé ou le titre actuel du ticket.
+        foreach ($filter->terms() as $i => $term) {
+            $param = ':term'.$i;
+            $qb->andWhere("a.searchText LIKE $param ESCAPE '!' OR LOWER(t.title) LIKE $param ESCAPE '!'")
+                ->setParameter('term'.$i, '%'.strtr($term, ['!' => '!!', '%' => '!%', '_' => '!_']).'%');
+        }
 
         return $qb;
     }

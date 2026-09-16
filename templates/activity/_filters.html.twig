@@ -5,6 +5,18 @@
 <form method="get" action="{{ path(feed_route, feed_params) }}" data-autosubmit class="card flex flex-col gap-3 p-4" role="search">
     {% if filter.session %}<input type="hidden" name="session" value="{{ filter.session }}">{% endif %}
 
+    <label class="flex items-center gap-2 rounded-lg border border-outline-variant/70 bg-surface-lowest px-3 py-2 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+        <span class="icon text-[20px] text-outline">search</span>
+        <input type="search" name="q" value="{{ filter.q }}" placeholder="{{ 'activity.filters.search_placeholder'|trans }}"
+               aria-label="{{ 'activity.filters.search'|trans }}" autocomplete="off" maxlength="200"
+               class="w-full bg-transparent text-body-md placeholder:text-outline focus:outline-none [&::-webkit-search-cancel-button]:hidden">
+        {% if filter.terms is not empty %}
+            <a href="{{ path(feed_route, feed_params|merge(filter.toQuery({q: null}))) }}" class="flex size-6 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-high" title="{{ 'activity.filters.clear_search'|trans }}" aria-label="{{ 'activity.filters.clear_search'|trans }}">
+                <span class="icon text-[16px]">close</span>
+            </a>
+        {% endif %}
+    </label>
+
     <div class="flex flex-wrap items-center gap-3">
         <label class="flex min-w-48 flex-1 items-center gap-2 rounded-lg border border-outline-variant/70 bg-surface-lowest px-3 py-1.5 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
             <span class="icon text-[18px] text-outline">tag</span>

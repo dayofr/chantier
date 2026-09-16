@@ -89,6 +89,42 @@ final class AppExtension
             : $this->translator->trans('time.ago', ['unit' => $unit, 'count' => $count]);
     }
 
+    /**
+     * Surligne les termes cherchés dans du HTML déjà sûr, hors balises.
+     * Insensible à la casse et aux accents : "decision" surligne "Décision".
+     *
+     * @param list<string> $terms termes normalisés (SearchText::terms)
+     */
+    #[AsTwigFilter('highlight', isSafe: ['html'], preEscape: 'html')]
+    public function highlight(string $html, array $terms): string
+    {
+        if ([] === $terms) {
+            return $html;
+        }
+
+        $variants = ['a' => 'aàáâãäå', 'c' => 'cç', 'e' => 'eèéêë', 'i' => 'iìíîï', 'n' => 'nñ', 'o' => 'oòóôõöø', 'u' => 'uùúûü', 'y' => 'yýÿ'];
+        $patterns = [];
+        foreach ($terms as $term) {
+            $pattern = '';
+            foreach (mb_str_split($term) as $char) {
+                $pattern .= isset($variants[$char]) ? '['.$variants[$char].']' : preg_quote($char, '/');
+            }
+            $patterns[] = $pattern;
+        }
+        usort($patterns, static fn ($a, $b) => \strlen($b) <=> \strlen($a));
+        $regex = '/('.implode('|', $patterns).')/iu';
+
+        // Découpe en balises et texte ; seul le texte est surligné.
+        $parts = preg_split('/(<[^>]*>)/u', $html, -1, \PREG_SPLIT_DELIM_CAPTURE) ?: [$html];
+        foreach ($parts as $i => $part) {
+            if ('' !== $part && '<' !== $part[0]) {
+                $parts[$i] = preg_replace($regex, '<mark>$1</mark>', $part) ?? $part;
+            }
+        }
+
+        return implode('', $parts);
+    }
+
     /** Markdown en HTML, sans HTML brut ni liens dangereux. */
     #[AsTwigFilter('markdown', isSafe: ['html'])]
     public function markdown(?string $text): string

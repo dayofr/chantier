@@ -165,6 +165,10 @@
         @apply font-sans text-body-md;
     }
 
+    mark {
+        @apply rounded-sm bg-progress-soft px-0.5 text-on-surface ring-1 ring-progress/40;
+    }
+
     ::selection {
         @apply bg-primary-soft text-on-surface;
     }

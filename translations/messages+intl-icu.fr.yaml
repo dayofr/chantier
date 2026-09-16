@@ -144,6 +144,9 @@ activity:
     clear_filter: Retirer le filtre
     by: 'par {author}'
     filters:
+        search: Rechercher dans le journal
+        search_placeholder: Rechercher dans les notes, décisions, titres…
+        clear_search: Effacer la recherche
         subject: Ticket, epic ou initiative
         subject_placeholder: Ticket, epic ou initiative (CHANT-12)
         period: Période

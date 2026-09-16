@@ -22,6 +22,8 @@ final class ActivityFilter
         public array $type = [],
         public ?string $ticket = null,
         public ?string $period = null,
+        #[Assert\Length(max: 200)]
+        public ?string $q = null,
         public ?string $session = null,
         #[Assert\Positive]
         public ?int $before = null,
@@ -44,6 +46,12 @@ final class ActivityFilter
         return '' === $key ? null : $key;
     }
 
+    /** @return list<string> termes de recherche normalisés */
+    public function terms(): array
+    {
+        return SearchText::terms($this->q);
+    }
+
     public function periodKey(): ?string
     {
         return \in_array($this->period, self::PERIODS, true) ? $this->period : null;
@@ -64,7 +72,7 @@ final class ActivityFilter
 
     public function hasFilters(): bool
     {
-        return [] !== $this->types() || null !== $this->subject() || null !== $this->periodKey();
+        return [] !== $this->types() || null !== $this->subject() || null !== $this->periodKey() || [] !== $this->terms();
     }
 
     /**
@@ -77,6 +85,7 @@ final class ActivityFilter
             'type' => array_map(static fn (ActivityType $t) => $t->value, $this->types()) ?: null,
             'ticket' => $this->subject(),
             'period' => $this->periodKey(),
+            'q' => [] !== $this->terms() ? trim((string) $this->q) : null,
             'session' => $this->session ?: null,
         ], $overrides);
 
