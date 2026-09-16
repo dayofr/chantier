@@ -8,6 +8,11 @@ app:
         system: System
         light: Light
         dark: Dark
+    live:
+        on: Live
+        paused: Paused
+        offline: Offline
+        title: The page updates when agents write.
     language: Language
     updated: 'Updated {when}'
 

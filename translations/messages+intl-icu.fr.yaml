@@ -8,6 +8,11 @@ app:
         system: Système
         light: Clair
         dark: Sombre
+    live:
+        on: En direct
+        paused: En pause
+        offline: Hors ligne
+        title: La page se met à jour quand les agents écrivent.
     language: Langue
     updated: 'Mis à jour {when}'
 

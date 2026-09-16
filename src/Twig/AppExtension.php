@@ -4,6 +4,7 @@ namespace App\Twig;
 
 use App\Entity\Project;
 use App\Enum\PlanStatus;
+use App\Live\DataVersion;
 use App\Enum\ProjectStatus;
 use App\Enum\TicketStatus;
 use App\Repository\ProjectRepository;
@@ -23,7 +24,14 @@ final class AppExtension
     public function __construct(
         private readonly ProjectRepository $projectRepository,
         private readonly TranslatorInterface $translator,
+        private readonly DataVersion $dataVersion,
     ) {
+    }
+
+    #[AsTwigFunction('live_version')]
+    public function liveVersion(): string
+    {
+        return $this->dataVersion->get();
     }
 
     /** @return list<Project> projets de la barre latérale, archivés en dernier */
