@@ -27,9 +27,8 @@
         </div>
     {% endif %}
     {% if session %}
-        <div class="flex items-center gap-2">
-            {{ ui.chip('activity.filtered_session'|trans({id: session|slice(0, 8)}), 'primary', 'filter_alt') }}
-            <a href="{{ path(feed_route, feed_params) }}" class="text-label-md text-on-surface-variant hover:text-primary">{{ 'activity.clear_filter'|trans }}</a>
+        <div class="flex flex-wrap items-center gap-2">
+            {{ ui.filter_chip('activity.filtered_session'|trans({id: session|slice(0, 8)}), path(feed_route, feed_params), 'activity.clear_filter'|trans, 'terminal') }}
         </div>
     {% endif %}
 {% endblock %}
@@ -62,22 +61,36 @@
         {% endif %}
     </section>
 
-    <aside>
+    {# Avant le journal sur écran étroit, à droite sur grand écran. #}
+    <aside class="order-first xl:order-none">
         <section class="card p-5">
-            <h2 class="mb-3 flex items-center gap-2 font-display text-headline-sm font-semibold"><span class="icon text-primary">terminal</span>{{ 'activity.sessions'|trans }}</h2>
-            <ul class="flex flex-col gap-1">
+            <h2 class="mb-3 flex items-center gap-2 font-display text-headline-sm font-semibold">
+                <span class="icon text-primary">terminal</span>{{ 'activity.sessions'|trans }}
+                {% if session %}
+                    <a href="{{ path(feed_route, feed_params) }}" class="ml-auto font-sans text-label-md font-medium text-primary hover:underline">{{ 'activity.clear_filter'|trans }}</a>
+                {% endif %}
+            </h2>
+            <ul class="-mr-2 flex max-h-72 flex-col gap-1 overflow-y-auto pr-2 xl:max-h-none" role="list">
                 <li>
-                    <a href="{{ path(feed_route, feed_params) }}" class="flex items-center rounded-lg px-3 py-2 text-body-sm {{ session is null ? 'bg-primary-soft text-primary' : 'hover:bg-surface-low' }}">{{ 'activity.all_sessions'|trans }}</a>
+                    <a href="{{ path(feed_route, feed_params) }}" {{ session is null ? 'aria-current="true"' }}
+                       class="flex items-center gap-2.5 rounded-lg border px-3 py-2 text-body-sm font-medium {{ session is null ? 'border-primary/30 bg-primary-soft text-primary' : 'border-outline-variant/60 hover:border-primary/30 hover:bg-surface-low' }}">
+                        <span class="icon text-[18px] {{ session is null ? 'icon-fill' : 'text-outline' }}">{{ session is null ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
+                        {{ 'activity.all_sessions'|trans }}
+                    </a>
                 </li>
                 {% for s in sessions %}
+                    {% set selected = session == s.sessionId %}
                     <li>
-                        <a href="{{ path(feed_route, feed_params|merge({session: s.sessionId})) }}"
-                           class="flex flex-col rounded-lg px-3 py-2 {{ session == s.sessionId ? 'bg-primary-soft text-primary' : 'hover:bg-surface-low' }}">
-                            <span class="flex items-center justify-between gap-2">
-                                <span class="font-mono text-code-sm">#{{ s.sessionId|slice(0, 8) }}</span>
-                                <span class="text-label-md text-on-surface-variant">{{ 'activity.session_entries'|trans({count: s.entries}) }}</span>
+                        <a href="{{ path(feed_route, feed_params|merge({session: s.sessionId})) }}" {{ selected ? 'aria-current="true"' }}
+                           class="flex items-start gap-2.5 rounded-lg px-3 py-2 {{ selected ? 'bg-primary-soft text-primary' : 'hover:bg-surface-low' }}">
+                            <span class="icon mt-0.5 text-[18px] {{ selected ? 'icon-fill' : 'text-outline' }}">{{ selected ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
+                            <span class="min-w-0 flex-1">
+                                <span class="flex items-center justify-between gap-2">
+                                    <span class="font-mono text-code-sm">#{{ s.sessionId|slice(0, 8) }}</span>
+                                    <span class="text-label-md text-on-surface-variant">{{ 'activity.session_entries'|trans({count: s.entries}) }}</span>
+                                </span>
+                                <span class="block text-label-md text-on-surface-variant">{{ s.author }} · {{ s.lastAt|ago }}</span>
                             </span>
-                            <span class="text-label-md text-on-surface-variant">{{ s.author }} · {{ s.lastAt|ago }}</span>
                         </a>
                     </li>
                 {% endfor %}

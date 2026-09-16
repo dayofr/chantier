@@ -30,6 +30,16 @@
     </span>
 {% endmacro %}
 
+{# Filtre actif, retirable. #}
+{% macro filter_chip(label, clear_url, clear_label, icon = 'filter_alt') %}
+    <span class="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary-soft py-0.5 pl-2.5 pr-1 text-label-md font-semibold text-primary">
+        <span class="icon text-[15px]">{{ icon }}</span>{{ label }}
+        <a href="{{ clear_url }}" class="ml-0.5 flex size-5 items-center justify-center rounded-full hover:bg-primary/15" title="{{ clear_label }}" aria-label="{{ clear_label }}">
+            <span class="icon text-[15px]">close</span>
+        </a>
+    </span>
+{% endmacro %}
+
 {% macro priority(priority) %}
     {% set cfg = {
         urgent: {tone: 'blocked', icon: 'priority_high'},

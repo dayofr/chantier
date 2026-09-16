@@ -9,6 +9,7 @@ check_box
 check_box_outline_blank
 check_circle
 chevron_right
+close
 commit
 construction
 contrast
@@ -42,6 +43,8 @@ notifications_active
 open_in_new
 pending_actions
 priority_high
+radio_button_checked
+radio_button_unchecked
 schedule
 science
 search_off

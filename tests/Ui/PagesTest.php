@@ -112,6 +112,19 @@ final class PagesTest extends WebTestCase
         self::assertSame([], array_values(array_diff(array_unique($used), $manifest)), 'Ajouter ces icônes à assets/fonts/icons.txt puis lancer php bin/download-fonts.');
     }
 
+    public function testSessionFilterCanBeCleared(): void
+    {
+        $crawler = $this->client->request('GET', '/fr/activity?session=11111111-2222-3333-4444-555555555555');
+
+        $clear = $crawler->filter('main a[aria-label="Retirer le filtre"]');
+        self::assertCount(1, $clear);
+        self::assertSame('/fr/activity', $clear->attr('href'));
+        self::assertSelectorExists('aside a[aria-current="true"][href$="session=11111111-2222-3333-4444-555555555555"]');
+
+        $this->client->request('GET', '/fr/activity');
+        self::assertSelectorTextContains('aside a[aria-current="true"]', 'Toutes les sessions');
+    }
+
     public function testRootRedirectsToPreferredLanguage(): void
     {
         $this->client->request('GET', '/', server: ['HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.9']);
