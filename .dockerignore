@@ -1,0 +1,10 @@
+.git
+.env.local
+.env.*.local
+.phpunit.cache
+var/
+vendor/
+tests/
+*.zip
+docker-compose.override.yaml
+compose.override.yaml

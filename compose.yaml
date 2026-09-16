@@ -1,0 +1,15 @@
+services:
+  chantier:
+    build: .
+    image: chantier:latest
+    restart: unless-stopped
+    ports:
+      - "${CHANTIER_PORT:-8080}:80"
+    environment:
+      APP_SECRET: ${APP_SECRET:-chantier-local-network-only}
+      DEFAULT_URI: ${DEFAULT_URI:-http://localhost:8080}
+    volumes:
+      - chantier-data:/var/lib/chantier
+
+volumes:
+  chantier-data:

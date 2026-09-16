@@ -1,0 +1,23 @@
+mcp:
+    servers:
+        chantier:
+            name: chantier
+            version: 0.1.0
+            description: 'Suivi de projet pour Claude Code : projets, initiatives, epics, tickets, journal.'
+            instructions: |
+                Chantier est le tableau de suivi de ton travail. Hiérarchie : Project > Initiative > Epic > Ticket.
+                Avant de coder : get_next_ticket ou search_tickets. Passe le ticket en in_progress.
+                Pendant : log_activity pour chaque étape notable (décision, commit, blocage).
+                Après : update_ticket_status (in_review ou done), coche les sous-tâches.
+                Crée les tickets manquants avec create_tickets plutôt que de travailler hors ticket.
+            registry: ['*']
+            transports:
+                http: true
+                stdio: false
+            http:
+                path: /mcp
+                allowed_hosts: false
+            session:
+                store: file
+                directory: '%kernel.project_dir%/var/mcp-sessions'
+                ttl: 86400

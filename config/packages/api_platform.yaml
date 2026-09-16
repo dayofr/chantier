@@ -1,0 +1,18 @@
+api_platform:
+    title: Chantier API
+    description: 'Suivi de projet piloté par IA : projets, initiatives, epics, tickets.'
+    version: 0.1.0
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+    patch_formats:
+        json: ['application/merge-patch+json']
+    defaults:
+        stateless: true
+        pagination_items_per_page: 50
+        pagination_client_items_per_page: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+    mcp:
+        enabled: true
+        format: json

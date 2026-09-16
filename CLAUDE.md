@@ -1,0 +1,15 @@
+# CLAUDE.md
+
+@AGENTS.md
+@README.md
+
+## Conventions du projet
+
+- Écrits en français : messages d'erreur, descriptions des outils MCP, doc.
+- Outils MCP : une classe DTO dans `src/Mcp/Tool` (attribut `#[McpTool]`, `structuredContent: false`)
+  et un processor dans `src/Mcp/Processor` qui étend `AbstractToolProcessor`.
+  Les enums sont passés en `string` avec `ApiProperty(schema: enum)`, convertis par `$this->enum()`.
+- Erreur métier : lancer `ToolError`. Le message est renvoyé tel quel à l'agent.
+- Réponses MCP : construites par `Presenter`, pas par le serializer.
+- Journal : créations et changements de statut sont écrits par `ActivityRecorder` (listener Doctrine).
+- Chaque nouvel outil a un test dans `tests/Mcp`.
