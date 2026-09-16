@@ -143,6 +143,19 @@ activity:
     filtered_session: 'Session {id}'
     clear_filter: Clear filter
     by: 'by {author}'
+    filters:
+        subject: Ticket, epic or initiative
+        subject_placeholder: Ticket, epic or initiative (CHANT-12)
+        period: Period
+        periods:
+            all: All
+            today: Today
+            7d: 7 days
+            30d: 30 days
+        types: Entry types
+        reset: Reset
+        apply: Apply
+        no_match: No entries match the filters.
     load_more: Older
     event:
         created: '{kind, select, project {Project created} initiative {Initiative created} epic {Epic created} other {Ticket created}}'

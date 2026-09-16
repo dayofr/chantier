@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Activity;
+use App\Activity\ActivityFilter;
 use App\Entity\Project;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /** @extends ServiceEntityRepository<Activity> */
@@ -16,29 +18,71 @@ class ActivityRepository extends ServiceEntityRepository
     }
 
     /**
-     * Journal paginé par curseur : entrées plus anciennes que $beforeId.
+     * Journal filtré, du plus récent au plus ancien, paginé par curseur (id).
      *
      * @return list<Activity>
      */
-    public function findFeed(?Project $project = null, ?string $sessionId = null, ?int $beforeId = null, int $limit = 50): array
+    public function feed(ActivityFilter $filter, ?Project $project, ?\DateTimeImmutable $since, int $limit): array
     {
-        $qb = $this->createQueryBuilder('a')
-            ->leftJoin('a.ticket', 't')->addSelect('t')
-            ->join('a.project', 'p')->addSelect('p')
+        $qb = $this->filtered($filter, $project, $since)
+            ->addSelect('t', 'p')
+            ->join('a.project', 'p')
             ->orderBy('a.id', 'DESC')
             ->setMaxResults($limit);
+
+        if ([] !== $types = $filter->types()) {
+            $qb->andWhere('a.type IN (:types)')->setParameter('types', array_map(static fn ($t) => $t->value, $types));
+        }
+        if (null !== $filter->before) {
+            $qb->andWhere('a.id < :before')->setParameter('before', $filter->before);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Nombre d'entrées par type, avec les autres filtres appliqués.
+     *
+     * @return array<string, int>
+     */
+    public function countByType(ActivityFilter $filter, ?Project $project, ?\DateTimeImmutable $since): array
+    {
+        $rows = $this->filtered($filter, $project, $since)
+            ->select('a.type AS type, COUNT(a.id) AS total')
+            ->groupBy('a.type')
+            ->getQuery()->getArrayResult();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $type = $row['type'] instanceof \BackedEnum ? $row['type']->value : $row['type'];
+            $counts[$type] = (int) $row['total'];
+        }
+
+        return $counts;
+    }
+
+    /** Filtres communs : projet, session, sujet, période. Le type et le curseur sont appliqués à part. */
+    private function filtered(ActivityFilter $filter, ?Project $project, ?\DateTimeImmutable $since): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('a')->leftJoin('a.ticket', 't');
 
         if (null !== $project) {
             $qb->andWhere('a.project = :project')->setParameter('project', $project);
         }
-        if (null !== $sessionId) {
-            $qb->andWhere('a.sessionId = :session')->setParameter('session', $sessionId);
+        if (null !== $filter->session && '' !== $filter->session) {
+            $qb->andWhere('a.sessionId = :session')->setParameter('session', $filter->session);
         }
-        if (null !== $beforeId) {
-            $qb->andWhere('a.id < :before')->setParameter('before', $beforeId);
+        if (null !== $subject = $filter->subject()) {
+            // Ticket, epic ou initiative : entrées du sujet lui-même et des tickets qu'il contient.
+            $qb->leftJoin('t.epic', 'se')->leftJoin('se.initiative', 'si')
+                ->andWhere('a.subjectKey = :subject OR se.key = :subject OR si.key = :subject')
+                ->setParameter('subject', $subject);
+        }
+        if (null !== $since) {
+            $qb->andWhere('a.createdAt >= :since')->setParameter('since', $since);
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
 
     /**

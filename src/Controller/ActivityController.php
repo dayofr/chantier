@@ -2,25 +2,45 @@
 
 namespace App\Controller;
 
+use App\Activity\ActivityFilter;
+use App\Entity\Project;
+use App\Enum\ActivityType;
 use App\Repository\ActivityRepository;
+use Psr\Clock\ClockInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
+/** Journal d'activité, global ou limité à un projet. */
 final class ActivityController extends AbstractController
 {
     #[Route('/{_locale}/activity', name: 'activity', requirements: ['_locale' => '%app.locales%'], methods: ['GET'])]
+    #[Route('/{_locale}/projects/{key}/activity', name: 'project_activity', requirements: ['_locale' => '%app.locales%', 'key' => '[A-Za-z][A-Za-z0-9]{1,9}'], methods: ['GET'])]
     public function index(
         ActivityRepository $activities,
-        #[MapQueryParameter] ?string $session = null,
-        #[MapQueryParameter] ?int $before = null,
+        ClockInterface $clock,
+        #[Autowire(env: 'APP_TIMEZONE')] string $timezone,
+        #[MapEntity(mapping: ['key' => 'key'])] ?Project $project = null,
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)] ActivityFilter $filter = new ActivityFilter(),
     ): Response {
+        $since = $filter->since($clock, $timezone);
+        // Une entrée de plus pour savoir s'il reste des entrées plus anciennes.
+        $entries = $activities->feed($filter, $project, $since, $filter->limit + 1);
+        $hasMore = \count($entries) > $filter->limit;
+        $entries = \array_slice($entries, 0, $filter->limit);
+
         return $this->render('activity/index.html.twig', [
-            'project' => null,
-            'entries' => $activities->findFeed(null, $session, $before),
-            'sessions' => $activities->findSessions(),
-            'session' => $session,
+            'project' => $project,
+            'filter' => $filter,
+            'entries' => $entries,
+            'hasMore' => $hasMore,
+            'typeCounts' => $activities->countByType($filter, $project, $since),
+            'types' => ActivityType::cases(),
+            'sessions' => $activities->findSessions($project),
+            'session' => $filter->session,
         ]);
     }
 }

@@ -28,38 +28,42 @@
     {% endif %}
     {% if session %}
         <div class="flex flex-wrap items-center gap-2">
-            {{ ui.filter_chip('activity.filtered_session'|trans({id: session|slice(0, 8)}), path(feed_route, feed_params), 'activity.clear_filter'|trans, 'terminal') }}
+            {{ ui.filter_chip('activity.filtered_session'|trans({id: session|slice(0, 8)}), path(feed_route, feed_params|merge(filter.toQuery({session: null}))), 'activity.clear_filter'|trans, 'terminal') }}
         </div>
     {% endif %}
 {% endblock %}
 
 {% block content %}
 <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-    <section class="card min-w-0 p-5">
-        {% if entries is empty %}
-            <p class="text-body-sm text-outline">{{ 'activity.empty'|trans }}</p>
-        {% else %}
-            {% set current_day = null %}
-            <ol>
-                {% for entry in entries %}
-                    {% set day = entry.createdAt|format_date('full') %}
-                    {% if day != current_day %}
-                        {% set current_day = day %}
-                        <li class="mb-3 {{ not loop.first ? 'mt-6' }} text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">{{ day }}</li>
-                    {% endif %}
-                    {{ ui.activity_entry(entry, true) }}
-                {% endfor %}
-            </ol>
-            {% if entries|length >= 50 %}
-                <div class="mt-4 border-t border-outline-variant/40 pt-4 text-center">
-                    <a href="{{ path(feed_route, feed_params|merge({before: (entries|last).id}|merge(session ? {session: session} : {}))) }}"
-                       class="inline-flex items-center gap-1 text-label-md font-medium text-primary hover:underline">
-                        <span class="icon text-[18px]">expand_more</span>{{ 'activity.load_more'|trans }}
-                    </a>
-                </div>
+    <div class="flex min-w-0 flex-col gap-4">
+        {% include 'activity/_filters.html.twig' %}
+
+        <section class="card min-w-0 p-5">
+            {% if entries is empty %}
+                <p class="text-body-sm text-outline">{{ (filter.hasFilters ? 'activity.filters.no_match' : 'activity.empty')|trans }}</p>
+            {% else %}
+                {% set current_day = null %}
+                <ol>
+                    {% for entry in entries %}
+                        {% set day = entry.createdAt|format_date('full') %}
+                        {% if day != current_day %}
+                            {% set current_day = day %}
+                            <li class="mb-3 {{ not loop.first ? 'mt-6' }} text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">{{ day }}</li>
+                        {% endif %}
+                        {{ ui.activity_entry(entry, true) }}
+                    {% endfor %}
+                </ol>
+                {% if hasMore %}
+                    <div class="mt-4 border-t border-outline-variant/40 pt-4 text-center">
+                        <a href="{{ path(feed_route, feed_params|merge(filter.toQuery({before: (entries|last).id}))) }}"
+                           class="inline-flex items-center gap-1 text-label-md font-medium text-primary hover:underline">
+                            <span class="icon text-[18px]">expand_more</span>{{ 'activity.load_more'|trans }}
+                        </a>
+                    </div>
+                {% endif %}
             {% endif %}
-        {% endif %}
-    </section>
+        </section>
+    </div>
 
     {# Avant le journal sur écran étroit, à droite sur grand écran. #}
     <aside class="order-first xl:order-none">
@@ -67,12 +71,12 @@
             <h2 class="mb-3 flex items-center gap-2 font-display text-headline-sm font-semibold">
                 <span class="icon text-primary">terminal</span>{{ 'activity.sessions'|trans }}
                 {% if session %}
-                    <a href="{{ path(feed_route, feed_params) }}" class="ml-auto font-sans text-label-md font-medium text-primary hover:underline">{{ 'activity.clear_filter'|trans }}</a>
+                    <a href="{{ path(feed_route, feed_params|merge(filter.toQuery({session: null}))) }}" class="ml-auto font-sans text-label-md font-medium text-primary hover:underline">{{ 'activity.clear_filter'|trans }}</a>
                 {% endif %}
             </h2>
-            <ul class="-mr-2 flex max-h-72 flex-col gap-1 overflow-y-auto pr-2 xl:max-h-none" role="list">
+            <ul class="-mr-2 flex max-h-44 flex-col gap-1 overflow-y-auto pr-2 xl:max-h-none" role="list">
                 <li>
-                    <a href="{{ path(feed_route, feed_params) }}" {{ session is null ? 'aria-current="true"' }}
+                    <a href="{{ path(feed_route, feed_params|merge(filter.toQuery({session: null}))) }}" {{ session is null ? 'aria-current="true"' }}
                        class="flex items-center gap-2.5 rounded-lg border px-3 py-2 text-body-sm font-medium {{ session is null ? 'border-primary/30 bg-primary-soft text-primary' : 'border-outline-variant/60 hover:border-primary/30 hover:bg-surface-low' }}">
                         <span class="icon text-[18px] {{ session is null ? 'icon-fill' : 'text-outline' }}">{{ session is null ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
                         {{ 'activity.all_sessions'|trans }}
@@ -81,7 +85,7 @@
                 {% for s in sessions %}
                     {% set selected = session == s.sessionId %}
                     <li>
-                        <a href="{{ path(feed_route, feed_params|merge({session: s.sessionId})) }}" {{ selected ? 'aria-current="true"' }}
+                        <a href="{{ path(feed_route, feed_params|merge(filter.toQuery({session: s.sessionId}))) }}" {{ selected ? 'aria-current="true"' }}
                            class="flex items-start gap-2.5 rounded-lg px-3 py-2 {{ selected ? 'bg-primary-soft text-primary' : 'hover:bg-surface-low' }}">
                             <span class="icon mt-0.5 text-[18px] {{ selected ? 'icon-fill' : 'text-outline' }}">{{ selected ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
                             <span class="min-w-0 flex-1">

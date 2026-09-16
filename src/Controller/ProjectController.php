@@ -6,7 +6,6 @@ use App\Entity\Epic;
 use App\Entity\Project;
 use App\Entity\Ticket;
 use App\Enum\TicketStatus;
-use App\Repository\ActivityRepository;
 use App\Service\ProjectAlerts;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -72,21 +71,6 @@ final class ProjectController extends AbstractController
             'currentEpic' => $epic ? strtoupper($epic) : null,
             'filtered' => $tickets,
             'epicCounts' => array_count_values(array_map(static fn (Ticket $t) => $t->getEpic()?->getKey() ?? 'NONE', $project->getTickets()->filter(static fn (Ticket $t) => TicketStatus::Cancelled !== $t->getStatus())->getValues())),
-        ]);
-    }
-
-    #[Route('/activity', name: 'project_activity')]
-    public function activity(
-        #[MapEntity(mapping: ['key' => 'key'])] Project $project,
-        ActivityRepository $activities,
-        #[MapQueryParameter] ?string $session = null,
-        #[MapQueryParameter] ?int $before = null,
-    ): Response {
-        return $this->render('activity/index.html.twig', [
-            'project' => $project,
-            'entries' => $activities->findFeed($project, $session, $before),
-            'sessions' => $activities->findSessions($project),
-            'session' => $session,
         ]);
     }
 }

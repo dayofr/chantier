@@ -33,6 +33,8 @@ if (root) {
             if (!next) return;
             Idiomorph.morph(region, next, {
                 morphStyle: 'outerHTML',
+                // Ne pas écraser un champ en cours de saisie.
+                ignoreActiveValue: true,
                 callbacks: {
                     // Garde l'état ouvert/fermé choisi par l'utilisateur.
                     beforeAttributeUpdated: (name, node) => !(name === 'open' && node.tagName === 'DETAILS'),

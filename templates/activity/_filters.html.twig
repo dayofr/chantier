@@ -1,0 +1,48 @@
+{#
+    Barre de filtres du journal. Formulaire GET : marche sans JS (bouton Appliquer),
+    avec JS chaque changement relance la recherche (assets/filters.js).
+#}
+<form method="get" action="{{ path(feed_route, feed_params) }}" data-autosubmit class="card flex flex-col gap-3 p-4" role="search">
+    {% if filter.session %}<input type="hidden" name="session" value="{{ filter.session }}">{% endif %}
+
+    <div class="flex flex-wrap items-center gap-3">
+        <label class="flex min-w-48 flex-1 items-center gap-2 rounded-lg border border-outline-variant/70 bg-surface-lowest px-3 py-1.5 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+            <span class="icon text-[18px] text-outline">tag</span>
+            <input type="text" name="ticket" value="{{ filter.subject }}" placeholder="{{ 'activity.filters.subject_placeholder'|trans }}"
+                   aria-label="{{ 'activity.filters.subject'|trans }}" autocomplete="off" spellcheck="false"
+                   class="w-full bg-transparent font-mono text-body-sm uppercase placeholder:font-sans placeholder:normal-case placeholder:text-outline focus:outline-none">
+        </label>
+
+        <fieldset class="flex rounded-lg border border-outline-variant/70 p-0.5">
+            <legend class="sr-only">{{ 'activity.filters.period'|trans }}</legend>
+            {% for value in ['all', 'today', '7d', '30d'] %}
+                {% set checked = (filter.periodKey ?? 'all') == value %}
+                <label class="cursor-pointer rounded-md px-2.5 py-1 text-label-md font-medium text-on-surface-variant hover:text-on-surface has-checked:bg-primary-soft has-checked:text-primary has-focus-visible:ring-2 has-focus-visible:ring-primary/40">
+                    <input type="radio" name="period" value="{{ value == 'all' ? '' : value }}" class="sr-only" {{ checked ? 'checked' }}>
+                    {{ ('activity.filters.periods.' ~ value)|trans }}
+                </label>
+            {% endfor %}
+        </fieldset>
+
+        {% if filter.hasFilters %}
+            <a href="{{ path(feed_route, feed_params|merge(filter.session ? {session: filter.session} : {})) }}"
+               class="ml-auto inline-flex items-center gap-1 text-label-md font-medium text-on-surface-variant hover:text-primary">
+                <span class="icon text-[16px]">filter_alt_off</span>{{ 'activity.filters.reset'|trans }}
+            </a>
+        {% endif %}
+        {# Bouton visible seulement au clavier ou sans JS ; permet aussi la validation par Entrée. #}
+        <button type="submit" class="sr-only rounded-md bg-primary-container px-3 py-1.5 text-label-md font-medium text-white focus:not-sr-only">{{ 'activity.filters.apply'|trans }}</button>
+    </div>
+
+    <fieldset class="flex flex-wrap items-center gap-1.5">
+        <legend class="sr-only">{{ 'activity.filters.types'|trans }}</legend>
+        {% set selected_types = filter.types|map(t => t.value) %}
+        {% for type in types %}
+            {% set count = typeCounts[type.value] ?? 0 %}
+            <label class="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-outline-variant/60 px-2.5 py-1 text-label-md font-medium text-on-surface-variant transition-colors hover:border-primary/30 hover:text-on-surface has-checked:border-primary/40 has-checked:bg-primary-soft has-checked:text-primary has-focus-visible:ring-2 has-focus-visible:ring-primary/40 {{ count == 0 and type.value not in selected_types ? 'opacity-50' }}">
+                <input type="checkbox" name="type[]" value="{{ type.value }}" class="sr-only" {{ type.value in selected_types ? 'checked' }}>
+                {{ type|trans }}<span class="font-mono text-[10px] text-outline">{{ count }}</span>
+            </label>
+        {% endfor %}
+    </fieldset>
+</form>

@@ -21,6 +21,7 @@ drag_handle
 event
 expand_more
 filter_alt
+filter_alt_off
 folder
 folder_code
 fork_right
@@ -51,6 +52,7 @@ search_off
 sell
 sticky_note_2
 swap_horiz
+tag
 task_alt
 terminal
 translate
