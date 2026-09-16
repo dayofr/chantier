@@ -32,11 +32,13 @@ final class PagesTest extends WebTestCase
         $project = new Project('DEMO', 'Démo')->setDescription("Projet **démo**\n\n<script>alert(1)</script>");
         $initiative = new Initiative($project, 'Socle');
         $epic = new Epic($initiative, 'API');
-        $a = new Ticket($project, 'Premier')->setEpic($epic)->setStatus(TicketStatus::InProgress);
+        $a = new Ticket($project, 'Premier')->setEpic($epic)->setStatus(TicketStatus::InProgress)->setStoryPoints(3)->setLabels(['ui'])->setAssignee('claude-code');
         $b = new Ticket($project, 'Second')->setEpic($epic);
         $orphan = new Ticket($project, 'Orphelin');
         $a->addSubTask('Étape 1')->setDone(true);
         new TicketLink($a, LinkType::Commit, 'abc123');
+        new TicketLink($a, LinkType::PullRequest, 'https://example.test/pr/1', 'PR');
+        $b->addSubTask('Pas fait');
         $note = new Activity($project, ActivityType::Decision, 'On garde *SQLite*.')->setTicket($a)->setSessionId('11111111-2222-3333-4444-555555555555')->setAuthor('claude-code');
 
         foreach ([$project, $initiative, $epic, $a, $b, $orphan, new TicketDependency($a, $b), $note] as $entity) {
@@ -83,6 +85,31 @@ final class PagesTest extends WebTestCase
 
         self::assertSelectorExists('aside#sidebar');
         self::assertSelectorExists('[data-sidebar-toggle][aria-controls="sidebar"][data-label-expand="Expand menu"]');
+    }
+
+    /** Chaque icône affichée doit être dans le sous-ensemble téléchargé (bin/download-fonts). */
+    public function testIconsAreInSelfHostedSubset(): void
+    {
+        $manifest = array_filter(array_map('trim', file(__DIR__.'/../../assets/fonts/icons.txt')));
+        $used = [];
+
+        foreach (self::pages() as [$url]) {
+            $this->client->request('GET', $url);
+            $html = $this->client->getResponse()->getContent();
+            self::assertStringNotContainsString('fonts.googleapis.com', $html);
+            preg_match_all('~<span class="icon[^"]*"[^>]*>\s*([a-z0-9_]+)\s*</span>~', $html, $m);
+            array_push($used, ...$m[1]);
+        }
+        // Icônes posées par JavaScript (thème, barre latérale).
+        foreach (glob(__DIR__.'/../../assets/*.js') as $file) {
+            foreach (file($file) as $line) {
+                if (str_contains($line, 'icon') && preg_match_all("~'([a-z][a-z0-9_]+)'~", $line, $m)) {
+                    array_push($used, ...array_diff($m[1], ['click', 'change', 'keydown', 'system', 'light', 'dark', 'collapsed', 'expanded']));
+                }
+            }
+        }
+
+        self::assertSame([], array_values(array_diff(array_unique($used), $manifest)), 'Ajouter ces icônes à assets/fonts/icons.txt puis lancer php bin/download-fonts.');
     }
 
     public function testRootRedirectsToPreferredLanguage(): void

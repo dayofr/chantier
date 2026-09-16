@@ -17,3 +17,6 @@
   Couleurs via les tokens de `assets/styles/app.css`, jamais de couleurs Tailwind brutes.
 - Textes d'interface : clés dans `translations/messages+intl-icu.{fr,en}.yaml`, toujours les deux langues.
   Les enums implémentent `TranslatableInterface` : `{{ status|trans }}`.
+- Icônes Material Symbols auto-hébergées en sous-ensemble : toute nouvelle icône va dans `assets/fonts/icons.txt`,
+  puis `php bin/download-fonts`. Un test échoue sinon.
+- Logs de test dans `var/log/test.log`, pas dans la sortie PHPUnit.

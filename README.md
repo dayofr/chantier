@@ -18,7 +18,10 @@ Mini Jira pour suivre le travail de Claude Code. L'agent écrit via MCP, l'humai
 | Activité (filtre `?session=…`) | `/fr/activity`, `/fr/projects/CHANT/activity` |
 
 `/en/...` pour l'anglais. Les dates s'affichent dans le fuseau `APP_TIMEZONE` (défaut `Europe/Paris`), elles sont stockées en UTC.
-Les polices et icônes viennent de Google Fonts : sans accès internet, l'interface retombe sur les polices système.
+Polices et icônes sont servies localement (`assets/fonts`), l'interface marche sans internet.
+Les icônes sont un sous-ensemble : pour en utiliser une nouvelle, l'ajouter à `assets/fonts/icons.txt` puis lancer `php bin/download-fonts`.
+
+Un projet affiche des points d'attention : goulots, tickets en cours sans mouvement depuis `APP_STALE_HOURS` heures (48 par défaut), bloqués, sans epic.
 
 ## Modèle
 
@@ -89,7 +92,7 @@ Ce projet est suivi dans Chantier (MCP `chantier`, clé projet `XXX`).
 | Outil | Rôle |
 |---|---|
 | `list_projects` | Projets et avancement |
-| `get_project` | Arbre initiatives > epics > tickets, orphelins |
+| `get_project` | Arbre initiatives > epics > tickets, orphelins, points d'attention |
 | `create_project`, `update_project` | Gestion des projets |
 | `create_initiative`, `update_initiative` | Gestion des initiatives |
 | `create_epic`, `update_epic` | Gestion des epics |
