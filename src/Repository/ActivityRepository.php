@@ -36,6 +36,9 @@ class ActivityRepository extends ServiceEntityRepository
         if (null !== $filter->before) {
             $qb->andWhere('a.id < :before')->setParameter('before', $filter->before);
         }
+        if (null !== $filter->until) {
+            $qb->andWhere('a.id >= :until')->setParameter('until', $filter->until);
+        }
 
         return $qb->getQuery()->getResult();
     }

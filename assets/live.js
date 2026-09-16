@@ -22,7 +22,14 @@ if (root) {
     };
 
     const refresh = async () => {
-        const response = await fetch(window.location.href, { headers: { Accept: 'text/html' } });
+        const url = new URL(window.location.href);
+        // Si des entrées plus anciennes ont été chargées, redemander tout jusqu'à la plus ancienne affichée.
+        const feed = document.querySelector('[data-feed]');
+        if (feed && Number(feed.dataset.count) > Number(feed.dataset.pageSize)) {
+            const oldest = [...feed.querySelectorAll('[data-entry]')].pop()?.dataset.entry;
+            if (oldest) url.searchParams.set('until', oldest);
+        }
+        const response = await fetch(url, { headers: { Accept: 'text/html' } });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const html = new DOMParser().parseFromString(await response.text(), 'text/html');
         // Le rétablissement du focus par Idiomorph peut faire défiler la page : on fige la position.
@@ -81,5 +88,9 @@ if (root) {
     };
 
     document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
-    if (!document.hidden) start();
+    if (document.hidden) {
+        setState('paused');
+    } else {
+        start();
+    }
 }

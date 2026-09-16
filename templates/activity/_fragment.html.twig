@@ -1,0 +1,3 @@
+{# Réponse AJAX de « Plus ancien » : entrées suivantes et, s'il en reste, le nouveau lien. #}
+<ol data-feed-items>{% include 'activity/_entries.html.twig' with {continued: true} %}</ol>
+{% if hasMore %}{% include 'activity/_load_more.html.twig' %}{% endif %}

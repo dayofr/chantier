@@ -127,6 +127,40 @@ final class ActivityFeedTest extends WebTestCase
         self::assertEqualsCanonicalizing(['Note hors epic', 'Blocage ancien'], $this->messages('/fr/projects/FEED/activity?q=hors+epic&period=30d'));
     }
 
+    public function testLoadMoreFragmentAndUntil(): void
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $project = $em->getRepository(Project::class)->findOneBy(['key' => 'OTHER']);
+        for ($i = 1; $i <= 60; ++$i) {
+            $em->persist(new Activity($project, ActivityType::Progress, "Étape $i"));
+        }
+        $em->flush();
+
+        // Première page : 50 entrées et un lien AJAX vers la suite.
+        $crawler = $this->client->request('GET', '/fr/projects/OTHER/activity');
+        self::assertCount(50, $crawler->filter('#activity-feed [data-entry]'));
+        $next = $crawler->filter('a[data-load-more="activity-feed"]');
+        self::assertStringContainsString('before=', $next->attr('href'));
+
+        // Fragment : les 12 suivantes (10 étapes, la note et la création du projet), sans layout ni nouveau lien.
+        $fragment = $this->client->request('GET', $next->attr('href').'&fragment=1');
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $fragment->filter('aside, header, form'));
+        self::assertCount(12, $fragment->filter('[data-feed-items] [data-entry]'));
+        self::assertCount(1, $fragment->filter('[data-feed-items] [data-day]'));
+        self::assertCount(0, $fragment->filter('a[data-load-more]'));
+
+        // Rafraîchissement d'un journal étendu : tout jusqu'à l'id demandé, lien suivant conservé s'il en reste.
+        $ids = $crawler->filter('#activity-feed [data-entry]')->each(static fn ($n) => (int) $n->attr('data-entry'));
+        $until = $this->client->request('GET', '/fr/projects/OTHER/activity?until='.$ids[49]);
+        self::assertCount(50, $until->filter('#activity-feed [data-entry]'));
+        self::assertCount(1, $until->filter('a[data-load-more]'));
+
+        $all = $this->client->request('GET', '/fr/projects/OTHER/activity?until=1');
+        self::assertCount(62, $all->filter('#activity-feed [data-entry]'));
+        self::assertCount(0, $all->filter('a[data-load-more]'));
+    }
+
     public function testNoMatchMessage(): void
     {
         $this->client->request('GET', '/fr/projects/FEED/activity?type[]=commit');

@@ -1,0 +1,9 @@
+{# Lien vers les entrées plus anciennes. Sans JS, il recharge la page ; avec JS, assets/feed.js charge la suite. #}
+<div class="mt-4 border-t border-outline-variant/40 pt-4 text-center" data-load-more-wrap>
+    <a href="{{ path(feed_route, feed_params|merge(filter.toQuery({before: (entries|last).id}))) }}"
+       data-load-more="activity-feed" aria-controls="activity-feed"
+       class="group/more inline-flex items-center gap-1 rounded-md px-2 py-1 text-label-md font-medium text-primary hover:underline aria-busy:pointer-events-none aria-busy:opacity-60">
+        <span class="icon text-[18px] group-aria-busy/more:animate-spin">expand_more</span>
+        <span>{{ 'activity.load_more'|trans }}</span>
+    </a>
+</div>

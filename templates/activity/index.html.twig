@@ -42,24 +42,11 @@
             {% if entries is empty %}
                 <p class="text-body-sm text-outline">{{ (filter.hasFilters ? 'activity.filters.no_match' : 'activity.empty')|trans }}</p>
             {% else %}
-                {% set current_day = null %}
-                <ol>
-                    {% for entry in entries %}
-                        {% set day = entry.createdAt|format_date('full') %}
-                        {% if day != current_day %}
-                            {% set current_day = day %}
-                            <li class="mb-3 {{ not loop.first ? 'mt-6' }} text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">{{ day }}</li>
-                        {% endif %}
-                        {{ ui.activity_entry(entry, true, filter.terms) }}
-                    {% endfor %}
+                <ol id="activity-feed" data-feed data-page-size="{{ constant('App\\Activity\\ActivityFilter::PAGE_SIZE') }}" data-count="{{ entries|length }}" aria-live="polite">
+                    {% include 'activity/_entries.html.twig' with {continued: false} %}
                 </ol>
                 {% if hasMore %}
-                    <div class="mt-4 border-t border-outline-variant/40 pt-4 text-center">
-                        <a href="{{ path(feed_route, feed_params|merge(filter.toQuery({before: (entries|last).id}))) }}"
-                           class="inline-flex items-center gap-1 text-label-md font-medium text-primary hover:underline">
-                            <span class="icon text-[18px]">expand_more</span>{{ 'activity.load_more'|trans }}
-                        </a>
-                    </div>
+                    {% include 'activity/_load_more.html.twig' %}
                 {% endif %}
             {% endif %}
         </section>

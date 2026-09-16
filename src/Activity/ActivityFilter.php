@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class ActivityFilter
 {
     public const array PERIODS = ['today', '7d', '30d'];
+    public const int PAGE_SIZE = 50;
     public const int MAX_LIMIT = 500;
 
     /**
@@ -27,8 +28,11 @@ final class ActivityFilter
         public ?string $session = null,
         #[Assert\Positive]
         public ?int $before = null,
+        /** Inclure toutes les entrées jusqu'à cet id (rafraîchissement d'un journal déjà étendu). */
+        #[Assert\Positive]
+        public ?int $until = null,
         #[Assert\Range(min: 1, max: self::MAX_LIMIT)]
-        public int $limit = 50,
+        public int $limit = self::PAGE_SIZE,
     ) {
     }
 
