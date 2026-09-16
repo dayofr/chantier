@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
-use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -14,6 +13,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Enum\DependencyType;
+use App\Filter\IsNullFilter;
 use App\Enum\Priority;
 use App\Enum\TicketStatus;
 use App\Enum\TicketType;
@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             'priority' => new QueryParameter(filter: new ExactFilter(), property: 'priority'),
             'type' => new QueryParameter(filter: new ExactFilter(), property: 'type'),
             'title' => new QueryParameter(filter: new PartialSearchFilter(), property: 'title'),
-            'exists[epic]' => new QueryParameter(filter: new ExistsFilter(), property: 'epic'),
+            'orphan' => new QueryParameter(filter: new IsNullFilter(), property: 'epic', description: 'true : tickets sans epic.'),
         ]),
         new Get(),
         new Post(denormalizationContext: ['groups' => ['write', 'ticket:create']]),

@@ -33,6 +33,11 @@ final class TicketApiTest extends ApiTestCase
 
         $client->request('GET', '/api/tickets?project=AETH&status=in_progress');
         self::assertJsonContains(['totalItems' => 1]);
+
+        $client->request('GET', '/api/tickets?orphan=true');
+        self::assertJsonContains(['totalItems' => 1]);
+        $client->request('GET', '/api/tickets?orphan=false');
+        self::assertJsonContains(['totalItems' => 0]);
     }
 
     public function testValidation(): void
