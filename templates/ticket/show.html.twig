@@ -1,0 +1,152 @@
+{% extends 'layout.html.twig' %}
+{% import '_ui.html.twig' as ui %}
+
+{% block title %}{{ ticket.key }} {{ ticket.title }} · {{ parent() }}{% endblock %}
+
+{% block breadcrumb %}
+    <a href="{{ path('project_show', {key: project.key}) }}" class="hidden max-w-40 truncate hover:text-on-surface sm:inline">{{ project.name }}</a>
+    {% if ticket.epic %}
+        <span class="icon hidden text-[16px] text-outline sm:inline">chevron_right</span>
+        <a href="{{ path('project_show', {key: project.key}) }}" class="hidden max-w-48 truncate hover:text-on-surface 2xl:inline" title="{{ ticket.epic.initiative.key }}">{{ ticket.epic.initiative.title }}</a>
+        <span class="icon hidden text-[16px] text-outline 2xl:inline">chevron_right</span>
+        <a href="{{ path('project_board', {key: project.key, epic: ticket.epic.key}) }}" class="min-w-0 max-w-48 truncate hover:text-on-surface" title="{{ ticket.epic.key }}">{{ ticket.epic.title }}</a>
+    {% endif %}
+    <span class="icon text-[16px] text-outline">chevron_right</span>
+    <span class="shrink-0 whitespace-nowrap rounded bg-primary-soft px-1.5 py-0.5 font-mono text-label-md font-semibold text-primary">{{ ticket.key }}</span>
+{% endblock %}
+
+{% block header %}
+    <div class="flex flex-col gap-3">
+        <h1 class="font-display text-headline-lg font-bold">{{ ticket.title }}</h1>
+        <div class="flex flex-wrap items-center gap-2">
+            {{ ui.status(ticket.status) }}
+            {% if ticket.blocked and ticket.status.value != 'blocked' and not ticket.status.closed %}{{ ui.chip('ticket.blocked_badge'|trans, 'blocked', 'block') }}{% endif %}
+            {{ ui.priority(ticket.priority) }}
+            {{ ui.chip(ticket.type|trans, 'muted', 'category') }}
+            {% if ticket.storyPoints is not null %}{{ ui.chip(ticket.storyPoints ~ ' ' ~ 'ticket.points'|trans|lower, 'muted', 'bolt') }}{% endif %}
+            {% for label in ticket.labels %}{{ ui.chip(label, 'review', 'sell') }}{% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+{% set sub = ticket.subTasks %}
+{% set sub_done = sub|filter(s => s.done)|length %}
+<div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <div class="flex min-w-0 flex-col gap-6">
+        <section class="card p-5">
+            <h2 class="mb-3 font-display text-headline-sm font-semibold">{{ 'ticket.description'|trans }}</h2>
+            {% if ticket.description %}
+                <div class="prose-md">{{ ticket.description|markdown }}</div>
+            {% else %}
+                <p class="text-body-sm text-outline">{{ 'ticket.no_description'|trans }}</p>
+            {% endif %}
+        </section>
+
+        {% if sub|length %}
+            <section class="card p-5">
+                <div class="mb-3 flex items-center gap-3">
+                    <h2 class="font-display text-headline-sm font-semibold">{{ 'ticket.subtasks'|trans }}</h2>
+                    <span class="font-mono text-label-md text-on-surface-variant">{{ 'ticket.subtasks_progress'|trans({done: sub_done, total: sub|length}) }}</span>
+                    <div class="ml-auto w-32">{{ ui.progress((sub_done * 100 / sub|length)|round) }}</div>
+                </div>
+                <ul class="flex flex-col gap-1">
+                    {% for s in sub %}
+                        <li class="flex items-start gap-2.5 rounded-lg px-2 py-1.5">
+                            <span class="icon mt-px text-[20px] {{ s.done ? 'icon-fill text-primary' : 'text-outline' }}">{{ s.done ? 'check_box' : 'check_box_outline_blank' }}</span>
+                            <span class="{{ s.done ? 'text-on-surface-variant line-through decoration-outline-variant' }}">{{ s.title }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+
+        <section class="card p-5">
+            <h2 class="mb-4 font-display text-headline-sm font-semibold">{{ 'ticket.dependencies'|trans }}</h2>
+            {% if dependencies is empty %}
+                <p class="text-body-sm text-outline">{{ 'ticket.no_dependencies'|trans }}</p>
+            {% else %}
+                <div class="grid gap-4 md:grid-cols-3">
+                    {% for group, items in dependencies %}
+                        <div>
+                            <h3 class="mb-2 flex items-center gap-1.5 text-label-md font-semibold uppercase tracking-wide text-on-surface-variant">
+                                <span class="icon text-[16px]">{{ {blocked_by: 'block', blocks: 'arrow_forward', related: 'link'}[group] }}</span>{{ ('ticket.' ~ group)|trans }}
+                            </h3>
+                            <ul class="flex flex-col gap-2">
+                                {% for dep in items %}
+                                    <li>
+                                        <a href="{{ path('ticket_show', {key: dep.key}) }}" class="card card-link flex flex-col gap-1.5 px-3 py-2">
+                                            <span class="flex items-center justify-between gap-2"><span class="key">{{ dep.key }}</span>{{ ui.status(dep.status) }}</span>
+                                            <span class="line-clamp-2 text-body-sm">{{ dep.title }}</span>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="card p-5">
+            <h2 class="mb-4 font-display text-headline-sm font-semibold">{{ 'ticket.activity'|trans }}</h2>
+            {% if activity is empty %}
+                <p class="text-body-sm text-outline">{{ 'activity.empty'|trans }}</p>
+            {% else %}
+                <ol>{% for entry in activity %}{{ ui.activity_entry(entry, false) }}{% endfor %}</ol>
+            {% endif %}
+        </section>
+    </div>
+
+    <aside class="flex flex-col gap-4">
+        <section class="card p-5">
+            <h2 class="mb-3 font-display text-headline-sm font-semibold">{{ 'ticket.details'|trans }}</h2>
+            <dl class="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2.5 text-body-sm">
+                {% if ticket.epic %}
+                    <dt class="text-on-surface-variant">{{ 'ticket.initiative'|trans }}</dt>
+                    <dd class="truncate"><span class="key">{{ ticket.epic.initiative.key }}</span> {{ ticket.epic.initiative.title }}</dd>
+                    <dt class="text-on-surface-variant">{{ 'ticket.epic'|trans }}</dt>
+                    <dd class="truncate"><a class="hover:text-primary" href="{{ path('project_board', {key: project.key, epic: ticket.epic.key}) }}"><span class="key">{{ ticket.epic.key }}</span> {{ ticket.epic.title }}</a></dd>
+                {% endif %}
+                {% if ticket.assignee %}
+                    <dt class="text-on-surface-variant">{{ 'ticket.assignee'|trans }}</dt><dd>{{ ticket.assignee }}</dd>
+                {% endif %}
+                {% for row in [
+                    {label: 'ticket.created', date: ticket.createdAt},
+                    {label: 'ticket.started', date: ticket.startedAt},
+                    {label: 'ticket.completed', date: ticket.completedAt},
+                    {label: 'ticket.updated', date: ticket.updatedAt},
+                ] %}
+                    {% if row.date %}
+                        <dt class="text-on-surface-variant">{{ row.label|trans }}</dt>
+                        <dd><time datetime="{{ row.date|date('c') }}" title="{{ row.date|ago }}">{{ row.date|format_datetime('medium', 'short') }}</time></dd>
+                    {% endif %}
+                {% endfor %}
+            </dl>
+        </section>
+
+        {% if ticket.links|length %}
+            <section class="card p-5">
+                <h2 class="mb-3 font-display text-headline-sm font-semibold">{{ 'ticket.links'|trans }}</h2>
+                <ul class="flex flex-col gap-2">
+                    {% for link in ticket.links %}
+                        {% set icon = {pull_request: 'merge', commit: 'commit', branch: 'fork_right', file: 'description', url: 'open_in_new'}[link.type.value] %}
+                        {% set is_url = link.reference starts with 'http://' or link.reference starts with 'https://' %}
+                        <li class="flex items-start gap-2 text-body-sm">
+                            <span class="icon mt-px text-[18px] text-primary" title="{{ link.type|trans }}">{{ icon }}</span>
+                            <span class="min-w-0">
+                                {% if link.label %}<span class="block">{{ link.label }}</span>{% endif %}
+                                {% if is_url %}
+                                    <a href="{{ link.reference }}" rel="noopener noreferrer" target="_blank" class="block truncate font-mono text-code-sm text-primary hover:underline">{{ link.reference }}</a>
+                                {% else %}
+                                    <span class="block truncate font-mono text-code-sm text-on-surface-variant">{{ link.reference }}</span>
+                                {% endif %}
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

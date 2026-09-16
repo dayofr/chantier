@@ -20,6 +20,8 @@ RUN composer dump-autoload --classmap-authoritative --no-dev \
     && composer dump-env prod \
     && php bin/console cache:warmup \
     && php bin/console assets:install public \
+    && php bin/console tailwind:build --minify \
+    && php bin/console asset-map:compile \
     && mkdir -p /var/lib/chantier var \
     && chown -R www-data:www-data /var/lib/chantier var
 

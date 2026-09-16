@@ -1,0 +1,77 @@
+{% extends 'layout.html.twig' %}
+{% import '_ui.html.twig' as ui %}
+
+{% block title %}{{ 'portfolio.title'|trans }} · {{ parent() }}{% endblock %}
+
+{% block breadcrumb %}
+    <span class="font-medium text-on-surface">{{ 'nav.portfolio'|trans }}</span>
+{% endblock %}
+
+{% block header %}
+    <div>
+        <h1 class="font-display text-headline-lg font-bold">{{ 'portfolio.title'|trans }}</h1>
+        <p class="mt-1 text-body-md text-on-surface-variant">{{ 'portfolio.subtitle'|trans }}</p>
+    </div>
+
+    <section class="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        {{ ui.kpi('portfolio.kpi.projects'|trans, projects|length, 'portfolio.kpi.projects_hint'|trans({active: activeProjects}), 'folder') }}
+        {{ ui.kpi('portfolio.kpi.open_tickets'|trans, stats.remaining, 'portfolio.kpi.open_hint'|trans({count: stats.inProgress}), 'task_alt') }}
+        {{ ui.kpi('portfolio.kpi.blocked'|trans, stats.blocked, 'portfolio.kpi.blocked_hint'|trans, 'block', stats.blocked > 0 ? 'blocked') }}
+        {{ ui.kpi('portfolio.kpi.done_week'|trans, doneThisWeek, 'portfolio.kpi.done_week_hint'|trans({count: activityThisWeek}), 'trending_up') }}
+    </section>
+{% endblock %}
+
+{% block content %}
+    {% if projects is empty %}
+        {{ ui.empty('portfolio.empty.title'|trans, 'portfolio.empty.text'|trans, 'create_new_folder') }}
+    {% else %}
+        <section class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+            {% for project in projects %}
+                {% set s = ticket_stats(project.tickets) %}
+                {% set epic_count = project.initiatives|reduce((carry, i) => carry + i.epics|length, 0) %}
+                <a href="{{ path('project_show', {key: project.key}) }}" class="card card-link flex flex-col gap-4 p-5 {{ s.blocked > 0 ? 'border-progress/50' }}">
+                    <div class="flex items-center gap-2">
+                        {{ ui.status(project.status) }}
+                        <span class="key">{{ project.key }}</span>
+                        {% if s.blocked > 0 %}
+                            <span class="ml-auto">{{ ui.chip(s.blocked ~ ' ' ~ ('portfolio.kpi.blocked'|trans|lower), 'blocked', 'block') }}</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h2 class="font-display text-headline-md font-semibold">{{ project.name }}</h2>
+                        {% if project.description %}
+                            <p class="mt-1 line-clamp-2 text-body-sm text-on-surface-variant">{{ project.description|split("\n")|first }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="mb-1.5 flex justify-between text-label-md font-medium">
+                            <span>{{ 'portfolio.card.progress'|trans }}</span>
+                            <span class="font-mono {{ s.progress >= 100 ? 'text-done' : 'text-primary' }}">{{ s.progress }}%</span>
+                        </div>
+                        {{ ui.progress(s.progress) }}
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        {% for item in [
+                            {value: project.initiatives|length, label: 'portfolio.card.initiatives'},
+                            {value: epic_count, label: 'portfolio.card.epics'},
+                            {value: s.done ~ '/' ~ s.total, label: 'portfolio.card.tickets'},
+                        ] %}
+                            <div class="rounded-lg bg-surface-low px-2 py-2 text-center">
+                                <div class="font-display text-headline-sm font-semibold">{{ item.value }}</div>
+                                <div class="text-label-sm text-on-surface-variant">{{ item.label|trans }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <p class="mt-auto flex items-center gap-1.5 border-t border-outline-variant/40 pt-3 text-label-md text-on-surface-variant">
+                        <span class="icon text-[16px]">schedule</span>
+                        {% if lastActivity[project.key] is defined %}
+                            {{ 'portfolio.card.last_activity'|trans({when: lastActivity[project.key]|ago}) }}
+                        {% else %}
+                            {{ 'portfolio.card.no_activity'|trans }}
+                        {% endif %}
+                    </p>
+                </a>
+            {% endfor %}
+        </section>
+    {% endif %}
+{% endblock %}

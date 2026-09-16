@@ -1,0 +1,199 @@
+app:
+    name: Chantier
+    tagline: Tracking what agents build
+    read_only: Read-only
+    read_only_hint: Agents write the data through MCP. This interface never changes anything.
+    theme:
+        label: Theme
+        system: System
+        light: Light
+        dark: Dark
+    language: Language
+    updated: 'Updated {when}'
+
+nav:
+    portfolio: Portfolio
+    projects: Projects
+    overview: Overview
+    board: Board
+    activity: Activity
+    all_activity: All activity
+    no_projects: No projects
+
+portfolio:
+    title: Projects
+    subtitle: Consolidated view of the work tracked by agents.
+    kpi:
+        projects: Projects
+        projects_hint: '{active, plural, =0 {none active} other {# active}}'
+        open_tickets: Open tickets
+        open_hint: '{count, plural, =0 {none in progress} other {# in progress}}'
+        blocked: Blocked
+        blocked_hint: Need unblocking
+        done_week: Done in last 7 days
+        done_week_hint: '{count, plural, =0 {no activity} one {# log entry} other {# log entries}}'
+    empty:
+        title: No projects yet
+        text: Ask Claude Code to create one with the create_project MCP tool.
+    card:
+        initiatives: Initiatives
+        epics: Epics
+        tickets: Tickets
+        progress: Progress
+        last_activity: 'Last activity {when}'
+        no_activity: No activity
+
+project:
+    kpi:
+        progress: Progress
+        progress_hint: '{done} / {total} tickets done'
+        remaining: Remaining
+        remaining_hint: '{points, plural, =0 {no estimated points} one {# point} other {# points}}'
+        in_progress: In progress
+        in_progress_hint: '{count, plural, =0 {nothing in review} other {# in review}}'
+        blocked: Blocked
+        blocked_hint: Open dependencies or blocked status
+    initiatives: Initiatives
+    initiatives_count: '{count, plural, =0 {none} one {# initiative} other {# initiatives}}'
+    epics_count: '{count, plural, =0 {no epics} one {# epic} other {# epics}}'
+    tickets_count: '{count, plural, =0 {no tickets} one {# ticket} other {# tickets}}'
+    tickets_done: '{done} / {total} done'
+    no_initiatives: No initiatives.
+    no_epics: No epics in this initiative.
+    no_tickets: No tickets.
+    target: 'Target {date}'
+    orphans:
+        title: Tickets without epic
+        hint: Should be attached to an epic.
+    alerts:
+        title: Needs attention
+        blocked: Blocked tickets
+        orphans: Orphan tickets
+        none: Nothing to report.
+    show_closed: Show closed tickets
+    repository: Repository
+
+board:
+    title: Board
+    filter_epic: Filter by epic
+    all: All
+    no_epic: No epic
+    empty_column: Empty
+    completed: '{progress}% done'
+    tickets_done: '{done} / {total} tickets done'
+
+ticket:
+    description: Description
+    no_description: No description.
+    subtasks: Subtasks
+    dependencies: Dependencies
+    blocked_by: Blocked by
+    blocks: Blocks
+    related: Related to
+    no_dependencies: No dependencies.
+    links: Links
+    activity: Log
+    details: Details
+    status: Status
+    priority: Priority
+    type: Type
+    points: Points
+    assignee: Assignee
+    labels: Labels
+    epic: Epic
+    initiative: Initiative
+    created: Created
+    started: Started
+    completed: Completed
+    updated: Updated
+    blocked_badge: Blocked
+    subtasks_progress: '{done}/{total}'
+    graph: Dependency graph
+
+activity:
+    title: Activity
+    subtitle: What agents did, most recent first.
+    empty: No activity.
+    sessions: Sessions
+    session: Session
+    all_sessions: All sessions
+    session_entries: '{count, plural, one {# entry} other {# entries}}'
+    filtered_session: 'Session {id}'
+    clear_filter: Clear filter
+    by: 'by {author}'
+    load_more: Older
+    event:
+        created: '{kind, select, project {Project created} initiative {Initiative created} epic {Epic created} other {Ticket created}}'
+        status_changed: 'Status: {from} → {to}'
+
+time:
+    just_now: just now
+    ago: '{unit, select, minute {{count, plural, one {# minute} other {# minutes}} ago} hour {{count, plural, one {# hour} other {# hours}} ago} day {{count, plural, one {# day} other {# days}} ago} other {{count, plural, other {# {unit}}} ago}}'
+
+error:
+    not_found: Page not found
+    back: Back to portfolio
+
+ticket_status:
+    backlog: Backlog
+    todo: To do
+    in_progress: In progress
+    in_review: In review
+    blocked: Blocked
+    done: Done
+    cancelled: Cancelled
+
+plan_status:
+    planned: Planned
+    in_progress: In progress
+    in_review: In review
+    done: Done
+    cancelled: Cancelled
+
+project_status:
+    planning: Planning
+    active: Active
+    paused: Paused
+    done: Done
+    archived: Archived
+
+priority:
+    low: Low
+    medium: Medium
+    high: High
+    urgent: Urgent
+
+ticket_type:
+    feature: Feature
+    bug: Bug
+    chore: Chore
+    refactor: Refactor
+    spike: Spike
+    docs: Docs
+    test: Tests
+
+risk:
+    low: Low risk
+    medium: Medium risk
+    high: High risk
+
+activity_type:
+    created: Created
+    status_changed: Status
+    note: Note
+    decision: Decision
+    progress: Progress
+    blocker: Blocker
+    commit: Commit
+    test: Tests
+
+dependency_type:
+    blocks: Blocks
+    relates_to: Related to
+
+link_type:
+    pull_request: Pull request
+    commit: Commit
+    branch: Branch
+    file: File
+    url: Link

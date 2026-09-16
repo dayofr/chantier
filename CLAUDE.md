@@ -13,3 +13,7 @@
 - Réponses MCP : construites par `Presenter`, pas par le serializer.
 - Journal : créations et changements de statut sont écrits par `ActivityRecorder` (listener Doctrine).
 - Chaque nouvel outil a un test dans `tests/Mcp`.
+- UI : contrôleurs GET uniquement (un test le vérifie). Composants dans `templates/_ui.html.twig`.
+  Couleurs via les tokens de `assets/styles/app.css`, jamais de couleurs Tailwind brutes.
+- Textes d'interface : clés dans `translations/messages+intl-icu.{fr,en}.yaml`, toujours les deux langues.
+  Les enums implémentent `TranslatableInterface` : `{{ status|trans }}`.

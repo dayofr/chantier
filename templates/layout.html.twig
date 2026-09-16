@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{#
+    Layout commun : barre latérale des projets, barre supérieure, contenu.
+    Blocs : breadcrumb, header (titre de page), content, aside (colonne droite optionnelle).
+#}
+{% set route = app.current_route %}
+{% set route_params = app.current_route_parameters %}
+{% set current_project = project ?? null %}
+
+{% block body %}
+<div class="flex min-h-screen">
+    {# ---------- Barre latérale ---------- #}
+    <aside class="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-outline-variant/40 bg-surface-low lg:flex">
+        <a href="{{ path('portfolio') }}" class="flex items-center gap-3 px-5 py-4">
+            <span class="flex size-8 items-center justify-center rounded-lg bg-primary-container text-white shadow-sm">
+                <span class="icon text-[18px]">construction</span>
+            </span>
+            <span class="min-w-0">
+                <span class="block font-display text-headline-sm font-bold">{{ 'app.name'|trans }}</span>
+                <span class="block truncate text-label-sm text-on-surface-variant">{{ 'app.tagline'|trans }}</span>
+            </span>
+        </a>
+
+        <nav class="flex flex-col gap-0.5 px-3">
+            <a href="{{ path('portfolio') }}" class="nav-link" {{ route == 'portfolio' ? 'aria-current="page"' }}>
+                <span class="icon text-[19px]">grid_view</span>{{ 'nav.portfolio'|trans }}
+            </a>
+            <a href="{{ path('activity') }}" class="nav-link" {{ route == 'activity' ? 'aria-current="page"' }}>
+                <span class="icon text-[19px]">history</span>{{ 'nav.all_activity'|trans }}
+            </a>
+        </nav>
+
+        <div class="mt-5 flex min-h-0 flex-1 flex-col px-3">
+            <p class="px-3 pb-2 text-label-sm font-semibold uppercase tracking-wider text-outline">{{ 'nav.projects'|trans }}</p>
+            <nav class="-mr-1 flex flex-col gap-0.5 overflow-y-auto pr-1 pb-4">
+                {% for p in sidebar_projects() %}
+                    {% set is_current = current_project and current_project.key == p.key %}
+                    <a href="{{ path('project_show', {key: p.key}) }}" class="nav-link" {{ is_current ? 'aria-current="page"' }}>
+                        <span class="flex size-6 shrink-0 items-center justify-center rounded-md bg-surface-lowest font-mono text-[10px] font-semibold text-on-surface-variant ring-1 ring-outline-variant/50">{{ p.key|slice(0, 2) }}</span>
+                        <span class="truncate {{ p.status.value == 'archived' ? 'text-outline' }}">{{ p.name }}</span>
+                    </a>
+                    {% if is_current %}
+                        <div class="mb-1 ml-6 flex flex-col gap-0.5 border-l border-outline-variant/50 pl-3">
+                            {% for item in [
+                                {route: 'project_show', icon: 'account_tree', label: 'nav.overview'},
+                                {route: 'project_board', icon: 'view_kanban', label: 'nav.board'},
+                                {route: 'project_activity', icon: 'history', label: 'nav.activity'},
+                            ] %}
+                                <a href="{{ path(item.route, {key: p.key}) }}" class="nav-link py-1.5" {{ route == item.route ? 'aria-current="page"' }}>
+                                    <span class="icon text-[17px]">{{ item.icon }}</span>{{ item.label|trans }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p class="px-3 text-body-sm text-outline">{{ 'nav.no_projects'|trans }}</p>
+                {% endfor %}
+            </nav>
+        </div>
+
+        <div class="border-t border-outline-variant/40 px-5 py-3">
+            <p class="flex items-center gap-2 text-label-md text-on-surface-variant" title="{{ 'app.read_only_hint'|trans }}">
+                <span class="icon text-[16px]">visibility</span>{{ 'app.read_only'|trans }}
+            </p>
+        </div>
+    </aside>
+
+    {# ---------- Zone principale ---------- #}
+    <div class="flex min-w-0 flex-1 flex-col">
+        <header class="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-outline-variant/40 bg-surface-lowest/85 px-4 backdrop-blur-md sm:px-6">
+            <details class="relative lg:hidden">
+                <summary class="flex size-9 cursor-pointer list-none items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-low" aria-label="Menu">
+                    <span class="icon">menu</span>
+                </summary>
+                <nav class="absolute left-0 top-11 z-40 flex w-64 flex-col gap-0.5 rounded-xl border border-outline-variant/50 bg-surface-lowest p-2 shadow-card-hover">
+                    <a href="{{ path('portfolio') }}" class="nav-link">{{ 'nav.portfolio'|trans }}</a>
+                    <a href="{{ path('activity') }}" class="nav-link">{{ 'nav.all_activity'|trans }}</a>
+                    <hr class="my-1 border-outline-variant/50">
+                    {% for p in sidebar_projects() %}
+                        <a href="{{ path('project_show', {key: p.key}) }}" class="nav-link"><span class="key">{{ p.key }}</span>{{ p.name }}</a>
+                    {% endfor %}
+                </nav>
+            </details>
+
+            <nav class="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap text-body-sm text-on-surface-variant" aria-label="breadcrumb">
+                {% block breadcrumb %}{% endblock %}
+            </nav>
+
+            {% if current_project %}
+                <nav class="hidden items-center gap-5 md:flex">
+                    {% for item in [
+                        {route: 'project_show', label: 'nav.overview'},
+                        {route: 'project_board', label: 'nav.board'},
+                        {route: 'project_activity', label: 'nav.activity'},
+                    ] %}
+                        <a href="{{ path(item.route, {key: current_project.key}) }}"
+                           class="border-b-2 py-4 text-label-md font-medium transition-colors {{ route == item.route ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface' }}">
+                            {{ item.label|trans }}
+                        </a>
+                    {% endfor %}
+                </nav>
+                <span class="hidden h-5 w-px bg-outline-variant/60 md:block"></span>
+            {% endif %}
+
+            <div class="flex items-center gap-1">
+                {% set other_locale = app.request.locale == 'fr' ? 'en' : 'fr' %}
+                {% if route %}
+                    <a href="{{ path(route, route_params|merge({_locale: other_locale})) ~ (app.request.queryString ? '?' ~ app.request.queryString) }}"
+                       class="flex h-9 items-center gap-1 rounded-md px-2 font-mono text-label-md uppercase text-on-surface-variant hover:bg-surface-low hover:text-on-surface"
+                       title="{{ 'app.language'|trans }}" hreflang="{{ other_locale }}">
+                        <span class="icon text-[18px]">translate</span>{{ other_locale }}
+                    </a>
+                {% endif %}
+                <button type="button" data-theme-toggle
+                        data-label-system="{{ 'app.theme.label'|trans }} : {{ 'app.theme.system'|trans }}"
+                        data-label-light="{{ 'app.theme.label'|trans }} : {{ 'app.theme.light'|trans }}"
+                        data-label-dark="{{ 'app.theme.label'|trans }} : {{ 'app.theme.dark'|trans }}"
+                        class="flex size-9 items-center justify-center rounded-md text-on-surface-variant hover:bg-surface-low hover:text-on-surface">
+                    <span class="icon text-[20px]">contrast</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="mx-auto flex w-full max-w-[1600px] flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+            {% block header %}{% endblock %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}

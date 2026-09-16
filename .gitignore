@@ -18,3 +18,8 @@
 /stitch_ai_project_tracking_workspace.zip
 /docs/design/
 ###< design ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###

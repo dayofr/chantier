@@ -1,0 +1,148 @@
+{% extends 'layout.html.twig' %}
+{% import '_ui.html.twig' as ui %}
+
+{% block title %}{{ project.name }} · {{ parent() }}{% endblock %}
+
+{% block breadcrumb %}
+    <a href="{{ path('portfolio') }}" class="hover:text-on-surface">{{ 'nav.portfolio'|trans }}</a>
+    <span class="icon text-[16px] text-outline">chevron_right</span>
+    <span class="truncate font-medium text-on-surface">{{ project.name }}</span>
+{% endblock %}
+
+{% block header %}
+    {% set s = ticket_stats(project.tickets) %}
+    {% include 'project/_header.html.twig' with {title: project.name, subtitle: project.description} %}
+
+    <section class="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        <div class="card flex flex-col gap-2 p-4">
+            <div class="flex items-center justify-between text-label-md font-medium text-on-surface-variant">{{ 'project.kpi.progress'|trans }}<span class="icon text-[18px] text-primary">donut_large</span></div>
+            <div class="font-display text-headline-lg font-bold">{{ s.progress }}%</div>
+            {{ ui.progress(s.progress) }}
+            <div class="text-body-sm text-on-surface-variant">{{ 'project.kpi.progress_hint'|trans({done: s.done, total: s.total}) }}</div>
+        </div>
+        {{ ui.kpi('project.kpi.remaining'|trans, s.remaining, 'project.kpi.remaining_hint'|trans({points: s.points - s.pointsDone}), 'pending_actions') }}
+        {{ ui.kpi('project.kpi.in_progress'|trans, s.inProgress, 'project.kpi.in_progress_hint'|trans({count: s.inReview}), 'motion_play') }}
+        {{ ui.kpi('project.kpi.blocked'|trans, s.blocked, 'project.kpi.blocked_hint'|trans, 'block', s.blocked > 0 ? 'blocked') }}
+    </section>
+{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+    <section class="flex min-w-0 flex-col gap-4">
+        <div class="flex items-center gap-3">
+            <h2 class="font-display text-headline-md font-semibold">{{ 'project.initiatives'|trans }}</h2>
+            {{ ui.chip('project.initiatives_count'|trans({count: project.initiatives|length})) }}
+        </div>
+
+        {% for initiative in project.initiatives %}
+            {% set tickets = initiative.epics|reduce((carry, e) => carry|merge(e.tickets), []) %}
+            {% set is = ticket_stats(tickets) %}
+            <details class="card group/init overflow-hidden" {{ initiative.status.value != 'done' ? 'open' }}>
+                <summary class="flex cursor-pointer list-none flex-wrap items-center gap-x-4 gap-y-2 p-5 hover:bg-surface-low/60">
+                    <span class="icon text-outline transition-transform group-open/init:rotate-90">chevron_right</span>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="key">{{ initiative.key }}</span>
+                            {{ ui.status(initiative.status) }}
+                            {{ ui.risk(initiative.risk) }}
+                        </div>
+                        <h3 class="mt-1 font-display text-headline-sm font-semibold">{{ initiative.title }}</h3>
+                        <p class="mt-0.5 text-body-sm text-on-surface-variant">
+                            {{ 'project.epics_count'|trans({count: initiative.epics|length}) }} · {{ 'project.tickets_done'|trans({done: is.done, total: is.total}) }}
+                        </p>
+                    </div>
+                    <div class="w-full sm:w-48">
+                        <div class="mb-1 flex justify-between text-label-md font-medium"><span>{{ 'project.kpi.progress'|trans }}</span><span class="font-mono">{{ is.progress }}%</span></div>
+                        {{ ui.progress(is.progress) }}
+                    </div>
+                </summary>
+
+                <div class="flex flex-col gap-3 border-t border-outline-variant/40 bg-surface-low/40 p-4 sm:p-5">
+                    {% if initiative.description %}
+                        <div class="prose-md text-on-surface-variant">{{ initiative.description|markdown }}</div>
+                    {% endif %}
+                    {% for epic in initiative.epics %}
+                        {% set es = ticket_stats(epic.tickets) %}
+                        <details class="card group/epic" {{ epic.status.value not in ['done', 'cancelled'] ? 'open' }}>
+                            <summary class="flex cursor-pointer list-none flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+                                <span class="icon text-[18px] text-outline transition-transform group-open/epic:rotate-90">chevron_right</span>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="key">{{ epic.key }}</span>
+                                        <span class="font-semibold">{{ epic.title }}</span>
+                                        {{ ui.status(epic.status) }}
+                                    </div>
+                                    <p class="mt-0.5 flex flex-wrap gap-x-3 text-label-md text-on-surface-variant">
+                                        <span>{{ 'project.tickets_done'|trans({done: es.done, total: es.total}) }}</span>
+                                        {% if epic.targetDate %}<span class="flex items-center gap-1"><span class="icon text-[14px]">event</span>{{ 'project.target'|trans({date: epic.targetDate|format_date('medium')}) }}</span>{% endif %}
+                                        {% if es.blocked %}<span class="text-blocked">{{ es.blocked }} {{ 'project.kpi.blocked'|trans|lower }}</span>{% endif %}
+                                    </p>
+                                </div>
+                                <div class="flex w-full items-center gap-2 sm:w-40">
+                                    {{ ui.progress(es.progress) }}
+                                    <span class="w-9 text-right font-mono text-label-md">{{ es.progress }}%</span>
+                                </div>
+                            </summary>
+                            <div class="border-t border-outline-variant/40 px-1 py-1">
+                                {% if epic.description %}
+                                    <div class="prose-md px-3 py-2 text-body-sm text-on-surface-variant">{{ epic.description|markdown }}</div>
+                                {% endif %}
+                                {% for ticket in epic.tickets %}
+                                    {{ ui.ticket_row(ticket) }}
+                                {% else %}
+                                    <p class="px-3 py-2 text-body-sm text-outline">{{ 'project.no_tickets'|trans }}</p>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    {% else %}
+                        <p class="text-body-sm text-outline">{{ 'project.no_epics'|trans }}</p>
+                    {% endfor %}
+                </div>
+            </details>
+        {% else %}
+            {{ ui.empty('project.no_initiatives'|trans, null, 'account_tree') }}
+        {% endfor %}
+
+        {% set all_orphans = project.tickets|filter(t => t.epic is null) %}
+        {% if all_orphans|length %}
+            <section class="card p-5">
+                <h2 class="font-display text-headline-sm font-semibold">{{ 'project.orphans.title'|trans }}</h2>
+                <p class="mb-2 text-body-sm text-on-surface-variant">{{ 'project.orphans.hint'|trans }}</p>
+                {% for ticket in all_orphans %}{{ ui.ticket_row(ticket) }}{% endfor %}
+            </section>
+        {% endif %}
+    </section>
+
+    <aside class="flex flex-col gap-4">
+        <section class="card p-5">
+            <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
+                <span class="icon text-primary">notifications_active</span>{{ 'project.alerts.title'|trans }}
+            </h2>
+            {% if blocked is empty and orphans is empty %}
+                <p class="mt-3 text-body-sm text-on-surface-variant">{{ 'project.alerts.none'|trans }}</p>
+            {% endif %}
+            {% if blocked is not empty %}
+                <h3 class="mt-4 text-label-md font-semibold uppercase tracking-wide text-blocked">{{ 'project.alerts.blocked'|trans }} · {{ blocked|length }}</h3>
+                <ul class="mt-2 flex flex-col gap-2">
+                    {% for t in blocked %}
+                        <li class="rounded-lg border border-blocked/30 bg-blocked-soft/60 px-3 py-2">
+                            <a href="{{ path('ticket_show', {key: t.key}) }}" class="block text-body-sm hover:underline"><span class="key">{{ t.key }}</span> {{ t.title }}</a>
+                            {% if t.openBlockers|length %}
+                                <p class="mt-1 text-label-md text-blocked">{{ 'ticket.blocked_by'|trans }} {{ t.openBlockers|map(b => b.key)|join(', ') }}</p>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if orphans is not empty %}
+                <h3 class="mt-4 text-label-md font-semibold uppercase tracking-wide text-progress">{{ 'project.alerts.orphans'|trans }} · {{ orphans|length }}</h3>
+                <ul class="mt-2 flex flex-col gap-1">
+                    {% for t in orphans %}
+                        <li><a href="{{ path('ticket_show', {key: t.key}) }}" class="block truncate text-body-sm hover:underline"><span class="key">{{ t.key }}</span> {{ t.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </section>
+    </aside>
+</div>
+{% endblock %}

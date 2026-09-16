@@ -1,0 +1,19 @@
+{% import '_ui.html.twig' as ui %}
+{% set s = ticket_stats(project.tickets) %}
+<div class="flex flex-wrap items-start justify-between gap-4">
+    <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="key">{{ project.key }}</span>
+            {{ ui.status(project.status) }}
+        </div>
+        <h1 class="mt-1 font-display text-headline-lg font-bold">{{ title }}</h1>
+        {% if subtitle is defined and subtitle %}
+            <div class="prose-md mt-1 max-w-3xl text-on-surface-variant">{{ subtitle|markdown }}</div>
+        {% endif %}
+    </div>
+    {% if project.repository %}
+        <p class="flex items-center gap-1.5 rounded-lg bg-surface-low px-3 py-1.5 text-label-md text-on-surface-variant" title="{{ 'project.repository'|trans }}">
+            <span class="icon text-[16px]">folder_code</span><span class="font-mono">{{ project.repository }}</span>
+        </p>
+    {% endif %}
+</div>

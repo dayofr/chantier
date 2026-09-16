@@ -1,5 +1,9 @@
 twig:
     file_name_pattern: '*.twig'
+    date:
+        timezone: '%env(APP_TIMEZONE)%'
+    globals:
+        app_timezone: '%env(APP_TIMEZONE)%'
 
 when@test:
     twig:

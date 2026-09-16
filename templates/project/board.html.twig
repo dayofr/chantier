@@ -1,0 +1,69 @@
+{% extends 'layout.html.twig' %}
+{% import '_ui.html.twig' as ui %}
+
+{% block title %}{{ 'board.title'|trans }} · {{ project.name }} · {{ parent() }}{% endblock %}
+
+{% block breadcrumb %}
+    <a href="{{ path('portfolio') }}" class="hover:text-on-surface">{{ 'nav.portfolio'|trans }}</a>
+    <span class="icon text-[16px] text-outline">chevron_right</span>
+    <a href="{{ path('project_show', {key: project.key}) }}" class="truncate hover:text-on-surface">{{ project.name }}</a>
+    <span class="icon text-[16px] text-outline">chevron_right</span>
+    <span class="font-medium text-on-surface">{{ 'board.title'|trans }}</span>
+{% endblock %}
+
+{% block header %}
+    {% set s = ticket_stats(filtered) %}
+    {% include 'project/_header.html.twig' with {title: project.name ~ ' · ' ~ 'board.title'|trans} %}
+
+    <div class="flex flex-wrap items-center gap-3">
+        <div class="card flex items-center gap-4 px-4 py-2.5">
+            <span class="text-label-md font-semibold text-primary">{{ 'board.completed'|trans({progress: s.progress}) }}</span>
+            <div class="w-40">{{ ui.progress(s.progress) }}</div>
+            <span class="font-mono text-label-md text-on-surface-variant">{{ 'board.tickets_done'|trans({done: s.done, total: s.total}) }}</span>
+        </div>
+    </div>
+
+    <nav class="flex flex-wrap items-center gap-2" aria-label="{{ 'board.filter_epic'|trans }}">
+        <span class="mr-1 text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">{{ 'board.filter_epic'|trans }}</span>
+        {% set chip_base = 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-label-md font-medium transition-colors' %}
+        {% set chip_on = 'border-primary/40 bg-primary-soft text-primary' %}
+        {% set chip_off = 'border-outline-variant/60 bg-surface-lowest text-on-surface-variant hover:border-primary/30 hover:text-on-surface' %}
+        <a href="{{ path('project_board', {key: project.key}) }}" class="{{ chip_base }} {{ currentEpic is null ? chip_on : chip_off }}">{{ 'board.all'|trans }}</a>
+        {% for epic in epics %}
+            <a href="{{ path('project_board', {key: project.key, epic: epic.key}) }}" class="{{ chip_base }} {{ currentEpic == epic.key ? chip_on : chip_off }}" title="{{ epic.key }}">
+                {{ epic.title }}<span class="rounded-full bg-surface px-1.5 font-mono text-[10px]">{{ epicCounts[epic.key] ?? 0 }}</span>
+            </a>
+        {% endfor %}
+        {% if epicCounts['NONE'] is defined %}
+            <a href="{{ path('project_board', {key: project.key, epic: 'none'}) }}" class="{{ chip_base }} {{ currentEpic == 'NONE' ? chip_on : chip_off }}">
+                {{ 'board.no_epic'|trans }}<span class="rounded-full bg-surface px-1.5 font-mono text-[10px]">{{ epicCounts['NONE'] }}</span>
+            </a>
+        {% endif %}
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="-mx-4 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div class="flex min-w-max gap-4">
+            {% for status in statuses %}
+                {% set cards = columns[status.value] %}
+                {% if status.value != 'blocked' or cards|length %}
+                    <section class="flex w-80 shrink-0 flex-col rounded-2xl border border-outline-variant/40 bg-surface-low/70 p-3">
+                        <header class="mb-3 flex items-center gap-2 px-1">
+                            <span class="size-2 rounded-full {{ ui.bar_classes(tone(status)) }}"></span>
+                            <h2 class="font-display text-headline-sm font-semibold">{{ status|trans }}</h2>
+                            <span class="rounded-full bg-surface px-2 font-mono text-label-md text-on-surface-variant">{{ cards|length }}</span>
+                        </header>
+                        <div class="flex flex-col gap-3">
+                            {% for ticket in cards %}
+                                {{ ui.ticket_card(ticket, currentEpic is null) }}
+                            {% else %}
+                                <p class="rounded-xl border border-dashed border-outline-variant/70 py-6 text-center text-body-sm text-outline">{{ 'board.empty_column'|trans }}</p>
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

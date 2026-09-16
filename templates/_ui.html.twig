@@ -1,0 +1,166 @@
+{# Composants d'interface. Import : {% import '_ui.html.twig' as ui %} #}
+
+{% macro tone_classes(tone) -%}
+    {{ {
+        done: 'bg-done-soft text-done',
+        progress: 'bg-progress-soft text-progress',
+        review: 'bg-review-soft text-review',
+        planned: 'bg-planned-soft text-planned',
+        blocked: 'bg-blocked-soft text-blocked',
+        muted: 'bg-muted-soft text-muted',
+        primary: 'bg-primary-soft text-primary',
+    }[tone] ?? 'bg-muted-soft text-muted' }}
+{%- endmacro %}
+
+{% macro bar_classes(tone) -%}
+    {{ {done: 'bg-done', progress: 'bg-progress', review: 'bg-review', planned: 'bg-planned', blocked: 'bg-blocked', muted: 'bg-muted'}[tone] ?? 'bg-primary-container' }}
+{%- endmacro %}
+
+{# Pastille de statut : TicketStatus, PlanStatus ou ProjectStatus. #}
+{% macro status(status) %}
+    {% set t = tone(status) %}
+    <span class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-label-sm font-semibold {{ _self.tone_classes(t) }}">
+        <span class="size-1.5 rounded-full {{ _self.bar_classes(t) }}"></span>{{ status|trans }}
+    </span>
+{% endmacro %}
+
+{% macro chip(label, tone = 'muted', icon = null, title = null) %}
+    <span class="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-label-sm font-semibold {{ _self.tone_classes(tone) }}" {% if title %}title="{{ title }}"{% endif %}>
+        {%- if icon %}<span class="icon text-[14px]">{{ icon }}</span>{% endif %}{{ label -}}
+    </span>
+{% endmacro %}
+
+{% macro priority(priority) %}
+    {% set cfg = {
+        urgent: {tone: 'blocked', icon: 'priority_high'},
+        high: {tone: 'progress', icon: 'keyboard_double_arrow_up'},
+        medium: {tone: 'muted', icon: 'drag_handle'},
+        low: {tone: 'muted', icon: 'keyboard_arrow_down'},
+    }[priority.value] %}
+    {{ _self.chip(priority|trans, cfg.tone, cfg.icon) }}
+{% endmacro %}
+
+{% macro risk(risk) %}
+    {{ _self.chip(risk|trans, {low: 'done', medium: 'progress', high: 'blocked'}[risk.value]) }}
+{% endmacro %}
+
+{% macro progress(percent, tone = null, size = 'h-1.5') %}
+    {% set t = tone ?? (percent >= 100 ? 'done' : 'primary') %}
+    <div class="{{ size }} w-full overflow-hidden rounded-full bg-surface-high" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100">
+        <div class="h-full rounded-full {{ _self.bar_classes(t) }}" style="width: {{ min(100, max(0, percent)) }}%"></div>
+    </div>
+{% endmacro %}
+
+{% macro kpi(label, value, hint = null, icon = null, tone = null) %}
+    <div class="card flex flex-col gap-1 p-4 {{ tone == 'blocked' ? 'border-blocked/40' }}">
+        <div class="flex items-center justify-between text-label-md font-medium text-on-surface-variant">
+            {{ label }}
+            {% if icon %}<span class="icon text-[18px] {{ tone == 'blocked' ? 'text-blocked' : 'text-primary' }}">{{ icon }}</span>{% endif %}
+        </div>
+        <div class="font-display text-headline-lg font-bold {{ tone == 'blocked' ? 'text-blocked' }}">{{ value }}</div>
+        {% if hint %}<div class="text-body-sm text-on-surface-variant">{{ hint }}</div>{% endif %}
+    </div>
+{% endmacro %}
+
+{% macro empty(title, text = null, icon = 'inbox') %}
+    <div class="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-outline-variant px-6 py-10 text-center">
+        <span class="icon text-[32px] text-outline">{{ icon }}</span>
+        <p class="font-display text-headline-sm font-semibold">{{ title }}</p>
+        {% if text %}<p class="max-w-md text-body-sm text-on-surface-variant">{{ text }}</p>{% endif %}
+    </div>
+{% endmacro %}
+
+{# Ligne compacte d'un ticket (listes, arbres). #}
+{% macro ticket_row(ticket) %}
+    {% set sub = ticket.subTasks %}
+    <a href="{{ path('ticket_show', {key: ticket.key}) }}" class="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-surface-low">
+        <span class="key w-20 shrink-0">{{ ticket.key }}</span>
+        <span class="min-w-0 flex-1 truncate {{ ticket.status.closed ? 'text-on-surface-variant line-through decoration-outline-variant' : '' }} group-hover:text-primary">{{ ticket.title }}</span>
+        {% if ticket.blocked and ticket.status.value != 'blocked' and not ticket.status.closed %}
+            {{ _self.chip('ticket.blocked_badge'|trans, 'blocked', 'block') }}
+        {% endif %}
+        {% if sub|length %}<span class="hidden text-label-md text-on-surface-variant sm:inline">{{ sub|filter(s => s.done)|length }}/{{ sub|length }}</span>{% endif %}
+        <span class="hidden md:inline">{{ _self.priority(ticket.priority) }}</span>
+        {{ _self.status(ticket.status) }}
+    </a>
+{% endmacro %}
+
+{# Carte Kanban. #}
+{% macro ticket_card(ticket, show_epic = true) %}
+    {% set sub = ticket.subTasks %}
+    {% set blockers = ticket.openBlockers %}
+    <a href="{{ path('ticket_show', {key: ticket.key}) }}" class="card card-link flex flex-col gap-3 p-4 {{ ticket.blocked and not ticket.status.closed ? 'border-l-4 border-l-blocked' }}">
+        <div class="flex items-center justify-between gap-2">
+            <span class="key">{{ ticket.key }}</span>
+            {{ _self.priority(ticket.priority) }}
+        </div>
+        <p class="font-semibold leading-snug text-on-surface">{{ ticket.title }}</p>
+        {% if show_epic and ticket.epic %}
+            <div>{{ _self.chip(ticket.epic.title, 'review') }}</div>
+        {% endif %}
+        {% if blockers|length and not ticket.status.closed %}
+            <div class="flex flex-wrap gap-1">
+                {% for b in blockers %}{{ _self.chip('ticket.blocked_by'|trans ~ ' ' ~ b.key, 'blocked', 'block') }}{% endfor %}
+            </div>
+        {% endif %}
+        <div class="flex items-center gap-3 border-t border-outline-variant/40 pt-3 text-label-md text-on-surface-variant">
+            {% if sub|length %}
+                <span class="flex items-center gap-1"><span class="icon text-[16px]">check_box</span>{{ sub|filter(s => s.done)|length }}/{{ sub|length }}</span>
+            {% endif %}
+            {% if ticket.storyPoints is not null %}<span class="flex items-center gap-1"><span class="icon text-[16px]">bolt</span>{{ ticket.storyPoints }}</span>{% endif %}
+            {% if ticket.links|length %}<span class="flex items-center gap-1"><span class="icon text-[16px]">link</span>{{ ticket.links|length }}</span>{% endif %}
+            <span class="ml-auto">{{ ticket.type|trans }}</span>
+        </div>
+    </a>
+{% endmacro %}
+
+{# Entrée du journal. #}
+{% macro activity_entry(entry, show_subject = true) %}
+    {% set type = entry.type.value %}
+    {% set icon = {created: 'add_circle', status_changed: 'swap_horiz', note: 'sticky_note_2', decision: 'gavel', progress: 'trending_up', blocker: 'block', commit: 'commit', test: 'science'}[type] %}
+    {% set tone = {blocker: 'blocked', decision: 'review', progress: 'progress', commit: 'primary', test: 'done'}[type] ?? 'muted' %}
+    <li class="group relative flex gap-3 pb-5 last:pb-0">
+        <span class="absolute left-[15px] top-8 bottom-0 w-px bg-outline-variant/50 group-last:hidden"></span>
+        <span class="relative flex size-8 shrink-0 items-center justify-center rounded-full {{ _self.tone_classes(tone) }}">
+            <span class="icon text-[17px]">{{ icon }}</span>
+        </span>
+        <div class="min-w-0 flex-1 pt-1">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-body-sm">
+                {% if show_subject %}
+                    {% if entry.ticket %}
+                        <a href="{{ path('ticket_show', {key: entry.ticket.key}) }}" class="key hover:text-primary">{{ entry.subjectKey }}</a>
+                    {% else %}
+                        <a href="{{ path('project_show', {key: entry.project.key}) }}" class="key hover:text-primary">{{ entry.subjectKey }}</a>
+                    {% endif %}
+                {% endif %}
+                <span class="font-semibold">
+                    {%- if type == 'created' -%}
+                        {{ 'activity.event.created'|trans({kind: entry.data.kind ?? 'ticket'}) }}
+                    {%- elseif type == 'status_changed' -%}
+                        {% set kind = entry.data.kind ?? 'ticket' %}
+                        {% set prefix = kind == 'ticket' ? 'ticket_status.' : (kind == 'project' ? 'project_status.' : 'plan_status.') %}
+                        {{ 'activity.event.status_changed'|trans({from: (prefix ~ entry.data.from)|trans, to: (prefix ~ entry.data.to)|trans}) }}
+                    {%- else -%}
+                        {{ entry.type|trans }}
+                    {%- endif -%}
+                </span>
+                {% if type == 'created' and entry.data.title is defined %}
+                    <span class="truncate text-on-surface-variant">{{ entry.data.title }}</span>
+                {% endif %}
+                <span class="ml-auto flex items-center gap-2 text-label-md text-outline">
+                    <time datetime="{{ entry.createdAt|date('c') }}" title="{{ entry.createdAt|format_datetime('medium', 'short') }}">{{ entry.createdAt|ago }}</time>
+                </span>
+            </div>
+            {% if entry.message %}
+                <div class="prose-md mt-2 rounded-lg bg-surface-low px-3 py-2 text-body-sm">{{ entry.message|markdown }}</div>
+            {% endif %}
+            <div class="mt-1 flex flex-wrap items-center gap-2 text-label-md text-outline">
+                <span>{{ 'activity.by'|trans({author: entry.author}) }}</span>
+                {% if entry.sessionId %}
+                    <a href="{{ path(entry.project and app.current_route starts with 'project_' ? 'project_activity' : 'activity', entry.project and app.current_route starts with 'project_' ? {key: entry.project.key, session: entry.sessionId} : {session: entry.sessionId}) }}"
+                       class="font-mono hover:text-primary" title="{{ 'activity.session'|trans }} {{ entry.sessionId }}">#{{ entry.sessionId|slice(0, 8) }}</a>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+{% endmacro %}

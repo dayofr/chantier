@@ -1,0 +1,88 @@
+{% extends 'layout.html.twig' %}
+{% import '_ui.html.twig' as ui %}
+
+{% set scoped = project is not null %}
+{% set feed_route = scoped ? 'project_activity' : 'activity' %}
+{% set feed_params = scoped ? {key: project.key} : {} %}
+
+{% block title %}{{ 'activity.title'|trans }}{{ scoped ? ' · ' ~ project.name }} · {{ parent() }}{% endblock %}
+
+{% block breadcrumb %}
+    <a href="{{ path('portfolio') }}" class="hover:text-on-surface">{{ 'nav.portfolio'|trans }}</a>
+    {% if scoped %}
+        <span class="icon text-[16px] text-outline">chevron_right</span>
+        <a href="{{ path('project_show', {key: project.key}) }}" class="truncate hover:text-on-surface">{{ project.name }}</a>
+    {% endif %}
+    <span class="icon text-[16px] text-outline">chevron_right</span>
+    <span class="font-medium text-on-surface">{{ 'activity.title'|trans }}</span>
+{% endblock %}
+
+{% block header %}
+    {% if scoped %}
+        {% include 'project/_header.html.twig' with {title: project.name ~ ' · ' ~ 'activity.title'|trans} %}
+    {% else %}
+        <div>
+            <h1 class="font-display text-headline-lg font-bold">{{ 'activity.title'|trans }}</h1>
+            <p class="mt-1 text-body-md text-on-surface-variant">{{ 'activity.subtitle'|trans }}</p>
+        </div>
+    {% endif %}
+    {% if session %}
+        <div class="flex items-center gap-2">
+            {{ ui.chip('activity.filtered_session'|trans({id: session|slice(0, 8)}), 'primary', 'filter_alt') }}
+            <a href="{{ path(feed_route, feed_params) }}" class="text-label-md text-on-surface-variant hover:text-primary">{{ 'activity.clear_filter'|trans }}</a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+    <section class="card min-w-0 p-5">
+        {% if entries is empty %}
+            <p class="text-body-sm text-outline">{{ 'activity.empty'|trans }}</p>
+        {% else %}
+            {% set current_day = null %}
+            <ol>
+                {% for entry in entries %}
+                    {% set day = entry.createdAt|format_date('full') %}
+                    {% if day != current_day %}
+                        {% set current_day = day %}
+                        <li class="mb-3 {{ not loop.first ? 'mt-6' }} text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">{{ day }}</li>
+                    {% endif %}
+                    {{ ui.activity_entry(entry, true) }}
+                {% endfor %}
+            </ol>
+            {% if entries|length >= 50 %}
+                <div class="mt-4 border-t border-outline-variant/40 pt-4 text-center">
+                    <a href="{{ path(feed_route, feed_params|merge({before: (entries|last).id}|merge(session ? {session: session} : {}))) }}"
+                       class="inline-flex items-center gap-1 text-label-md font-medium text-primary hover:underline">
+                        <span class="icon text-[18px]">expand_more</span>{{ 'activity.load_more'|trans }}
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </section>
+
+    <aside>
+        <section class="card p-5">
+            <h2 class="mb-3 flex items-center gap-2 font-display text-headline-sm font-semibold"><span class="icon text-primary">terminal</span>{{ 'activity.sessions'|trans }}</h2>
+            <ul class="flex flex-col gap-1">
+                <li>
+                    <a href="{{ path(feed_route, feed_params) }}" class="flex items-center rounded-lg px-3 py-2 text-body-sm {{ session is null ? 'bg-primary-soft text-primary' : 'hover:bg-surface-low' }}">{{ 'activity.all_sessions'|trans }}</a>
+                </li>
+                {% for s in sessions %}
+                    <li>
+                        <a href="{{ path(feed_route, feed_params|merge({session: s.sessionId})) }}"
+                           class="flex flex-col rounded-lg px-3 py-2 {{ session == s.sessionId ? 'bg-primary-soft text-primary' : 'hover:bg-surface-low' }}">
+                            <span class="flex items-center justify-between gap-2">
+                                <span class="font-mono text-code-sm">#{{ s.sessionId|slice(0, 8) }}</span>
+                                <span class="text-label-md text-on-surface-variant">{{ 'activity.session_entries'|trans({count: s.entries}) }}</span>
+                            </span>
+                            <span class="text-label-md text-on-surface-variant">{{ s.author }} · {{ s.lastAt|ago }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'error.not_found'|trans }} · {{ parent() }}{% endblock %}
+
+{% block body %}
+    <main class="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+        <span class="icon text-[48px] text-outline">search_off</span>
+        <h1 class="font-display text-headline-lg font-bold">{{ 'error.not_found'|trans }}</h1>
+        <a href="{{ path('root') }}" class="text-primary hover:underline">{{ 'error.back'|trans }}</a>
+    </main>
+{% endblock %}

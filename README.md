@@ -2,9 +2,23 @@
 
 Mini Jira pour suivre le travail de Claude Code. L'agent écrit via MCP, l'humain consulte.
 
+- **Interface web** : `/` (lecture seule, fr/en, thème clair/sombre)
 - **API REST** : `/api` (doc Swagger sur `/api/docs`)
 - **Serveur MCP** : `/mcp` (HTTP streamable)
-- **Stack** : Symfony 8.1, API Platform 4.3, SQLite
+- **Stack** : Symfony 8.1, API Platform 4.3, SQLite, Twig + Tailwind 4 (AssetMapper, sans Node)
+
+## Interface
+
+| Page | URL |
+|---|---|
+| Portefeuille | `/fr` |
+| Vue d'ensemble d'un projet | `/fr/projects/CHANT` |
+| Kanban (filtre `?epic=CHANT-E4` ou `?epic=none`) | `/fr/projects/CHANT/board` |
+| Détail ticket | `/fr/tickets/CHANT-12` |
+| Activité (filtre `?session=…`) | `/fr/activity`, `/fr/projects/CHANT/activity` |
+
+`/en/...` pour l'anglais. Les dates s'affichent dans le fuseau `APP_TIMEZONE` (défaut `Europe/Paris`), elles sont stockées en UTC.
+Les polices et icônes viennent de Google Fonts : sans accès internet, l'interface retombe sur les polices système.
 
 ## Modèle
 
@@ -37,6 +51,7 @@ Port différent : `CHANTIER_PORT=9000 docker compose up -d`.
 ```bash
 composer install
 composer db
+php bin/console tailwind:build --watch   # dans un autre terminal
 composer serve
 ```
 

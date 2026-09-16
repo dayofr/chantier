@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+@source "../../templates";
+@source "../../src/Twig";
+
+/* Thème : data-theme="light|dark" sur <html>, posé avant le rendu par base.html.twig. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Tokens tirés des maquettes Stitch (Synthetica Linear en clair, Obsidian Kinetic en sombre).
+ * Les utilitaires (bg-surface, text-on-surface-variant…) lisent des variables qui changent avec le thème.
+ */
+:root {
+    --c-background: #faf8ff;
+    --c-surface-lowest: #ffffff;
+    --c-surface-low: #f2f3ff;
+    --c-surface: #eaedff;
+    --c-surface-high: #e2e7ff;
+    --c-surface-highest: #dae2fd;
+    --c-on-surface: #131b2e;
+    --c-on-surface-variant: #464555;
+    --c-outline: #777587;
+    --c-outline-variant: #c7c4d8;
+    --c-primary: #3525cd;
+    --c-primary-container: #4f46e5;
+    --c-on-primary: #ffffff;
+    --c-primary-soft: #e2dfff;
+    --c-tertiary: #6b00b7;
+    --c-tertiary-soft: #f0dbff;
+    --c-error: #ba1a1a;
+    --c-error-soft: #ffdad6;
+
+    --c-done: #047857;
+    --c-done-soft: #ecfdf5;
+    --c-progress: #b45309;
+    --c-progress-soft: #fffbeb;
+    --c-review: #4338ca;
+    --c-review-soft: #eef2ff;
+    --c-planned: #0369a1;
+    --c-planned-soft: #f0f9ff;
+    --c-blocked: #be123c;
+    --c-blocked-soft: #fff1f2;
+    --c-muted: #475569;
+    --c-muted-soft: #f1f5f9;
+
+    --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04);
+    --shadow-card-hover: 0 8px 20px -4px rgb(15 23 42 / 0.08), 0 4px 6px -2px rgb(15 23 42 / 0.03);
+
+    color-scheme: light;
+}
+
+[data-theme="dark"] {
+    --c-background: #0b0f17;
+    --c-surface-lowest: #070e1d;
+    --c-surface-low: #0f172a;
+    --c-surface: #151e2e;
+    --c-surface-high: #1a2436;
+    --c-surface-highest: #243044;
+    --c-on-surface: #f8fafc;
+    --c-on-surface-variant: #94a3b8;
+    --c-outline: #64748b;
+    --c-outline-variant: #334155;
+    --c-primary: #818cf8;
+    --c-primary-container: #6366f1;
+    --c-on-primary: #0f172a;
+    --c-primary-soft: #1e1b4b;
+    --c-tertiary: #c084fc;
+    --c-tertiary-soft: #2e1065;
+    --c-error: #f87171;
+    --c-error-soft: #450a0a;
+
+    --c-done: #34d399;
+    --c-done-soft: #052e22;
+    --c-progress: #fbbf24;
+    --c-progress-soft: #3a2503;
+    --c-review: #a5b4fc;
+    --c-review-soft: #1e1b4b;
+    --c-planned: #38bdf8;
+    --c-planned-soft: #082f49;
+    --c-blocked: #fb7185;
+    --c-blocked-soft: #4c0519;
+    --c-muted: #94a3b8;
+    --c-muted-soft: #1e293b;
+
+    --shadow-card: 0 0 0 0 transparent;
+    --shadow-card-hover: 0 8px 24px -6px rgb(0 0 0 / 0.5);
+
+    color-scheme: dark;
+}
+
+@theme inline {
+    --color-background: var(--c-background);
+    --color-surface-lowest: var(--c-surface-lowest);
+    --color-surface-low: var(--c-surface-low);
+    --color-surface: var(--c-surface);
+    --color-surface-high: var(--c-surface-high);
+    --color-surface-highest: var(--c-surface-highest);
+    --color-on-surface: var(--c-on-surface);
+    --color-on-surface-variant: var(--c-on-surface-variant);
+    --color-outline: var(--c-outline);
+    --color-outline-variant: var(--c-outline-variant);
+    --color-primary: var(--c-primary);
+    --color-primary-container: var(--c-primary-container);
+    --color-on-primary: var(--c-on-primary);
+    --color-primary-soft: var(--c-primary-soft);
+    --color-tertiary: var(--c-tertiary);
+    --color-tertiary-soft: var(--c-tertiary-soft);
+    --color-error: var(--c-error);
+    --color-error-soft: var(--c-error-soft);
+
+    --color-done: var(--c-done);
+    --color-done-soft: var(--c-done-soft);
+    --color-progress: var(--c-progress);
+    --color-progress-soft: var(--c-progress-soft);
+    --color-review: var(--c-review);
+    --color-review-soft: var(--c-review-soft);
+    --color-planned: var(--c-planned);
+    --color-planned-soft: var(--c-planned-soft);
+    --color-blocked: var(--c-blocked);
+    --color-blocked-soft: var(--c-blocked-soft);
+    --color-muted: var(--c-muted);
+    --color-muted-soft: var(--c-muted-soft);
+
+    --shadow-card: var(--shadow-card);
+    --shadow-card-hover: var(--shadow-card-hover);
+}
+
+@theme {
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+    --text-headline-xl: 2.5rem;
+    --text-headline-xl--line-height: 3rem;
+    --text-headline-xl--letter-spacing: -0.03em;
+    --text-headline-lg: 2rem;
+    --text-headline-lg--line-height: 2.5rem;
+    --text-headline-lg--letter-spacing: -0.025em;
+    --text-headline-md: 1.375rem;
+    --text-headline-md--line-height: 1.75rem;
+    --text-headline-md--letter-spacing: -0.02em;
+    --text-headline-sm: 1.125rem;
+    --text-headline-sm--line-height: 1.5rem;
+    --text-headline-sm--letter-spacing: -0.015em;
+    --text-body-md: 0.875rem;
+    --text-body-md--line-height: 1.375rem;
+    --text-body-sm: 0.8125rem;
+    --text-body-sm--line-height: 1.125rem;
+    --text-label-md: 0.75rem;
+    --text-label-md--line-height: 1rem;
+    --text-label-sm: 0.6875rem;
+    --text-label-sm--line-height: 0.875rem;
+    --text-code-sm: 0.75rem;
+    --text-code-sm--line-height: 1rem;
+}
+
+@layer base {
+    html {
+        @apply bg-background text-on-surface antialiased;
+    }
+
+    body {
+        @apply font-sans text-body-md;
+    }
+
+    ::selection {
+        @apply bg-primary-soft text-on-surface;
+    }
+}
+
+@layer components {
+    .icon {
+        font-family: "Material Symbols Outlined";
+        font-weight: normal;
+        font-style: normal;
+        font-size: 1.25rem;
+        line-height: 1;
+        display: inline-block;
+        white-space: nowrap;
+        direction: ltr;
+        vertical-align: middle;
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
+        -webkit-font-feature-settings: "liga";
+    }
+
+    .icon-fill {
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 20;
+    }
+
+    .card {
+        @apply rounded-xl border border-outline-variant/50 bg-surface-lowest shadow-card;
+    }
+
+    a.card, .card-link {
+        @apply transition-shadow hover:border-primary/30 hover:shadow-card-hover;
+    }
+
+    .key {
+        @apply font-mono text-code-sm text-on-surface-variant;
+    }
+
+    .nav-link {
+        @apply flex items-center gap-3 rounded-lg px-3 py-2 text-label-md font-medium text-on-surface-variant transition-colors hover:bg-surface-high hover:text-on-surface;
+    }
+
+    .nav-link[aria-current="page"] {
+        @apply bg-primary/10 text-primary;
+    }
+
+    /* Markdown rendu (descriptions, notes). */
+    .prose-md {
+        @apply text-body-md text-on-surface;
+
+        & > * + * { @apply mt-3; }
+        & h1, & h2, & h3 { @apply font-display font-semibold text-headline-sm; }
+        & ul { @apply list-disc pl-5; }
+        & ol { @apply list-decimal pl-5; }
+        & li + li { @apply mt-1; }
+        & a { @apply text-primary underline underline-offset-2; }
+        & code { @apply rounded bg-surface px-1 py-0.5 font-mono text-code-sm; }
+        & pre { @apply overflow-x-auto rounded-lg bg-surface-low p-3 font-mono text-code-sm; }
+        & pre code { @apply bg-transparent p-0; }
+        & blockquote { @apply border-l-2 border-outline-variant pl-3 text-on-surface-variant; }
+        & table { @apply w-full text-body-sm; }
+        & th, & td { @apply border-b border-outline-variant/50 px-2 py-1 text-left; }
+    }
+}

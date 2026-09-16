@@ -1,0 +1,199 @@
+app:
+    name: Chantier
+    tagline: Suivi du travail des agents
+    read_only: Lecture seule
+    read_only_hint: Les données sont écrites par les agents via MCP. Cette interface ne modifie rien.
+    theme:
+        label: Thème
+        system: Système
+        light: Clair
+        dark: Sombre
+    language: Langue
+    updated: 'Mis à jour {when}'
+
+nav:
+    portfolio: Portefeuille
+    projects: Projets
+    overview: Vue d'ensemble
+    board: Kanban
+    activity: Activité
+    all_activity: Toute l'activité
+    no_projects: Aucun projet
+
+portfolio:
+    title: Projets
+    subtitle: Vue consolidée des chantiers suivis par les agents.
+    kpi:
+        projects: Projets
+        projects_hint: '{active, plural, =0 {aucun actif} one {# actif} other {# actifs}}'
+        open_tickets: Tickets ouverts
+        open_hint: '{count, plural, =0 {aucun en cours} one {# en cours} other {# en cours}}'
+        blocked: Bloqués
+        blocked_hint: À débloquer
+        done_week: Terminés sur 7 jours
+        done_week_hint: '{count, plural, =0 {aucune activité} one {# entrée au journal} other {# entrées au journal}}'
+    empty:
+        title: Aucun projet pour l'instant
+        text: Demandez à Claude Code de créer un projet avec l'outil MCP create_project.
+    card:
+        initiatives: Initiatives
+        epics: Epics
+        tickets: Tickets
+        progress: Avancement
+        last_activity: 'Dernière activité {when}'
+        no_activity: Aucune activité
+
+project:
+    kpi:
+        progress: Avancement
+        progress_hint: '{done} / {total} tickets terminés'
+        remaining: Reste à faire
+        remaining_hint: '{points, plural, =0 {sans points estimés} one {# point} other {# points}}'
+        in_progress: En cours
+        in_progress_hint: '{count, plural, =0 {rien en revue} one {# en revue} other {# en revue}}'
+        blocked: Bloqués
+        blocked_hint: Dépendances ouvertes ou statut bloqué
+    initiatives: Initiatives
+    initiatives_count: '{count, plural, =0 {aucune} one {# initiative} other {# initiatives}}'
+    epics_count: '{count, plural, =0 {aucun epic} one {# epic} other {# epics}}'
+    tickets_count: '{count, plural, =0 {aucun ticket} one {# ticket} other {# tickets}}'
+    tickets_done: '{done} / {total} terminés'
+    no_initiatives: Aucune initiative.
+    no_epics: Aucun epic dans cette initiative.
+    no_tickets: Aucun ticket.
+    target: 'Cible {date}'
+    orphans:
+        title: Tickets sans epic
+        hint: À rattacher à un epic.
+    alerts:
+        title: Points d'attention
+        blocked: Tickets bloqués
+        orphans: Tickets orphelins
+        none: Rien à signaler.
+    show_closed: Afficher les tickets terminés
+    repository: Dépôt
+
+board:
+    title: Kanban
+    filter_epic: Filtrer par epic
+    all: Tous
+    no_epic: Sans epic
+    empty_column: Vide
+    completed: '{progress} % terminé'
+    tickets_done: '{done} / {total} tickets terminés'
+
+ticket:
+    description: Description
+    no_description: Pas de description.
+    subtasks: Sous-tâches
+    dependencies: Dépendances
+    blocked_by: Bloqué par
+    blocks: Bloque
+    related: Lié à
+    no_dependencies: Aucune dépendance.
+    links: Liens
+    activity: Journal
+    details: Détails
+    status: Statut
+    priority: Priorité
+    type: Type
+    points: Points
+    assignee: Assigné à
+    labels: Labels
+    epic: Epic
+    initiative: Initiative
+    created: Créé
+    started: Démarré
+    completed: Terminé
+    updated: Mis à jour
+    blocked_badge: Bloqué
+    subtasks_progress: '{done}/{total}'
+    graph: Graphe des dépendances
+
+activity:
+    title: Activité
+    subtitle: Ce que les agents ont fait, du plus récent au plus ancien.
+    empty: Aucune activité.
+    sessions: Sessions
+    session: Session
+    all_sessions: Toutes les sessions
+    session_entries: '{count, plural, one {# entrée} other {# entrées}}'
+    filtered_session: 'Session {id}'
+    clear_filter: Retirer le filtre
+    by: 'par {author}'
+    load_more: Plus ancien
+    event:
+        created: '{kind, select, project {Projet créé} initiative {Initiative créée} epic {Epic créé} other {Ticket créé}}'
+        status_changed: 'Statut : {from} → {to}'
+
+time:
+    just_now: à l'instant
+    ago: '{unit, select, minute {il y a {count, plural, one {# minute} other {# minutes}}} hour {il y a {count, plural, one {# heure} other {# heures}}} day {il y a {count, plural, one {# jour} other {# jours}}} other {il y a {count, plural, other {# {unit}}}}}'
+
+error:
+    not_found: Page introuvable
+    back: Retour au portefeuille
+
+ticket_status:
+    backlog: Backlog
+    todo: À faire
+    in_progress: En cours
+    in_review: En revue
+    blocked: Bloqué
+    done: Terminé
+    cancelled: Annulé
+
+plan_status:
+    planned: Planifié
+    in_progress: En cours
+    in_review: En revue
+    done: Terminé
+    cancelled: Annulé
+
+project_status:
+    planning: En planification
+    active: Actif
+    paused: En pause
+    done: Terminé
+    archived: Archivé
+
+priority:
+    low: Basse
+    medium: Moyenne
+    high: Haute
+    urgent: Urgente
+
+ticket_type:
+    feature: Fonctionnalité
+    bug: Bug
+    chore: Maintenance
+    refactor: Refactoring
+    spike: Exploration
+    docs: Documentation
+    test: Tests
+
+risk:
+    low: Risque faible
+    medium: Risque moyen
+    high: Risque élevé
+
+activity_type:
+    created: Création
+    status_changed: Statut
+    note: Note
+    decision: Décision
+    progress: Avancée
+    blocker: Blocage
+    commit: Commit
+    test: Tests
+
+dependency_type:
+    blocks: Bloque
+    relates_to: Lié à
+
+link_type:
+    pull_request: Pull request
+    commit: Commit
+    branch: Branche
+    file: Fichier
+    url: Lien
