@@ -14,6 +14,7 @@ Mini Jira pour suivre le travail de Claude Code. L'agent écrit via MCP, l'humai
 | Portefeuille | `/fr` |
 | Vue d'ensemble d'un projet | `/fr/projects/CHANT` |
 | Kanban (filtre `?epic=CHANT-E4` ou `?epic=none`) | `/fr/projects/CHANT/board` |
+| Initiative : description, décisions, Kanban (filtre `?epic=`) | `/fr/initiatives/CHANT-I4` |
 | Détail ticket | `/fr/tickets/CHANT-12` |
 | Activité (filtre `?session=…`) | `/fr/activity`, `/fr/projects/CHANT/activity` |
 
@@ -21,7 +22,7 @@ Mini Jira pour suivre le travail de Claude Code. L'agent écrit via MCP, l'humai
 Polices et icônes sont servies localement (`assets/fonts`), l'interface marche sans internet.
 Les icônes sont un sous-ensemble : pour en utiliser une nouvelle, l'ajouter à `assets/fonts/icons.txt` puis lancer `php bin/download-fonts`.
 
-La vue projet affiche les décisions de chaque epic (posées sur l'epic ou ses tickets) et de chaque initiative.
+La vue d'une initiative affiche sa description, ses décisions (posées sur l'initiative, ses epics ou leurs tickets, filtrées avec l'epic choisi) et le Kanban de ses tickets.
 La description d'une initiative ou d'un epic sert au périmètre ; les choix faits se notent comme décisions, datées et rattachées à leur séance.
 
 Un projet affiche des points d'attention : goulots, tickets en cours sans mouvement depuis `APP_STALE_HOURS` heures (48 par défaut), bloqués, sans epic.

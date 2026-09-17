@@ -2,7 +2,7 @@
 
 namespace App\Tests\Ui;
 
-use App\Controller\ProjectController;
+use App\Service\KanbanBoard;
 use App\Entity\Project;
 use App\Entity\Ticket;
 use App\Enum\Priority;
@@ -24,7 +24,7 @@ final class BoardTest extends WebTestCase
 
         // 12 tickets terminés : le numéro 1 fini en dernier, les autres dans l'ordre inverse de leur numéro.
         $completedAt = new \ReflectionProperty(Ticket::class, 'completedAt');
-        for ($i = 1; $i <= ProjectController::DONE_VISIBLE + 2; ++$i) {
+        for ($i = 1; $i <= KanbanBoard::DONE_VISIBLE + 2; ++$i) {
             $ticket = new Ticket($project, "Fini $i")->setStatus(TicketStatus::Done)->setPriority(1 === $i ? Priority::Low : Priority::Urgent);
             $completedAt->setValue($ticket, new \DateTimeImmutable(1 === $i ? '-1 minute' : "-$i hours"));
             $em->persist($ticket);
@@ -38,7 +38,7 @@ final class BoardTest extends WebTestCase
         $done = $crawler->filter('section')->reduce(static fn ($s) => str_contains($s->filter('h2')->count() ? $s->filter('h2')->text() : '', 'Terminé'));
         $visible = $done->filterXPath('.//a[not(ancestor::details)]')->each(static fn ($a) => $a->filter('p')->first()->text());
         self::assertSame(['Fini 1', 'Fini 2', 'Fini 3'], \array_slice($visible, 0, 3), 'Le plus récent d\'abord, sans tenir compte de la priorité.');
-        self::assertCount(ProjectController::DONE_VISIBLE, $visible);
+        self::assertCount(KanbanBoard::DONE_VISIBLE, $visible);
 
         $older = $done->filter('details a')->each(static fn ($a) => $a->filter('p')->first()->text());
         self::assertSame(['Fini 11', 'Fini 12'], $older);

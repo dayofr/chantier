@@ -1,0 +1,39 @@
+{# Colonnes du Kanban. Variables : columns (KanbanBoard::columns), currentEpic (masque l'epic sur les cartes quand filtré). #}
+{% import '_ui.html.twig' as ui %}
+<div class="-mx-4 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+    <div class="flex min-w-max items-start gap-4">
+        {% for status in constant('App\\Service\\KanbanBoard::STATUSES') %}
+            {% set cards = columns[status.value] %}
+            {% if status.value != 'blocked' or cards|length %}
+                <section class="flex w-80 shrink-0 flex-col rounded-2xl border border-outline-variant/40 bg-surface-low/70 p-3">
+                    <header class="mb-3 flex items-center gap-2 px-1">
+                        <span class="size-2 rounded-full {{ ui.bar_classes(tone(status)) }}"></span>
+                        <h2 class="font-display text-headline-sm font-semibold">{{ status|trans }}</h2>
+                        <span class="rounded-full bg-surface px-2 font-mono text-label-md text-on-surface-variant">{{ cards|length }}</span>
+                    </header>
+                    <div class="flex flex-col gap-3">
+                        {% set visible = status.value == 'done' ? cards|slice(0, constant('App\\Service\\KanbanBoard::DONE_VISIBLE')) : cards %}
+                        {% for ticket in visible %}
+                            {{ ui.ticket_card(ticket, currentEpic is null) }}
+                        {% else %}
+                            <p class="rounded-xl border border-dashed border-outline-variant/70 py-6 text-center text-body-sm text-outline">{{ 'board.empty_column'|trans }}</p>
+                        {% endfor %}
+                        {% set older = cards|slice(visible|length) %}
+                        {% if older|length %}
+                            <details class="group/older">
+                                <summary class="flex cursor-pointer list-none items-center justify-center gap-1 rounded-lg py-2 text-label-md font-medium text-on-surface-variant hover:bg-surface hover:text-on-surface">
+                                    <span class="icon text-[18px] transition-transform group-open/older:rotate-180">expand_more</span>
+                                    <span class="group-open/older:hidden">{{ 'board.show_older_done'|trans({count: older|length}) }}</span>
+                                    <span class="hidden group-open/older:inline">{{ 'board.hide_older_done'|trans }}</span>
+                                </summary>
+                                <div class="mt-3 flex flex-col gap-3">
+                                    {% for ticket in older %}{{ ui.ticket_card(ticket, currentEpic is null) }}{% endfor %}
+                                </div>
+                            </details>
+                        {% endif %}
+                    </div>
+                </section>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>

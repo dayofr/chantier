@@ -1,0 +1,20 @@
+{#
+    Filtre du Kanban par epic. Variables : epics, epicCounts, currentEpic, board_route, board_params.
+#}
+<nav class="flex flex-wrap items-center gap-2" aria-label="{{ 'board.filter_epic'|trans }}">
+    <span class="mr-1 text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">{{ 'board.filter_epic'|trans }}</span>
+    {% set chip_base = 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-label-md font-medium transition-colors' %}
+    {% set chip_on = 'border-primary/40 bg-primary-soft text-primary' %}
+    {% set chip_off = 'border-outline-variant/60 bg-surface-lowest text-on-surface-variant hover:border-primary/30 hover:text-on-surface' %}
+    <a href="{{ path(board_route, board_params) }}" class="{{ chip_base }} {{ currentEpic is null ? chip_on : chip_off }}">{{ 'board.all'|trans }}</a>
+    {% for epic in epics %}
+        <a href="{{ path(board_route, board_params|merge({epic: epic.key})) }}" class="{{ chip_base }} {{ currentEpic == epic.key ? chip_on : chip_off }}" title="{{ epic.key }}">
+            {{ epic.title }}<span class="rounded-full bg-surface px-1.5 font-mono text-[10px]">{{ epicCounts[epic.key] ?? 0 }}</span>
+        </a>
+    {% endfor %}
+    {% if epicCounts['NONE'] is defined %}
+        <a href="{{ path(board_route, board_params|merge({epic: 'none'})) }}" class="{{ chip_base }} {{ currentEpic == 'NONE' ? chip_on : chip_off }}">
+            {{ 'board.no_epic'|trans }}<span class="rounded-full bg-surface px-1.5 font-mono text-[10px]">{{ epicCounts['NONE'] }}</span>
+        </a>
+    {% endif %}
+</nav>

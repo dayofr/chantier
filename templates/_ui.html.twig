@@ -197,26 +197,6 @@
     </li>
 {% endmacro %}
 
-{# Liste compacte de décisions (vue projet). Variables : decisions (Activity), show_ticket. #}
-{% macro decision_list(decisions, show_ticket = true) %}
-    <ol class="flex flex-col gap-2">
-        {% for decision in decisions %}
-            <li class="rounded-lg border border-review/25 bg-review-soft/40 px-3 py-2">
-                <div class="prose-md text-body-sm">{{ decision.message|markdown }}</div>
-                <p class="mt-1 flex flex-wrap items-center gap-x-2 text-label-md text-outline">
-                    {% if show_ticket and decision.ticket %}
-                        <a href="{{ path('ticket_show', {key: decision.ticket.key}) }}" class="key hover:text-primary" title="{{ decision.ticket.title }}">{{ decision.ticket.key }}</a>
-                    {% endif %}
-                    <time datetime="{{ decision.createdAt|date('c') }}" title="{{ decision.createdAt|format_datetime('medium', 'short') }}">{{ decision.createdAt|format_date('medium') }}</time>
-                    {% if decision.sessionId %}
-                        <a href="{{ path('session_show', {sessionId: decision.sessionId}) }}" class="font-mono hover:text-primary" title="{{ 'activity.open_session'|trans }}">#{{ decision.sessionId|slice(0, 8) }}</a>
-                    {% endif %}
-                </p>
-            </li>
-        {% endfor %}
-    </ol>
-{% endmacro %}
-
 {% macro activity_entry(entry, show_subject = true, terms = []) %}
     {% set type = entry.type.value %}
     {% set icon = {created: 'add_circle', status_changed: 'swap_horiz', note: 'sticky_note_2', decision: 'gavel', progress: 'trending_up', blocker: 'block', commit: 'commit', test: 'science'}[type] %}

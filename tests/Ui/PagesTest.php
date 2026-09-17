@@ -54,6 +54,7 @@ final class PagesTest extends WebTestCase
             yield "$locale portfolio" => ["/$locale", 'Démo'];
             yield "$locale overview" => ["/$locale/projects/DEMO", 'Socle'];
             yield "$locale board" => ["/$locale/projects/DEMO/board", 'Premier'];
+            yield "$locale initiative" => ["/$locale/initiatives/DEMO-I1", 'Premier'];
             yield "$locale board filtered" => ["/$locale/projects/DEMO/board?epic=none", 'Orphelin'];
             yield "$locale ticket" => ["/$locale/tickets/DEMO-1", 'abc123'];
             yield "$locale project activity" => ["/$locale/projects/DEMO/activity", 'SQLite'];
@@ -90,7 +91,7 @@ final class PagesTest extends WebTestCase
         self::assertCount(1, $crawler->filter('aside a[href="/fr/activity"] [data-new-count][hidden]'));
     }
 
-    public function testProjectShowsDecisionsOnInitiativesAndEpics(): void
+    public function testInitiativePageShowsBoardAndDecisions(): void
     {
         $em = static::getContainer()->get(EntityManagerInterface::class);
         $project = $em->getRepository(Project::class)->findOneBy(['key' => 'DEMO']);
@@ -98,17 +99,35 @@ final class PagesTest extends WebTestCase
         $em->persist(new Activity($project, ActivityType::Decision, 'Décision d\'epic')->setSubjectKey('DEMO-E1'));
         $em->flush();
 
-        $crawler = $this->client->request('GET', '/fr/projects/DEMO');
-        self::assertResponseIsSuccessful();
+        // La vue projet mène à la vue initiative et n'affiche plus les décisions.
+        $overview = $this->client->request('GET', '/fr/projects/DEMO');
+        self::assertCount(1, $overview->filter('main a[href="/fr/initiatives/DEMO-I1"]'));
+        self::assertCount(1, $overview->filter('main a[href="/fr/initiatives/DEMO-I1?epic=DEMO-E1"]'));
+        self::assertStringNotContainsString('Décision d\'initiative', $overview->filter('main')->text());
 
-        $initiative = $crawler->filter('main details')->first();
-        self::assertStringContainsString('Décision d\'initiative', $initiative->text());
-        // setUp : décision "On garde SQLite" sur DEMO-1 (epic DEMO-E1) + celle posée sur l'epic.
-        self::assertStringContainsString('2 décisions', $initiative->filter('details details summary')->reduce(static fn ($n) => str_contains($n->text(), 'décision'))->text());
-        self::assertSame(
-            '/fr/projects/DEMO/activity?ticket=DEMO-I1&type%5B0%5D=decision',
-            $initiative->filter('a')->reduce(static fn ($a) => str_contains($a->text(), 'Voir les 3 décisions'))->attr('href'),
-        );
+        $crawler = $this->client->request('GET', '/fr/initiatives/DEMO-I1');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Socle');
+
+        // Décisions : initiative, epic et ticket (setUp : décision sur DEMO-1), plus récente d'abord.
+        $decisions = $crawler->filter('#decisions li .prose-md')->each(static fn ($n) => trim($n->text()));
+        self::assertSame(['Décision d\'epic', 'Décision d\'initiative', 'On garde SQLite.'], $decisions);
+
+        // Kanban : tickets de l'initiative seulement (l'orphelin DEMO-3 n'y est pas).
+        $keys = $crawler->filter('main a.card .key')->each(static fn ($n) => $n->text());
+        self::assertEqualsCanonicalizing(['DEMO-1', 'DEMO-2'], $keys);
+    }
+
+    public function testInitiativeEpicFilterAndNotFound(): void
+    {
+        $crawler = $this->client->request('GET', '/fr/initiatives/DEMO-I1?epic=DEMO-E1');
+        self::assertResponseIsSuccessful();
+        self::assertSame('/fr/initiatives/DEMO-I1', $crawler->filter('nav[aria-label="Filtrer par epic"] a')->first()->attr('href'));
+
+        $this->client->request('GET', '/fr/initiatives/DEMO-I1?epic=DEMO-E99');
+        self::assertResponseStatusCodeSame(404);
+        $this->client->request('GET', '/fr/initiatives/DEMO-I9');
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testSidebarCanBeCollapsed(): void
