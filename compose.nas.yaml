@@ -1,27 +1,23 @@
 # Hébergement sur NAS : base SQLite dans un dossier de l'hôte, sauvegardable avec le reste du NAS.
 #
-#   CHANTIER_DATA_DIR=/volume1/docker/chantier docker compose -f compose.nas.yaml up -d --build
+#   CHANTIER_DATA_DIR=/volume1/docker/chantier docker compose -f compose.nas.yaml up -d
 #
 # Le dossier doit être sur un disque local du NAS, pas sur un partage réseau monté (SMB/NFS) :
 # SQLite a besoin de verrous de fichiers fiables.
+#
+# Droits : le conteneur démarre en root, donne le dossier à www-data (uid 82) puis abandonne root.
+# Si le NAS refuse ce changement de propriétaire, lancer avec l'uid propriétaire du dossier :
+#   CHANTIER_UID=$(id -u) CHANTIER_GID=$(id -g) docker compose -f compose.nas.yaml up -d
 services:
   chantier:
-    build: .
-    image: chantier:latest
+    image: ${CHANTIER_IMAGE:-ghcr.io/dayofr/chantier:latest}
     container_name: chantier
     restart: unless-stopped
+    user: "${CHANTIER_UID:-0}:${CHANTIER_GID:-0}"
     ports:
-      - "${CHANTIER_PORT:-8080}:80"
+      - "${CHANTIER_PORT:-8080}:8080"
     environment:
-      APP_SECRET: ${APP_SECRET:-chantier-local-network-only}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Paris}
       DEFAULT_URI: ${DEFAULT_URI:-http://localhost:8080}
     volumes:
-      # chantier.db est créée ou migrée au démarrage.
       - ${CHANTIER_DATA_DIR:-./data}:/var/lib/chantier
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost/_live/version"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
