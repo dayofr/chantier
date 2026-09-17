@@ -104,15 +104,14 @@ final class PagesTest extends WebTestCase
         // Titre + bouton « Ouvrir » visible.
         self::assertCount(2, $overview->filter('main a[href="/fr/initiatives/DEMO-I1"]'));
         self::assertStringEndsWith('Ouvrir', trim($overview->filter('main summary a[href="/fr/initiatives/DEMO-I1"]')->last()->text()));
-        // Barre latérale du projet courant : liste des initiatives.
-        self::assertCount(1, $overview->filter('aside a.nav-link[href="/fr/initiatives/DEMO-I1"]'));
+        // Pas d'initiatives dans la barre latérale (choix de l'utilisateur).
+        self::assertCount(0, $overview->filter('aside a[href^="/fr/initiatives/"]'));
         self::assertCount(1, $overview->filter('main a[href="/fr/initiatives/DEMO-I1?epic=DEMO-E1"]'));
         self::assertStringNotContainsString('Décision d\'initiative', $overview->filter('main')->text());
 
         $crawler = $this->client->request('GET', '/fr/initiatives/DEMO-I1');
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Socle');
-        self::assertSelectorExists('aside a.nav-link[href="/fr/initiatives/DEMO-I1"][aria-current="page"]');
 
         // Le détail d'un ticket mène à son initiative et à son epic dans l'initiative.
         $ticket = $this->client->request('GET', '/fr/tickets/DEMO-1');

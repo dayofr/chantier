@@ -24,7 +24,6 @@ expand_more
 fact_check
 filter_alt
 filter_alt_off
-flag
 folder
 folder_code
 fork_right

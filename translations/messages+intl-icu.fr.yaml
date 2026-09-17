@@ -23,7 +23,6 @@ nav:
     board: Kanban
     activity: Activité
     all_activity: Toute l'activité
-    initiatives: Initiatives
     collapse: Réduire le menu
     expand: Déplier le menu
     no_projects: Aucun projet
