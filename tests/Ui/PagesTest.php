@@ -185,6 +185,21 @@ final class PagesTest extends WebTestCase
         self::assertSelectorTextContains('aside a[aria-current="true"]', 'Toutes les sessions');
     }
 
+    public function testPathsWithoutLanguageRedirect(): void
+    {
+        $this->client->request('GET', '/activity?session=abc', server: ['HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.9']);
+        self::assertResponseRedirects('/en/activity?session=abc');
+
+        $this->client->request('GET', '/projects/DEMO/board', server: ['HTTP_ACCEPT_LANGUAGE' => 'fr-FR']);
+        self::assertResponseRedirects('/fr/projects/DEMO/board');
+
+        // Page inexistante, API et MCP : pas de redirection.
+        $this->client->request('GET', '/nimporte-quoi');
+        self::assertResponseStatusCodeSame(404);
+        $this->client->request('GET', '/api/tickets/NOPE-1');
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testRootRedirectsToPreferredLanguage(): void
     {
         $this->client->request('GET', '/', server: ['HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.9']);

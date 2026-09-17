@@ -8,22 +8,11 @@ use App\Repository\ActivityRepository;
 use App\Repository\ProjectRepository;
 use App\Service\TicketStats;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class HomeController extends AbstractController
 {
-    /** Redirige vers la langue préférée du navigateur. */
-    #[Route('/', name: 'root', methods: ['GET'])]
-    public function root(Request $request): RedirectResponse
-    {
-        $locale = $request->getPreferredLanguage(['fr', 'en']) ?? 'fr';
-
-        return $this->redirectToRoute('portfolio', ['_locale' => $locale]);
-    }
-
     #[Route('/{_locale}', name: 'portfolio', requirements: ['_locale' => '%app.locales%'], methods: ['GET'])]
     public function portfolio(ProjectRepository $projects, ActivityRepository $activities): Response
     {
