@@ -17,6 +17,9 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProjectController extends AbstractController
 {
     /** Colonnes du Kanban, dans l'ordre. Les tickets annulés sont masqués. */
+    /** Cartes visibles dans la colonne Terminé avant le repli des plus anciennes. */
+    public const int DONE_VISIBLE = 10;
+
     private const array BOARD_COLUMNS = [
         TicketStatus::Backlog,
         TicketStatus::Todo,
@@ -58,8 +61,11 @@ final class ProjectController extends AbstractController
                 $columns[$ticket->getStatus()->value][] = $ticket;
             }
         }
-        foreach ($columns as &$column) {
-            usort($column, static fn (Ticket $a, Ticket $b) => [$b->getPriority()->weight(), $a->getNumber()] <=> [$a->getPriority()->weight(), $b->getNumber()]);
+        foreach ($columns as $status => &$column) {
+            usort($column, TicketStatus::Done->value === $status
+                // Terminés : les plus récemment finis d'abord.
+                ? static fn (Ticket $a, Ticket $b) => [$b->getCompletedAt(), $b->getNumber()] <=> [$a->getCompletedAt(), $a->getNumber()]
+                : static fn (Ticket $a, Ticket $b) => [$b->getPriority()->weight(), $a->getNumber()] <=> [$a->getPriority()->weight(), $b->getNumber()]);
         }
         unset($column);
 

@@ -96,6 +96,8 @@ board:
     all: Tous
     no_epic: Sans epic
     empty_column: Vide
+    show_older_done: '{count, plural, one {Afficher # plus ancien} other {Afficher les # plus anciens}}'
+    hide_older_done: Masquer les plus anciens
     completed: '{progress} % terminé'
     tickets_done: '{done} / {total} tickets terminés'
 
