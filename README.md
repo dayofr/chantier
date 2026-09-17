@@ -113,7 +113,7 @@ Pour qu'un autre projet soit suivi (consignes `CLAUDE.md`, hooks pour le résum�
 | `get_next_ticket` | Ticket en cours, sinon le plus prioritaire non bloqué |
 | `manage_subtasks` | Ajouter, cocher, décocher, supprimer |
 | `set_dependency` | `blocks` ou `relates_to`, détection des cycles |
-| `add_link` | PR, commit, branche, fichier, URL |
+| `add_link`, `remove_link` | PR, commit, branche, fichier, URL ; retrait noté au journal |
 | `log_activity`, `list_activity` | Journal ; `list_activity` filtre par texte, type, ticket/epic/initiative, session |
 | `start_session` | Nomme la séance, renvoie les résumés des séances précédentes |
 | `save_session_summary` | Résumé complet de la conversation et décisions prises (sans doublon) |

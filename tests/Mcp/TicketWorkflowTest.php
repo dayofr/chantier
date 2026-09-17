@@ -11,7 +11,7 @@ final class TicketWorkflowTest extends McpTestCase
         foreach (['list_projects', 'get_project', 'create_project', 'update_project', 'create_initiative', 'update_initiative',
             'create_epic', 'update_epic', 'create_tickets', 'update_ticket', 'get_ticket', 'search_tickets',
             'get_next_ticket', 'manage_subtasks', 'set_dependency', 'add_link', 'log_activity', 'list_activity',
-            'start_session', 'save_session_summary'] as $name) {
+            'start_session', 'save_session_summary', 'remove_link'] as $name) {
             self::assertArrayHasKey($name, $tools);
         }
         self::assertSame(['low', 'medium', 'high', 'urgent'], $tools['update_ticket']['inputSchema']['properties']['priority']['enum']);
@@ -137,6 +137,25 @@ final class TicketWorkflowTest extends McpTestCase
         self::assertSame($started['session']['id'], $decisions[0]['session']);
 
         self::assertStringContainsString('préciser', $this->callToolError('save_session_summary', ['summary' => 'x', 'decisions' => [['text' => 'Sans rattachement']]]));
+    }
+
+    public function testRemoveLink(): void
+    {
+        $this->seedProject();
+        $this->callTool('create_tickets', ['project' => 'CHANT', 'tickets' => [['title' => 'Liens']]]);
+        $this->callTool('add_link', ['ticket' => 'CHANT-1', 'type' => 'commit', 'reference' => 'abc123']);
+        $this->callTool('add_link', ['ticket' => 'CHANT-1', 'type' => 'branch', 'reference' => 'abc123']);
+        $this->callTool('add_link', ['ticket' => 'CHANT-1', 'type' => 'url', 'reference' => 'https://example.test']);
+
+        self::assertStringContainsString('préciser type', $this->callToolError('remove_link', ['ticket' => 'CHANT-1', 'reference' => 'abc123']));
+        self::assertStringContainsString('Liens existants', $this->callToolError('remove_link', ['ticket' => 'CHANT-1', 'reference' => 'nope']));
+
+        $detail = $this->callTool('remove_link', ['ticket' => 'CHANT-1', 'reference' => 'abc123', 'type' => 'commit', 'reason' => 'mauvais ticket']);
+        self::assertSame([['type' => 'branch', 'reference' => 'abc123'], ['type' => 'url', 'reference' => 'https://example.test']], $detail['links']);
+        self::assertSame('Lien retiré : commit `abc123` — mauvais ticket', $detail['recentActivity'][0]['message']);
+
+        // Relu depuis la base : le lien a bien disparu.
+        self::assertCount(2, $this->callTool('get_ticket', ['ticket' => 'CHANT-1'])['links']);
     }
 
     public function testDependencyCycleIsRejected(): void
