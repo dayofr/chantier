@@ -1,0 +1,12 @@
+# Failles écartées volontairement, avec justification et date de réexamen.
+# Retirer une entrée dès qu'une image de base corrigée est disponible (Dependabot la proposera).
+vulnerabilities:
+  - id: GHSA-r277-6w6q-xmqw
+    paths:
+      - usr/local/bin/frankenphp
+    statement: >-
+      kin-openapi v0.140.0 embarqué dans le binaire FrankenPHP 1.12.7 (dernière version au 17/09/2026).
+      La faille porte sur ValidationHandler de kin-openapi, utilisé comme middleware d'authentification
+      OpenAPI. Chantier ne l'utilise pas : le Caddyfile ne charge aucune validation OpenAPI, et
+      l'application n'a pas d'authentification. À réexaminer à la prochaine version de FrankenPHP.
+    expired_at: 2026-12-31
