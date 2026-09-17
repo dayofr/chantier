@@ -82,7 +82,7 @@ CHANTIER_DATA_DIR=/volume1/docker/chantier docker compose -f compose.nas.yaml up
 
 - `chantier.db` est créée (ou migrée) dans `CHANTIER_DATA_DIR` au démarrage ; défaut : `./data`.
 - Le dossier doit être sur un disque local du NAS, pas sur un partage SMB/NFS monté : SQLite a besoin de verrous fiables.
-- Si le NAS refuse le changement de propriétaire du dossier : `CHANTIER_UID=$(id -u) CHANTIER_GID=$(id -g) docker compose -f compose.nas.yaml up -d`.
+- Le conteneur tourne avec l'uid/gid propriétaires du dossier de données, `1000:1000` par défaut, car beaucoup de NAS interdisent au conteneur de changer ce propriétaire. Autres valeurs : `CHANTIER_UID=1026 CHANTIER_GID=100 docker compose -f compose.nas.yaml up -d` (`ls -n` sur le dossier donne les bons numéros).
 - Sauvegarde : copier `chantier.db` conteneur arrêté, ou à chaud : `docker exec chantier sqlite3 /var/lib/chantier/chantier.db ".backup /var/lib/chantier/sauvegarde.db"`.
 
 Reprendre les données d'une installation Docker existante (volume `chantier_chantier-data`) :

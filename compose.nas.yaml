@@ -5,15 +5,16 @@
 # Le dossier doit être sur un disque local du NAS, pas sur un partage réseau monté (SMB/NFS) :
 # SQLite a besoin de verrous de fichiers fiables.
 #
-# Droits : le conteneur démarre en root, donne le dossier à www-data (uid 82) puis abandonne root.
-# Si le NAS refuse ce changement de propriétaire, lancer avec l'uid propriétaire du dossier :
-#   CHANTIER_UID=$(id -u) CHANTIER_GID=$(id -g) docker compose -f compose.nas.yaml up -d
+# Droits : beaucoup de NAS interdisent au conteneur de changer le propriétaire du dossier monté.
+# Le conteneur tourne donc avec l'uid/gid propriétaires de CHANTIER_DATA_DIR (1000:1000 par défaut).
+# Les connaître : `ls -n` sur le dossier, ou `id -u` et `id -g` avec le compte qui le possède.
+#   CHANTIER_UID=1026 CHANTIER_GID=100 docker compose -f compose.nas.yaml up -d
 services:
   chantier:
     image: ${CHANTIER_IMAGE:-ghcr.io/dayofr/chantier:latest}
     container_name: chantier
     restart: unless-stopped
-    user: "${CHANTIER_UID:-0}:${CHANTIER_GID:-0}"
+    user: "${CHANTIER_UID:-1000}:${CHANTIER_GID:-1000}"
     ports:
       - "${CHANTIER_PORT:-8080}:8080"
     environment:
