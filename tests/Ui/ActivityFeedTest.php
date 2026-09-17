@@ -161,6 +161,22 @@ final class ActivityFeedTest extends WebTestCase
         self::assertCount(0, $all->filter('a[data-load-more]'));
     }
 
+    public function testAutomaticEventsAreGroupedUnlessFiltering(): void
+    {
+        // setUp crée 2 projets, une initiative, un epic et 2 tickets : 6 créations consécutives.
+        $crawler = $this->client->request('GET', '/fr/activity');
+        $group = $crawler->filter('#activity-feed [data-entry-group]');
+        self::assertCount(1, $group);
+        self::assertCount(6, $group->filter('[data-entry]'));
+        self::assertStringContainsString('6 créations', $group->filter('summary')->text());
+        // Les entrées écrites restent hors groupe.
+        self::assertCount(4, $crawler->filter('#activity-feed > li[data-entry]'));
+
+        $filtered = $this->client->request('GET', '/fr/activity?type[]=created');
+        self::assertCount(0, $filtered->filter('[data-entry-group]'));
+        self::assertCount(6, $filtered->filter('#activity-feed > li[data-entry]'));
+    }
+
     public function testNoMatchMessage(): void
     {
         $this->client->request('GET', '/fr/projects/FEED/activity?type[]=commit');

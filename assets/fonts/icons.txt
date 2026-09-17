@@ -55,6 +55,7 @@ search
 search_off
 sell
 smart_toy
+stacks
 sticky_note_2
 summarize
 swap_horiz

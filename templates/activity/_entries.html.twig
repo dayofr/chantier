@@ -1,14 +1,22 @@
 {#
     Entrées du journal groupées par jour. Variables : entries, filter, continued (true pour une page chargée après la première).
     Chaque en-tête de jour porte data-day pour que le chargement AJAX évite les doublons.
+    Les suites d'événements automatiques sont regroupées (ActivityGrouper).
 #}
 {% import '_ui.html.twig' as ui %}
+{# Pas de regroupement quand on filtre par type ou cherche : les résultats restent tous visibles. #}
+{% set grouped = filter.types is empty and filter.terms is empty %}
 {% set current_day = null %}
-{% for entry in entries %}
-    {% set day = entry.createdAt|date('Y-m-d', app_timezone) %}
+{% for item in activity_items(entries, grouped) %}
+    {% set first = item.kind == 'group' ? item.entries|first : item.entry %}
+    {% set day = first.createdAt|date('Y-m-d', app_timezone) %}
     {% if day != current_day %}
         {% set current_day = day %}
-        <li data-day="{{ day }}" class="mb-3 {{ not loop.first or continued ? 'mt-6' }} text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">{{ entry.createdAt|format_date('full') }}</li>
+        <li data-day="{{ day }}" class="mb-3 {{ not loop.first or continued ? 'mt-6' }} text-label-md font-semibold uppercase tracking-wider text-on-surface-variant">{{ first.createdAt|format_date('full') }}</li>
     {% endif %}
-    {{ ui.activity_entry(entry, true, filter.terms) }}
+    {% if item.kind == 'group' %}
+        {{ ui.activity_group(item, filter.terms) }}
+    {% else %}
+        {{ ui.activity_entry(item.entry, true, filter.terms) }}
+    {% endif %}
 {% endfor %}

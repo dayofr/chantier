@@ -7,6 +7,7 @@ use App\Enum\PlanStatus;
 use App\Live\DataVersion;
 use App\Enum\ProjectStatus;
 use App\Enum\TicketStatus;
+use App\Activity\ActivityGrouper;
 use App\Repository\ActivityRepository;
 use App\Repository\ProjectRepository;
 use App\Service\ProjectAlerts;
@@ -29,7 +30,21 @@ final class AppExtension
         private readonly DataVersion $dataVersion,
         private readonly ProjectAlerts $alerts,
         private readonly ActivityRepository $activities,
+        private readonly ActivityGrouper $grouper,
     ) {
+    }
+
+    /**
+     * Entrées du journal prêtes à afficher, avec les suites automatiques regroupées.
+     *
+     * @param list<\App\Entity\Activity> $entries
+     */
+    #[AsTwigFunction('activity_items')]
+    public function activityItems(array $entries, bool $grouped = true): array
+    {
+        return $grouped
+            ? $this->grouper->group($entries)
+            : array_map(static fn ($e) => ['kind' => 'entry', 'entry' => $e], $entries);
     }
 
     /** Id de la dernière entrée du journal, pour le compteur de nouveautés. */

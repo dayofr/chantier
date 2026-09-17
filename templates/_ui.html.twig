@@ -125,6 +125,74 @@
 {% endmacro %}
 
 {# Entrée du journal. #}
+{# Libellé d'un événement du journal : « Ticket créé », « Statut : À faire → En cours », « Décision »… #}
+{% macro activity_event(entry) -%}
+    {%- set type = entry.type.value -%}
+    {%- if type == 'created' -%}
+        {{ 'activity.event.created'|trans({kind: entry.data.kind ?? 'ticket'}) }}
+    {%- elseif type == 'status_changed' -%}
+        {%- set kind = entry.data.kind ?? 'ticket' -%}
+        {%- set prefix = kind == 'ticket' ? 'ticket_status.' : (kind == 'project' ? 'project_status.' : 'plan_status.') -%}
+        {{ 'activity.event.status_changed'|trans({from: (prefix ~ entry.data.from)|trans, to: (prefix ~ entry.data.to)|trans}) }}
+    {%- else -%}
+        {{ entry.type|trans }}
+    {%- endif -%}
+{%- endmacro %}
+
+{#
+    Suite d'événements automatiques repliée (ActivityGrouper). Identifiée par sa plus ancienne entrée :
+    l'id reste stable quand des événements s'ajoutent en haut, le rafraîchissement garde l'état ouvert/fermé.
+#}
+{% macro activity_group(item, terms = []) %}
+    {% set entries = item.entries %}
+    {% set newest = entries|first %}
+    {% set oldest = entries|last %}
+    <li id="activity-group-{{ oldest.id }}" data-entry-group class="group/g relative flex gap-3 pb-5 last:pb-0">
+        <span class="absolute left-[15px] top-8 bottom-0 w-px bg-outline-variant/50 group-last/g:hidden"></span>
+        <span class="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-muted-soft text-muted group-has-[[data-new]]/g:ring-2 group-has-[[data-new]]/g:ring-primary group-has-[[data-new]]/g:ring-offset-2 group-has-[[data-new]]/g:ring-offset-surface-lowest">
+            <span class="icon text-[17px]">stacks</span>
+        </span>
+        <details class="group/d min-w-0 flex-1 pt-1">
+            <summary class="flex cursor-pointer list-none flex-wrap items-center gap-x-2 gap-y-1 rounded-md text-body-sm hover:text-primary">
+                <span class="icon text-[18px] text-outline transition-transform group-open/d:rotate-90">chevron_right</span>
+                <span class="font-semibold">{{ 'activity.group.title'|trans({count: entries|length}) }}</span>
+                <span class="text-on-surface-variant">
+                    {{- [
+                        item.created ? 'activity.group.created'|trans({count: item.created}) : null,
+                        item.statusChanged ? 'activity.group.status_changed'|trans({count: item.statusChanged}) : null,
+                    ]|filter(v => v)|join(' · ') -}}
+                </span>
+                <span class="hidden rounded-full bg-primary-soft px-1.5 text-label-sm font-semibold text-primary group-has-[[data-new]]/g:inline">{{ 'activity.new.badge'|trans }}</span>
+                <span class="ml-auto text-label-md text-outline">
+                    <time datetime="{{ newest.createdAt|date('c') }}" title="{{ oldest.createdAt|format_datetime('medium', 'short') }} – {{ newest.createdAt|format_datetime('medium', 'short') }}">{{ newest.createdAt|ago }}</time>
+                </span>
+            </summary>
+            <p class="mt-1 flex flex-wrap items-center gap-2 pl-6 text-label-md text-outline">
+                <span>{{ 'activity.by'|trans({author: newest.author}) }}</span>
+                {% if newest.sessionId %}
+                    <a href="{{ path('session_show', {sessionId: newest.sessionId}) }}" class="font-mono hover:text-primary" title="{{ 'activity.open_session'|trans }}">#{{ newest.sessionId|slice(0, 8) }}</a>
+                {% endif %}
+            </p>
+            <ol class="mt-2 flex flex-col gap-1 border-l border-outline-variant/60 pl-4">
+                {% for entry in entries %}
+                    <li data-entry="{{ entry.id }}" class="group flex min-w-0 flex-wrap items-baseline gap-x-2 text-body-sm">
+                        {% if entry.ticket %}
+                            <a href="{{ path('ticket_show', {key: entry.ticket.key}) }}" class="key hover:text-primary">{{ entry.subjectKey|highlight(terms) }}</a>
+                        {% else %}
+                            <a href="{{ path('project_show', {key: entry.project.key}) }}" class="key hover:text-primary">{{ entry.subjectKey|highlight(terms) }}</a>
+                        {% endif %}
+                        <span>{{ _self.activity_event(entry) }}</span>
+                        {% if entry.type.value == 'created' and entry.data.title is defined %}
+                            <span class="min-w-0 truncate text-on-surface-variant">{{ entry.data.title|highlight(terms) }}</span>
+                        {% endif %}
+                        <span class="hidden rounded-full bg-primary-soft px-1.5 text-label-sm font-semibold text-primary group-data-new:inline">{{ 'activity.new.badge'|trans }}</span>
+                    </li>
+                {% endfor %}
+            </ol>
+        </details>
+    </li>
+{% endmacro %}
+
 {% macro activity_entry(entry, show_subject = true, terms = []) %}
     {% set type = entry.type.value %}
     {% set icon = {created: 'add_circle', status_changed: 'swap_horiz', note: 'sticky_note_2', decision: 'gavel', progress: 'trending_up', blocker: 'block', commit: 'commit', test: 'science'}[type] %}
@@ -143,17 +211,7 @@
                         <a href="{{ path('project_show', {key: entry.project.key}) }}" class="key hover:text-primary">{{ entry.subjectKey|highlight(terms) }}</a>
                     {% endif %}
                 {% endif %}
-                <span class="font-semibold">
-                    {%- if type == 'created' -%}
-                        {{ 'activity.event.created'|trans({kind: entry.data.kind ?? 'ticket'}) }}
-                    {%- elseif type == 'status_changed' -%}
-                        {% set kind = entry.data.kind ?? 'ticket' %}
-                        {% set prefix = kind == 'ticket' ? 'ticket_status.' : (kind == 'project' ? 'project_status.' : 'plan_status.') %}
-                        {{ 'activity.event.status_changed'|trans({from: (prefix ~ entry.data.from)|trans, to: (prefix ~ entry.data.to)|trans}) }}
-                    {%- else -%}
-                        {{ entry.type|trans }}
-                    {%- endif -%}
-                </span>
+                <span class="font-semibold">{{ _self.activity_event(entry) }}</span>
                 {% if type == 'created' and entry.data.title is defined %}
                     <span class="truncate text-on-surface-variant">{{ entry.data.title|highlight(terms) }}</span>
                 {% endif %}

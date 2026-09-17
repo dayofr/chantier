@@ -164,6 +164,10 @@ activity:
         badge: Nouveau
         separator: Déjà vu lors de votre dernière visite
         count_title: Entrées ajoutées depuis votre dernière visite
+    group:
+        title: '{count, plural, other {# événements automatiques}}'
+        created: '{count, plural, one {# création} other {# créations}}'
+        status_changed: '{count, plural, one {# changement de statut} other {# changements de statut}}'
     load_more: Plus ancien
     event:
         created: '{kind, select, project {Projet créé} initiative {Initiative créée} epic {Epic créé} other {Ticket créé}}'
