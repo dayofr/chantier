@@ -76,17 +76,7 @@ claude mcp add --transport http --scope user chantier http://<ip-du-serveur>:808
 
 Le fichier `.mcp.json` de ce dépôt déclare déjà le serveur sur `localhost:8080`.
 
-Pour qu'un autre projet soit suivi, ajouter à son `CLAUDE.md` :
-
-```markdown
-## Suivi de projet
-Ce projet est suivi dans Chantier (MCP `chantier`, clé projet `XXX`).
-- Début de session : `start_session` avec l'objectif, puis `get_next_ticket`.
-- Avant de coder : passer le ticket en `in_progress`. Pas de travail hors ticket : sinon `create_tickets`.
-- Pendant : `log_activity` pour décisions, blocages, commits, résultats de tests.
-- Fin : cocher les sous-tâches, `add_link` pour commits/PR, statut `in_review` ou `done`.
-- Après chaque étape importante et en fin de séance : `save_session_summary` (résumé complet + décisions).
-```
+Pour qu'un autre projet soit suivi (consignes `CLAUDE.md`, hooks pour le résumé de séance) : voir [docs/claude-code.md](docs/claude-code.md).
 
 ## Outils MCP
 

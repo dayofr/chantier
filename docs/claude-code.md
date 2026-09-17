@@ -1,0 +1,69 @@
+# Brancher Claude Code sur Chantier
+
+Trois niveaux, du plus simple au plus fiable. Remplacer `chantier.local:8080` par l'adresse du serveur.
+
+## 1. Serveur MCP
+
+```bash
+claude mcp add --transport http --scope user chantier http://chantier.local:8080/mcp
+```
+
+Le serveur envoie déjà des instructions à Claude : `start_session` en début de séance,
+`save_session_summary` après chaque étape importante et en fin de séance.
+
+## 2. Consignes dans le CLAUDE.md du projet suivi
+
+```markdown
+## Suivi de projet
+Ce projet est suivi dans Chantier (MCP `chantier`, clé projet `XXX`).
+- Début de séance : `start_session` avec l'objectif, puis `get_next_ticket`.
+- Avant de coder : passer le ticket en `in_progress`. Pas de travail hors ticket : sinon `create_tickets`.
+- Pendant : `log_activity` pour décisions, blocages, commits, résultats de tests.
+- Fin : cocher les sous-tâches, `add_link` pour commits/PR, statut `in_review` ou `done`.
+- Après chaque étape importante et en fin de séance : `save_session_summary` (résumé complet + décisions).
+```
+
+Consignes et instructions MCP ne garantissent pas le résumé : Claude peut l'oublier, surtout en fin de séance.
+
+## 3. Hooks (recommandé pour le résumé)
+
+Chantier ne voit pas la conversation. Deux hooks font écrire le résumé par Claude :
+
+| Hook | Script | Effet |
+|---|---|---|
+| `Stop` | `chantier-stop.sh` | Quand la conversation a avancé d'environ 60 Ko depuis le dernier rappel, empêche Claude de s'arrêter et lui demande `save_session_summary`. Silencieux si la séance n'utilise pas Chantier ou si le résumé vient d'être envoyé. |
+| `SessionStart` | `chantier-session-start.sh` | Au démarrage : rappelle `start_session`. Après compaction : demande de reconstituer le résumé. |
+
+Pourquoi pas `PreCompact` : ce hook ne peut ni bloquer ni faire agir Claude. Le hook `Stop` limité en fréquence
+garantit un résumé récent avant qu'une compaction n'efface les détails.
+
+### Installation
+
+```bash
+mkdir -p ~/.claude/hooks
+curl -fsSL http://chantier.local:8080/claude-code/chantier-stop.sh -o ~/.claude/hooks/chantier-stop.sh
+curl -fsSL http://chantier.local:8080/claude-code/chantier-session-start.sh -o ~/.claude/hooks/chantier-session-start.sh
+```
+
+Puis fusionner la configuration dans les réglages Claude Code
+([modèle](../public/claude-code/settings.example.json), aussi servi sur `/claude-code/settings.example.json`) :
+
+- **`Stop`** : dans `~/.claude/settings.json` (tous les projets). Sans effet sur les séances qui n'utilisent pas Chantier.
+- **`SessionStart`** : dans `.claude/settings.json` de chaque projet suivi, sinon le rappel apparaît partout.
+
+Les scripts n'utilisent que `sh`, `sed`, `grep`, `tail` et `wc` (testés avec le `sh` de macOS et `dash`).
+
+### Réglages
+
+| Variable | Défaut | Rôle |
+|---|---|---|
+| `CHANTIER_MCP_SERVER` | `chantier` | Nom du serveur MCP dans Claude Code |
+| `CHANTIER_SUMMARY_EVERY_BYTES` | `60000` | Croissance du transcript entre deux rappels |
+
+L'état (taille du transcript au dernier rappel) est gardé dans `$TMPDIR/chantier-hooks/`.
+
+### Limites connues
+
+- Le seuil en octets est une approximation de « la conversation a avancé » : les longues sorties d'outils comptent autant que les échanges.
+- Le résumé est demandé à la fin d'une réponse, jamais au milieu d'une tâche.
+- Si Claude Code change le format d'entrée des hooks, les scripts laissent passer (sortie 0) plutôt que de bloquer.
