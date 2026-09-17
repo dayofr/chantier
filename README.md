@@ -99,7 +99,7 @@ Pour qu'un autre projet soit suivi (consignes `CLAUDE.md`, hooks pour le résum�
 | `start_session` | Nomme la séance, renvoie les résumés des séances précédentes |
 | `save_session_summary` | Résumé complet de la conversation et décisions prises (sans doublon) |
 
-Chaque écriture MCP est journalisée avec le nom du client et l'id de session MCP.
+Chaque écriture MCP est journalisée avec le nom du client et sa séance. Sans session MCP (révision `2026-07-28`, utilisée par Claude Code), les écritures d'un client rejoignent sa dernière séance active ; voir [docs/claude-code.md](docs/claude-code.md#séances).
 
 ## Sécurité
 

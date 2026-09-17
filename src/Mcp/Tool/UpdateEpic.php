@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class UpdateEpic
 {
+    use SessionAwareTrait;
+
     /** Clé de l'epic, ex. AETH-E3. */
     #[Assert\NotBlank]
     public string $epic = '';

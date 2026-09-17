@@ -37,4 +37,16 @@ class AgentSessionRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    /** Dernière séance du client active depuis $since. */
+    public function findLatestActive(string $client, \DateTimeImmutable $since): ?AgentSession
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.client = :client')->setParameter('client', $client)
+            ->andWhere('s.lastSeenAt >= :since')->setParameter('since', $since)
+            ->orderBy('s.lastSeenAt', 'DESC')
+            ->addOrderBy('s.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()->getOneOrNullResult();
+    }
 }

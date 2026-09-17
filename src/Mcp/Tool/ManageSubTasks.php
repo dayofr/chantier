@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class ManageSubTasks
 {
+    use SessionAwareTrait;
+
     #[Assert\NotBlank]
     public string $ticket = '';
 

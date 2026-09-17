@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class UpdateInitiative
 {
+    use SessionAwareTrait;
+
     /** Clé de l'initiative, ex. AETH-I1. */
     #[Assert\NotBlank]
     public string $initiative = '';

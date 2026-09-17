@@ -9,6 +9,8 @@ use App\Repository\ActivityRepository;
 /** @extends AbstractToolProcessor<ListActivity> */
 final class ListActivityProcessor extends AbstractToolProcessor
 {
+    protected const bool READ_ONLY = true;
+
     public function __construct(private readonly ActivityRepository $activities)
     {
     }

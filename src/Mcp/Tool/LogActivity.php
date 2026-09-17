@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class LogActivity
 {
+    use SessionAwareTrait;
+
     /** Clé du ticket concerné. Prioritaire sur project. */
     public ?string $ticket = null;
 

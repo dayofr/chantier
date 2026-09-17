@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class StartSession
 {
+    use SessionAwareTrait;
+
     /** Objectif de la séance en quelques mots, ex. "CHANT-39 à 42 : sessions et résumés". */
     #[Assert\NotBlank, Assert\Length(max: 200)]
     public string $title = '';

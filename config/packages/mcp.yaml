@@ -13,6 +13,8 @@ mcp:
                 Crée les tickets manquants avec create_tickets plutôt que de travailler hors ticket.
                 Après chaque étape importante et en fin de séance : save_session_summary avec le résumé
                 complet de la conversation (demandes, travail fait, points ouverts) et les décisions prises.
+                Sans session MCP, les appels sont rattachés à la dernière séance ouverte par ton client ;
+                si plusieurs agents travaillent en parallèle, passe l'id renvoyé par start_session dans "session".
             registry: ['*']
             transports:
                 http: true
@@ -20,6 +22,9 @@ mcp:
             http:
                 path: /mcp
                 allowed_hosts: false
+            subscriptions:
+                # Sous la limite d'exécution PHP (30 s) : le flux se ferme proprement au lieu d'être tué.
+                lifetime: 25
             session:
                 store: file
                 directory: '%kernel.project_dir%/var/mcp-sessions'

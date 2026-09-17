@@ -11,12 +11,24 @@ claude mcp add --transport http --scope user chantier http://chantier.local:8080
 Le serveur envoie déjà des instructions à Claude : `start_session` en début de séance,
 `save_session_summary` après chaque étape importante et en fin de séance.
 
+### Séances
+
+Claude Code utilise la révision MCP `2026-07-28`, sans session de connexion. Chantier regroupe donc les appels en séances ainsi :
+
+- les appels d'un même client (ex. `claude-code`) sont rattachés à sa dernière séance active ;
+- `start_session` ouvre une nouvelle séance, que les appels suivants rejoignent ;
+- après `APP_SESSION_IDLE_HOURS` heures sans écriture (4 par défaut), une nouvelle séance s'ouvre ;
+- plusieurs Claude Code en parallèle : chacun passe l'id renvoyé par `start_session` dans le paramètre `session` des outils qui écrivent.
+
+Les outils de lecture n'ouvrent pas de séance.
+
 ## 2. Consignes dans le CLAUDE.md du projet suivi
 
 ```markdown
 ## Suivi de projet
 Ce projet est suivi dans Chantier (MCP `chantier`, clé projet `XXX`).
 - Début de séance : `start_session` avec l'objectif, puis `get_next_ticket`.
+- Si plusieurs agents travaillent en parallèle : passer `session` (id renvoyé par `start_session`) aux outils qui écrivent.
 - Avant de coder : passer le ticket en `in_progress`. Pas de travail hors ticket : sinon `create_tickets`.
 - Pendant : `log_activity` pour décisions, blocages, commits, résultats de tests.
 - Fin : cocher les sous-tâches, `add_link` pour commits/PR, statut `in_review` ou `done`.

@@ -9,6 +9,8 @@ use App\Repository\TicketRepository;
 /** @extends AbstractToolProcessor<GetNextTicket> */
 final class GetNextTicketProcessor extends AbstractToolProcessor
 {
+    protected const bool READ_ONLY = true;
+
     public function __construct(private readonly TicketRepository $tickets)
     {
     }

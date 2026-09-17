@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class UpdateTicket
 {
+    use SessionAwareTrait;
+
     /** Clé du ticket, ex. AETH-12. */
     #[Assert\NotBlank]
     public string $ticket = '';

@@ -9,6 +9,8 @@ use App\Mcp\Tool\ListProjects;
 /** @extends AbstractToolProcessor<ListProjects> */
 final class ListProjectsProcessor extends AbstractToolProcessor
 {
+    protected const bool READ_ONLY = true;
+
     protected function handle(object $data): array
     {
         $criteria = [];

@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Mcp\Schema\Content\TextContent;
 use Mcp\Schema\Result\CallToolResult;
 use Mcp\Server\Session\SessionInterface;
+use Mcp\Server\Stateless\RequestMeta;
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -32,8 +33,16 @@ abstract class AbstractToolProcessor implements ProcessorInterface
     protected Presenter $presenter;
     protected ValidatorInterface $validator;
     private ActorContext $actor;
-    private SessionTracker $sessionTracker;
+    protected SessionTracker $sessionTracker;
+    protected string $client = 'mcp';
+    /** Session MCP avec état (ère handshake), null en protocole sans état. */
+    protected ?string $mcpSessionId = null;
+    /** Identifiant de séance passé explicitement par l'agent. */
+    protected ?string $explicitSessionId = null;
     private ?AgentSession $currentSession = null;
+
+    /** Outil de lecture : pas de séance résolue ni créée. */
+    protected const bool READ_ONLY = false;
 
     #[Required]
     public function setDependencies(
@@ -57,16 +66,12 @@ abstract class AbstractToolProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): CallToolResult
     {
-        $session = $context['mcp_session'] ?? null;
-        if ($session instanceof SessionInterface) {
-            $client = $session->get('client_info')['name'] ?? 'mcp';
-            $this->actor->set($client, $session->getId()->toRfc4122());
-            $this->currentSession = $this->sessionTracker->track($session->getId()->toRfc4122(), $client);
-        } else {
-            $this->actor->set('mcp');
-        }
+        $this->identify($context, $data);
 
         try {
+            if (!static::READ_ONLY) {
+                $this->currentSession();
+            }
             $result = $this->handle($data);
         } catch (ToolError $e) {
             return new CallToolResult([new TextContent($e->getMessage())], true);
@@ -75,10 +80,53 @@ abstract class AbstractToolProcessor implements ProcessorInterface
         return new CallToolResult([new TextContent(json_encode($result, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES))]);
     }
 
-    /** Fiche de la session MCP en cours ; erreur si l'appel ne vient pas d'une session. */
+    /**
+     * Client et mode de protocole de l'appel.
+     * Sans état, le nom du client arrive dans le _meta de chaque requête ; avec état, à l'initialisation.
+     */
+    private function identify(array $context, object $data): void
+    {
+        $session = $context['mcp_session'] ?? null;
+        $meta = $session instanceof SessionInterface ? $session->get(RequestMeta::class) : null;
+
+        if ($meta instanceof RequestMeta) {
+            $this->client = $meta->clientInfo?->name ?? 'mcp';
+            $this->mcpSessionId = null;
+        } elseif ($session instanceof SessionInterface) {
+            $this->client = $session->get('client_info')['name'] ?? 'mcp';
+            $this->mcpSessionId = $session->getId()->toRfc4122();
+        } else {
+            $this->client = 'mcp';
+            $this->mcpSessionId = null;
+        }
+
+        $explicit = property_exists($data, 'session') ? trim((string) $data->session) : '';
+        $this->explicitSessionId = '' === $explicit ? null : $explicit;
+        $this->currentSession = null;
+        $this->actor->set($this->client);
+    }
+
+    /** Séance de l'appel, résolue une fois puis utilisée pour signer le journal. */
     protected function currentSession(): AgentSession
     {
-        return $this->currentSession ?? throw new ToolError('Cet outil doit être appelé depuis une session MCP.');
+        if (null === $this->currentSession) {
+            $this->currentSession = $this->resolveSession();
+            $this->actor->set($this->client, $this->currentSession->getSessionId());
+        }
+
+        return $this->currentSession;
+    }
+
+    protected function resolveSession(): AgentSession
+    {
+        if (null !== $this->explicitSessionId) {
+            return $this->sessionTracker->find($this->explicitSessionId)
+                ?? throw new ToolError(\sprintf('Séance "%s" introuvable. Appelle start_session pour en ouvrir une.', $this->explicitSessionId));
+        }
+
+        return null !== $this->mcpSessionId
+            ? $this->sessionTracker->track($this->mcpSessionId, $this->client)
+            : $this->sessionTracker->current($this->client);
     }
 
     /** Valide les entités modifiées, puis enregistre. */

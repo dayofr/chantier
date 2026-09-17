@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class SaveSessionSummary
 {
+    use SessionAwareTrait;
+
     /** Markdown. Demandes de l'utilisateur, ce qui a été fait, points ouverts. Complet, pas un delta. */
     #[Assert\NotBlank, Assert\Length(max: 20000)]
     public string $summary = '';

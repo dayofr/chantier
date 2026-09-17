@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class CreateEpic
 {
+    use SessionAwareTrait;
+
     /** Clé de l'initiative parente, ex. AETH-I1. */
     #[Assert\NotBlank]
     public string $initiative = '';

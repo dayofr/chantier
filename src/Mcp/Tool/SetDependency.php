@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class SetDependency
 {
+    use SessionAwareTrait;
+
     /** Ticket bloquant, ex. AETH-3. */
     #[Assert\NotBlank]
     public string $source = '';

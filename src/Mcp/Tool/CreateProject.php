@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class CreateProject
 {
+    use SessionAwareTrait;
+
     /** 2 à 10 caractères, majuscules et chiffres, ex. AETH. */
     #[Assert\NotBlank]
     public string $key = '';

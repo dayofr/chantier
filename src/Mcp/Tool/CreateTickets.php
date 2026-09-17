@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class CreateTickets
 {
+    use SessionAwareTrait;
+
     #[Assert\NotBlank]
     public string $project = '';
 
