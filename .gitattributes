@@ -1,0 +1,2 @@
+# Scripts PowerShell : fins de ligne Windows.
+*.ps1 text eol=crlf
