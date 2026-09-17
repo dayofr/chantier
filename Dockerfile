@@ -29,6 +29,8 @@ RUN composer dump-autoload --classmap-authoritative --no-dev \
     && composer dump-env prod \
     && php bin/console cache:warmup \
     && php bin/console assets:install public \
+    # Bibliothèques JS de l'importmap (assets/vendor, non versionné).
+    && php bin/console importmap:install \
     && php bin/console tailwind:build --minify \
     && php bin/console asset-map:compile \
     # Le binaire Tailwind (~100 Mo) ne sert qu'à la construction.
