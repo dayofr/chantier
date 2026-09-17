@@ -101,13 +101,23 @@ final class PagesTest extends WebTestCase
 
         // La vue projet mène à la vue initiative et n'affiche plus les décisions.
         $overview = $this->client->request('GET', '/fr/projects/DEMO');
-        self::assertCount(1, $overview->filter('main a[href="/fr/initiatives/DEMO-I1"]'));
+        // Titre + bouton « Ouvrir » visible.
+        self::assertCount(2, $overview->filter('main a[href="/fr/initiatives/DEMO-I1"]'));
+        self::assertStringEndsWith('Ouvrir', trim($overview->filter('main summary a[href="/fr/initiatives/DEMO-I1"]')->last()->text()));
+        // Barre latérale du projet courant : liste des initiatives.
+        self::assertCount(1, $overview->filter('aside a.nav-link[href="/fr/initiatives/DEMO-I1"]'));
         self::assertCount(1, $overview->filter('main a[href="/fr/initiatives/DEMO-I1?epic=DEMO-E1"]'));
         self::assertStringNotContainsString('Décision d\'initiative', $overview->filter('main')->text());
 
         $crawler = $this->client->request('GET', '/fr/initiatives/DEMO-I1');
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Socle');
+        self::assertSelectorExists('aside a.nav-link[href="/fr/initiatives/DEMO-I1"][aria-current="page"]');
+
+        // Le détail d'un ticket mène à son initiative et à son epic dans l'initiative.
+        $ticket = $this->client->request('GET', '/fr/tickets/DEMO-1');
+        self::assertCount(1, $ticket->filter('main dd a[href="/fr/initiatives/DEMO-I1"]'));
+        self::assertCount(1, $ticket->filter('main dd a[href="/fr/initiatives/DEMO-I1?epic=DEMO-E1"]'));
 
         // Décisions : initiative, epic et ticket (setUp : décision sur DEMO-1), plus récente d'abord.
         $decisions = $crawler->filter('#decisions li .prose-md')->each(static fn ($n) => trim($n->text()));

@@ -46,7 +46,7 @@
                             {{ ui.status(initiative.status) }}
                             {{ ui.risk(initiative.risk) }}
                         </div>
-                        <h3 class="mt-1 font-display text-headline-sm font-semibold"><a href="{{ path('initiative_show', {key: initiative.key}) }}" class="hover:text-primary hover:underline">{{ initiative.title }}</a></h3>
+                        <h3 class="mt-1 font-display text-headline-sm font-semibold"><a href="{{ path('initiative_show', {key: initiative.key}) }}" class="underline decoration-outline-variant underline-offset-4 hover:text-primary hover:decoration-primary">{{ initiative.title }}</a></h3>
                         <p class="mt-0.5 text-body-sm text-on-surface-variant">
                             {{ 'project.epics_count'|trans({count: initiative.epics|length}) }} · {{ 'project.tickets_done'|trans({done: is.done, total: is.total}) }}
                         </p>
@@ -55,6 +55,10 @@
                         <div class="mb-1 flex justify-between text-label-md font-medium"><span>{{ 'project.kpi.progress'|trans }}</span><span class="font-mono">{{ is.progress }}%</span></div>
                         {{ ui.progress(is.progress) }}
                     </div>
+                    <a href="{{ path('initiative_show', {key: initiative.key}) }}"
+                       class="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-primary/30 bg-primary-soft px-3 py-1.5 text-label-md font-semibold text-primary hover:border-primary/60">
+                        <span class="icon text-[17px]">view_kanban</span>{{ 'project.open_initiative'|trans }}
+                    </a>
                 </summary>
 
                 <div class="flex flex-col gap-3 border-t border-outline-variant/40 bg-surface-low/40 p-4 sm:p-5">
@@ -69,7 +73,7 @@
                                 <div class="min-w-0 flex-1">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <span class="key">{{ epic.key }}</span>
-                                        <a href="{{ path('initiative_show', {key: initiative.key, epic: epic.key}) }}" class="font-semibold hover:text-primary hover:underline">{{ epic.title }}</a>
+                                        <a href="{{ path('initiative_show', {key: initiative.key, epic: epic.key}) }}" class="font-semibold underline decoration-outline-variant underline-offset-4 hover:text-primary hover:decoration-primary">{{ epic.title }}</a>
                                         {{ ui.status(epic.status) }}
                                     </div>
                                     <p class="mt-0.5 flex flex-wrap gap-x-3 text-label-md text-on-surface-variant">

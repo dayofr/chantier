@@ -7,9 +7,9 @@
     <a href="{{ path('project_show', {key: project.key}) }}" class="hidden max-w-40 truncate hover:text-on-surface sm:inline">{{ project.name }}</a>
     {% if ticket.epic %}
         <span class="icon hidden text-[16px] text-outline sm:inline">chevron_right</span>
-        <a href="{{ path('project_show', {key: project.key}) }}" class="hidden max-w-48 truncate hover:text-on-surface 2xl:inline" title="{{ ticket.epic.initiative.key }}">{{ ticket.epic.initiative.title }}</a>
+        <a href="{{ path('initiative_show', {key: ticket.epic.initiative.key}) }}" class="hidden max-w-48 truncate hover:text-on-surface 2xl:inline" title="{{ ticket.epic.initiative.key }}">{{ ticket.epic.initiative.title }}</a>
         <span class="icon hidden text-[16px] text-outline 2xl:inline">chevron_right</span>
-        <a href="{{ path('project_board', {key: project.key, epic: ticket.epic.key}) }}" class="min-w-0 max-w-48 truncate hover:text-on-surface" title="{{ ticket.epic.key }}">{{ ticket.epic.title }}</a>
+        <a href="{{ path('initiative_show', {key: ticket.epic.initiative.key, epic: ticket.epic.key}) }}" class="min-w-0 max-w-48 truncate hover:text-on-surface" title="{{ ticket.epic.key }}">{{ ticket.epic.title }}</a>
     {% endif %}
     <span class="icon text-[16px] text-outline">chevron_right</span>
     <span class="shrink-0 whitespace-nowrap rounded bg-primary-soft px-1.5 py-0.5 font-mono text-label-md font-semibold text-primary">{{ ticket.key }}</span>
@@ -107,9 +107,9 @@
             <dl class="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2.5 text-body-sm">
                 {% if ticket.epic %}
                     <dt class="text-on-surface-variant">{{ 'ticket.initiative'|trans }}</dt>
-                    <dd class="truncate"><span class="key">{{ ticket.epic.initiative.key }}</span> {{ ticket.epic.initiative.title }}</dd>
+                    <dd class="truncate"><a class="hover:text-primary hover:underline" href="{{ path('initiative_show', {key: ticket.epic.initiative.key}) }}"><span class="key">{{ ticket.epic.initiative.key }}</span> {{ ticket.epic.initiative.title }}</a></dd>
                     <dt class="text-on-surface-variant">{{ 'ticket.epic'|trans }}</dt>
-                    <dd class="truncate"><a class="hover:text-primary" href="{{ path('project_board', {key: project.key, epic: ticket.epic.key}) }}"><span class="key">{{ ticket.epic.key }}</span> {{ ticket.epic.title }}</a></dd>
+                    <dd class="truncate"><a class="hover:text-primary hover:underline" href="{{ path('initiative_show', {key: ticket.epic.initiative.key, epic: ticket.epic.key}) }}"><span class="key">{{ ticket.epic.key }}</span> {{ ticket.epic.title }}</a></dd>
                 {% endif %}
                 {% if ticket.assignee %}
                     <dt class="text-on-surface-variant">{{ 'ticket.assignee'|trans }}</dt><dd>{{ ticket.assignee }}</dd>

@@ -23,6 +23,7 @@ nav:
     board: Kanban
     activity: Activité
     all_activity: Toute l'activité
+    initiatives: Initiatives
     collapse: Réduire le menu
     expand: Déplier le menu
     no_projects: Aucun projet
@@ -70,6 +71,7 @@ project:
     no_epics: Aucun epic dans cette initiative.
     no_tickets: Aucun ticket.
     target: 'Cible {date}'
+    open_initiative: Ouvrir
     orphans:
         title: Tickets sans epic
         hint: À rattacher à un epic.

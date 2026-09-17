@@ -23,6 +23,7 @@ nav:
     board: Board
     activity: Activity
     all_activity: All activity
+    initiatives: Initiatives
     collapse: Collapse menu
     expand: Expand menu
     no_projects: No projects
@@ -70,6 +71,7 @@ project:
     no_epics: No epics in this initiative.
     no_tickets: No tickets.
     target: 'Target {date}'
+    open_initiative: Open
     orphans:
         title: Tickets without epic
         hint: Should be attached to an epic.

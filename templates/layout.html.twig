@@ -53,6 +53,16 @@
                                     <span class="icon text-[17px]">{{ item.icon }}</span><span class="nav-label">{{ item.label|trans }}</span>
                                 </a>
                             {% endfor %}
+                            {% if p.initiatives|length %}
+                                <p class="mt-2 px-3 pb-1 text-label-sm font-semibold uppercase tracking-wider text-outline collapsed:hidden">{{ 'nav.initiatives'|trans }}</p>
+                                {% for i in p.initiatives %}
+                                    {% set is_open = current_initiative is defined and current_initiative and current_initiative.key == i.key %}
+                                    <a href="{{ path('initiative_show', {key: i.key}) }}" class="nav-link py-1.5" title="{{ i.key }} · {{ i.title }}" {{ is_open ? 'aria-current="page"' }}>
+                                        <span class="icon text-[17px] {{ i.status.value in ['done', 'cancelled'] ? 'text-outline' }}">flag</span>
+                                        <span class="nav-label truncate {{ i.status.value in ['done', 'cancelled'] ? 'text-outline' }}">{{ i.title }}</span>
+                                    </a>
+                                {% endfor %}
+                            {% endif %}
                         </div>
                     {% endif %}
                 {% else %}
