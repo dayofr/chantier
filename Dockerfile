@@ -1,17 +1,16 @@
 # syntax=docker/dockerfile:1
 
-# Versions figées ; Dependabot propose les mises à jour.
-ARG FRANKENPHP_IMAGE=dunglas/frankenphp:1.12.7-php8.5.10-alpine
-ARG COMPOSER_IMAGE=composer:2.10.3
+# Versions figées en clair dans les FROM : Dependabot propose les mises à jour.
+# Garder les deux images FrankenPHP à la même version.
 
-FROM ${COMPOSER_IMAGE} AS composer
+FROM composer:2.10.3 AS composer
 
 # ---------------------------------------------------------------------------
 # Construction : dépendances, cache Symfony, CSS Tailwind, assets compilés.
 # Tourne sur la plateforme de la machine de build : le résultat (PHP, CSS) ne
 # dépend pas de l'architecture, inutile de l'émuler pour arm64.
 # ---------------------------------------------------------------------------
-FROM --platform=$BUILDPLATFORM ${FRANKENPHP_IMAGE} AS build
+FROM --platform=$BUILDPLATFORM dunglas/frankenphp:1.12.7-php8.5.10-alpine AS build
 
 RUN install-php-extensions intl pdo_sqlite zip
 COPY --from=composer /usr/bin/composer /usr/bin/composer
@@ -40,7 +39,7 @@ RUN composer dump-autoload --classmap-authoritative --no-dev \
 # ---------------------------------------------------------------------------
 # Image finale : PHP de production, sans outils de construction, non root.
 # ---------------------------------------------------------------------------
-FROM ${FRANKENPHP_IMAGE}
+FROM dunglas/frankenphp:1.12.7-php8.5.10-alpine
 
 ARG VERSION=dev
 LABEL org.opencontainers.image.title="Chantier" \

@@ -1,6 +1,8 @@
 {
+    "name": "dayofr/chantier",
+    "description": "Mini Jira pour suivre le travail de Claude Code : serveur MCP, API REST et interface en lecture seule.",
     "type": "project",
-    "license": "proprietary",
+    "license": "BSD-3-Clause",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {

@@ -1,6 +1,12 @@
 # Chantier
 
+[![CI](https://github.com/DayoFr/chantier/actions/workflows/ci.yml/badge.svg)](https://github.com/DayoFr/chantier/actions/workflows/ci.yml)
+[![Image](https://img.shields.io/badge/image-ghcr.io%2Fdayofr%2Fchantier-blue)](https://github.com/DayoFr/chantier/pkgs/container/chantier)
+[![Licence](https://img.shields.io/badge/licence-BSD--3--Clause-green)](LICENSE)
+
 Mini Jira pour suivre le travail de Claude Code. L'agent écrit via MCP, l'humain consulte.
+
+> **Pas d'authentification.** Chantier est prévu pour un réseau local de confiance. Ne pas l'exposer sur Internet.
 
 - **Interface web** : `/` (lecture seule, fr/en, thème clair/sombre)
 - **API REST** : `/api` (doc Swagger sur `/api/docs`)
@@ -44,26 +50,40 @@ Un ticket est aussi considéré bloqué si un ticket qui le bloque n'est pas ter
 
 ## Lancer
 
-### Docker (usage courant)
+Image multi-architecture (amd64, arm64) : `ghcr.io/dayofr/chantier`, tags `latest`, `0.1.0`, `0.1`…
+
+### Docker
 
 ```bash
-docker compose up -d --build
+docker run -d --name chantier -p 8080:8080 -v chantier-data:/var/lib/chantier --restart unless-stopped ghcr.io/dayofr/chantier:latest
 ```
 
-Écoute sur le port 8080 de toutes les interfaces. La base vit dans le volume `chantier-data`.
-Port différent : `CHANTIER_PORT=9000 docker compose up -d`.
+Ou avec `compose.yaml` : `docker compose up -d` (image publiée), `docker compose up -d --build` (depuis les sources).
+
+L'interface est sur http://localhost:8080. La base SQLite vit dans `/var/lib/chantier` (volume `chantier-data`), créée ou migrée à chaque démarrage.
+
+| Variable | Défaut | Rôle |
+|---|---|---|
+| `APP_TIMEZONE` | `Europe/Paris` | Fuseau d'affichage des dates |
+| `DEFAULT_URI` | `http://localhost` | URL de base pour les liens générés hors requête |
+| `APP_STALE_HOURS` | `48` | Heures sans mouvement avant qu'un ticket en cours soit signalé |
+| `APP_SESSION_IDLE_HOURS` | `4` | Inactivité avant qu'un agent ouvre une nouvelle séance |
+| `APP_SECRET` | aléatoire à chaque démarrage | Secret Symfony (aucune session ni authentification ne s'en sert) |
+
+Mise à jour : `docker compose pull && docker compose up -d`. Les migrations s'appliquent au démarrage.
+
+L'application tourne sous `www-data` (uid 82) : le conteneur démarre en root, donne le dossier de données à cet utilisateur, puis abandonne root.
 
 ### NAS (base SQLite hors Docker)
 
 ```bash
-CHANTIER_DATA_DIR=/volume1/docker/chantier docker compose -f compose.nas.yaml up -d --build
+CHANTIER_DATA_DIR=/volume1/docker/chantier docker compose -f compose.nas.yaml up -d
 ```
 
 - `chantier.db` est créée (ou migrée) dans `CHANTIER_DATA_DIR` au démarrage ; défaut : `./data`.
 - Le dossier doit être sur un disque local du NAS, pas sur un partage SMB/NFS monté : SQLite a besoin de verrous fiables.
-- Variables : `CHANTIER_PORT` (8080), `APP_TIMEZONE` (Europe/Paris), `DEFAULT_URI`.
-- Sauvegarde : copier `chantier.db` conteneur arrêté, ou `sqlite3 chantier.db ".backup chantier-sauvegarde.db"` à chaud.
-- Construit depuis les sources sur le NAS (image FrankenPHP disponible en amd64 et arm64).
+- Si le NAS refuse le changement de propriétaire du dossier : `CHANTIER_UID=$(id -u) CHANTIER_GID=$(id -g) docker compose -f compose.nas.yaml up -d`.
+- Sauvegarde : copier `chantier.db` conteneur arrêté, ou à chaud : `docker exec chantier sqlite3 /var/lib/chantier/chantier.db ".backup /var/lib/chantier/sauvegarde.db"`.
 
 Reprendre les données d'une installation Docker existante (volume `chantier_chantier-data`) :
 
@@ -88,6 +108,19 @@ composer serve
 ```bash
 composer test
 ```
+
+La CI (GitHub Actions) lance les tests, les scénarios des hooks PowerShell, puis construit l'image et vérifie son démarrage.
+
+## Publier une version
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Le workflow `Publication` relance la CI, scanne l'image (Trivy, bloquant sur faille critique corrigeable), puis publie
+`ghcr.io/dayofr/chantier` en amd64 et arm64 avec SBOM et provenance. À la première publication, rendre le package public :
+*Packages → chantier → Package settings → Change visibility*.
 
 ## Brancher Claude Code
 
@@ -128,3 +161,7 @@ Chaque écriture MCP est journalisée avec le nom du client et sa séance. Sans 
 
 Aucune authentification : usage sur réseau local de confiance uniquement.
 La protection DNS rebinding du serveur MCP est désactivée (`allowed_hosts: false`) pour accepter les accès par IP.
+
+## Licence
+
+[BSD 3-Clause](LICENSE) © DayoFr. Polices : voir [assets/fonts/LICENSES.md](assets/fonts/LICENSES.md).
