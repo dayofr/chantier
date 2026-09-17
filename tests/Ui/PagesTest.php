@@ -90,6 +90,27 @@ final class PagesTest extends WebTestCase
         self::assertCount(1, $crawler->filter('aside a[href="/fr/activity"] [data-new-count][hidden]'));
     }
 
+    public function testProjectShowsDecisionsOnInitiativesAndEpics(): void
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $project = $em->getRepository(Project::class)->findOneBy(['key' => 'DEMO']);
+        $em->persist(new Activity($project, ActivityType::Decision, 'Décision d\'initiative')->setSubjectKey('DEMO-I1'));
+        $em->persist(new Activity($project, ActivityType::Decision, 'Décision d\'epic')->setSubjectKey('DEMO-E1'));
+        $em->flush();
+
+        $crawler = $this->client->request('GET', '/fr/projects/DEMO');
+        self::assertResponseIsSuccessful();
+
+        $initiative = $crawler->filter('main details')->first();
+        self::assertStringContainsString('Décision d\'initiative', $initiative->text());
+        // setUp : décision "On garde SQLite" sur DEMO-1 (epic DEMO-E1) + celle posée sur l'epic.
+        self::assertStringContainsString('2 décisions', $initiative->filter('details details summary')->reduce(static fn ($n) => str_contains($n->text(), 'décision'))->text());
+        self::assertSame(
+            '/fr/projects/DEMO/activity?ticket=DEMO-I1&type%5B0%5D=decision',
+            $initiative->filter('a')->reduce(static fn ($a) => str_contains($a->text(), 'Voir les 3 décisions'))->attr('href'),
+        );
+    }
+
     public function testSidebarCanBeCollapsed(): void
     {
         $this->client->request('GET', '/en');

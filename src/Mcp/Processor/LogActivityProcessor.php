@@ -24,15 +24,15 @@ final class LogActivityProcessor extends AbstractToolProcessor
             throw new ToolError(\sprintf('type : "%s" est réservé au journal automatique.', $type->value));
         }
 
-        if (null !== $data->ticket && '' !== $data->ticket) {
-            $ticket = $this->lookup->ticket($data->ticket);
-            $activity = new Activity($ticket->getProject(), $type, $data->message)->setTicket($ticket);
+        $subject = trim((string) ($data->subject ?: $data->ticket));
+        if ('' !== $subject) {
+            $activity = $this->activityOn($subject, $type, $data->message);
         } elseif (null !== $data->project && '' !== $data->project) {
-            $activity = new Activity($this->lookup->project($data->project), $type, $data->message);
+            $activity = $this->actor->stamp(new Activity($this->lookup->project($data->project), $type, $data->message));
         } else {
-            throw new ToolError('Préciser ticket ou project.');
+            throw new ToolError('Préciser subject (ticket, epic ou initiative) ou project.');
         }
-        $this->save($this->actor->stamp($activity));
+        $this->save($activity);
 
         return $this->presenter->activity($activity);
     }

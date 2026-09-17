@@ -61,6 +61,17 @@
                     {% if initiative.description %}
                         <div class="prose-md text-on-surface-variant">{{ initiative.description|markdown }}</div>
                     {% endif %}
+                    {% set direct = decisions.initiatives[initiative.key] ?? [] %}
+                    {% set total = decisions.initiativeTotals[initiative.key] ?? 0 %}
+                    {% if total %}
+                        <section>
+                            <h4 class="mb-2 flex items-center gap-1.5 text-label-md font-semibold uppercase tracking-wide text-review">
+                                <span class="icon text-[16px]">gavel</span>{{ 'project.decisions.initiative'|trans({count: direct|length}) }}
+                                <a href="{{ path('project_activity', {key: project.key, ticket: initiative.key, type: ['decision']}) }}" class="ml-auto font-sans text-label-md font-medium normal-case tracking-normal text-primary hover:underline">{{ 'project.decisions.all'|trans({count: total}) }}</a>
+                            </h4>
+                            {% if direct is not empty %}{{ ui.decision_list(direct) }}{% endif %}
+                        </section>
+                    {% endif %}
                     {% for epic in initiative.epics %}
                         {% set es = ticket_stats(epic.tickets) %}
                         <details class="card group/epic" {{ epic.status.value not in ['done', 'cancelled'] ? 'open' }}>
@@ -86,6 +97,16 @@
                             <div class="border-t border-outline-variant/40 px-1 py-1">
                                 {% if epic.description %}
                                     <div class="prose-md px-3 py-2 text-body-sm text-on-surface-variant">{{ epic.description|markdown }}</div>
+                                {% endif %}
+                                {% set epic_decisions = decisions.epics[epic.key] ?? [] %}
+                                {% if epic_decisions is not empty %}
+                                    <details class="group/dec mx-3 my-2">
+                                        <summary class="flex cursor-pointer list-none items-center gap-1.5 text-label-md font-semibold uppercase tracking-wide text-review">
+                                            <span class="icon text-[16px] transition-transform group-open/dec:rotate-90">chevron_right</span>
+                                            <span class="icon text-[16px]">gavel</span>{{ 'project.decisions.epic'|trans({count: epic_decisions|length}) }}
+                                        </summary>
+                                        <div class="mt-2">{{ ui.decision_list(epic_decisions) }}</div>
+                                    </details>
                                 {% endif %}
                                 {% for ticket in epic.tickets %}
                                     {{ ui.ticket_row(ticket) }}

@@ -21,6 +21,9 @@ Mini Jira pour suivre le travail de Claude Code. L'agent écrit via MCP, l'humai
 Polices et icônes sont servies localement (`assets/fonts`), l'interface marche sans internet.
 Les icônes sont un sous-ensemble : pour en utiliser une nouvelle, l'ajouter à `assets/fonts/icons.txt` puis lancer `php bin/download-fonts`.
 
+La vue projet affiche les décisions de chaque epic (posées sur l'epic ou ses tickets) et de chaque initiative.
+La description d'une initiative ou d'un epic sert au périmètre ; les choix faits se notent comme décisions, datées et rattachées à leur séance.
+
 Un projet affiche des points d'attention : goulots, tickets en cours sans mouvement depuis `APP_STALE_HOURS` heures (48 par défaut), bloqués, sans epic.
 
 ## Modèle
@@ -114,7 +117,7 @@ Pour qu'un autre projet soit suivi (consignes `CLAUDE.md`, hooks pour le résum�
 | `manage_subtasks` | Ajouter, cocher, décocher, supprimer |
 | `set_dependency` | `blocks` ou `relates_to`, détection des cycles |
 | `add_link`, `remove_link` | PR, commit, branche, fichier, URL ; retrait noté au journal |
-| `log_activity`, `list_activity` | Journal ; `list_activity` filtre par texte, type, ticket/epic/initiative, session |
+| `log_activity`, `list_activity` | Journal sur un ticket, un epic ou une initiative (`subject`) ; `list_activity` filtre par texte, type, ticket/epic/initiative, session |
 | `start_session` | Nomme la séance, renvoie les résumés des séances précédentes |
 | `save_session_summary` | Résumé complet de la conversation et décisions prises (sans doublon) |
 

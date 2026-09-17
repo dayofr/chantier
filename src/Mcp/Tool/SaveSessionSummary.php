@@ -24,19 +24,20 @@ final class SaveSessionSummary
 
     #[ApiProperty(schema: [
         'type' => 'array',
-        'description' => 'Décisions prises pendant la séance, avec le ticket concerné si possible.',
+        'description' => 'Décisions prises pendant la séance, rattachées au ticket, à l\'epic ou à l\'initiative qu\'elles concernent.',
         'items' => [
             'type' => 'object',
             'required' => ['text'],
             'properties' => [
                 'text' => ['type' => 'string', 'description' => 'La décision et sa raison, en une ou deux phrases.'],
-                'ticket' => ['type' => 'string', 'description' => 'Clé du ticket concerné.'],
+                'subject' => ['type' => 'string', 'description' => 'Clé du ticket (CHANT-12), de l\'epic (CHANT-E3) ou de l\'initiative (CHANT-I1) concerné.'],
+                'ticket' => ['type' => 'string', 'description' => 'Ancien nom de subject.'],
             ],
         ],
     ])]
     #[Assert\Count(max: 50)]
     public array $decisions = [];
 
-    /** Projet des décisions sans ticket. */
+    /** Projet des décisions sans sujet. */
     public ?string $project = null;
 }

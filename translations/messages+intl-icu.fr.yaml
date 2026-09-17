@@ -70,6 +70,10 @@ project:
     no_epics: Aucun epic dans cette initiative.
     no_tickets: Aucun ticket.
     target: 'Cible {date}'
+    decisions:
+        initiative: '{count, plural, =0 {Décisions} one {Décision sur l''initiative} other {Décisions sur l''initiative (#)}}'
+        epic: '{count, plural, one {# décision} other {# décisions}}'
+        all: '{count, plural, one {Voir la décision de l''initiative} other {Voir les # décisions de l''initiative}}'
     orphans:
         title: Tickets sans epic
         hint: À rattacher à un epic.

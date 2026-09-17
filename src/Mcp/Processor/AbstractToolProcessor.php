@@ -6,7 +6,10 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Activity\ActorContext;
 use App\Activity\SessionTracker;
+use App\Entity\Activity;
 use App\Entity\AgentSession;
+use App\Entity\Ticket;
+use App\Enum\ActivityType;
 use App\Mcp\Lookup;
 use App\Mcp\Presenter;
 use App\Mcp\ToolError;
@@ -127,6 +130,19 @@ abstract class AbstractToolProcessor implements ProcessorInterface
         return null !== $this->mcpSessionId
             ? $this->sessionTracker->track($this->mcpSessionId, $this->client)
             : $this->sessionTracker->current($this->client);
+    }
+
+    /**
+     * Entrée de journal sur un ticket, un epic ou une initiative (clé), signée par l'agent.
+     * Le projet est celui du sujet.
+     */
+    protected function activityOn(string $subjectKey, ActivityType $type, ?string $message): Activity
+    {
+        $subject = $this->lookup->subject($subjectKey);
+        $activity = new Activity($subject->getProject(), $type, $message);
+        $subject instanceof Ticket ? $activity->setTicket($subject) : $activity->setSubjectKey($subject->getKey());
+
+        return $this->actor->stamp($activity);
     }
 
     /** Valide les entités modifiées, puis enregistre. */

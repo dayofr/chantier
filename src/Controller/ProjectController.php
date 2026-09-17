@@ -6,6 +6,7 @@ use App\Entity\Epic;
 use App\Entity\Project;
 use App\Entity\Ticket;
 use App\Enum\TicketStatus;
+use App\Activity\DecisionIndex;
 use App\Service\ProjectAlerts;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,12 +31,13 @@ final class ProjectController extends AbstractController
     ];
 
     #[Route('', name: 'project_show')]
-    public function show(#[MapEntity(mapping: ['key' => 'key'])] Project $project, ProjectAlerts $alerts): Response
+    public function show(#[MapEntity(mapping: ['key' => 'key'])] Project $project, ProjectAlerts $alerts, DecisionIndex $decisions): Response
     {
         return $this->render('project/show.html.twig', [
             'project' => $project,
             'alerts' => $alerts->for($project),
             'staleHours' => $alerts->staleHours(),
+            'decisions' => $decisions->for($project),
         ]);
     }
 

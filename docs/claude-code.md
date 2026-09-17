@@ -31,6 +31,7 @@ Ce projet est suivi dans Chantier (MCP `chantier`, clé projet `XXX`).
 - Si plusieurs agents travaillent en parallèle : passer `session` (id renvoyé par `start_session`) aux outils qui écrivent.
 - Avant de coder : passer le ticket en `in_progress`. Pas de travail hors ticket : sinon `create_tickets`.
 - Pendant : `log_activity` pour décisions, blocages, commits, résultats de tests.
+- Une décision qui vaut pour tout un epic ou une initiative : `log_activity` avec `subject` = sa clé (ex. `XXX-E3`).
 - Fin : cocher les sous-tâches, `add_link` pour commits/PR, statut `in_review` ou `done`.
 - Après chaque étape importante et en fin de séance : `save_session_summary` (résumé complet + décisions).
 ```

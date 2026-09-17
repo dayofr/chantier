@@ -36,6 +36,21 @@ final readonly class Lookup
     }
 
     /**
+     * Ticket, epic ou initiative d'après la forme de la clé : CHANT-12, CHANT-E3, CHANT-I1.
+     */
+    public function subject(?string $key): Ticket|Epic|Initiative
+    {
+        $key = strtoupper(trim((string) $key));
+
+        return match (1) {
+            preg_match('/^[A-Z][A-Z0-9]*-I\d+$/', $key) => $this->initiative($key),
+            preg_match('/^[A-Z][A-Z0-9]*-E\d+$/', $key) => $this->epic($key),
+            preg_match('/^[A-Z][A-Z0-9]*-\d+$/', $key) => $this->ticket($key),
+            default => throw new ToolError(\sprintf('Sujet "%s" invalide : attendu une clé de ticket (CHANT-12), d\'epic (CHANT-E3) ou d\'initiative (CHANT-I1).', $key)),
+        };
+    }
+
+    /**
      * @template T of object
      *
      * @param class-string<T> $class

@@ -9,6 +9,7 @@ mcp:
                 Début de séance : start_session avec l'objectif (renvoie les résumés des séances précédentes),
                 puis get_next_ticket ou search_tickets. Passe le ticket en in_progress.
                 Pendant : log_activity pour chaque étape notable (décision, commit, blocage, tests).
+                Une décision qui vaut pour tout un epic ou une initiative se pose sur sa clé (subject: CHANT-E3, CHANT-I1).
                 Après : update_ticket (in_review ou done), coche les sous-tâches, add_link pour les commits.
                 Crée les tickets manquants avec create_tickets plutôt que de travailler hors ticket.
                 Après chaque étape importante et en fin de séance : save_session_summary avec le résumé

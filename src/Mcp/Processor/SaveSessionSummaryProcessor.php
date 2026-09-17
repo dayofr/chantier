@@ -37,16 +37,15 @@ final class SaveSessionSummaryProcessor extends AbstractToolProcessor
                 continue;
             }
 
-            $ticketKey = $decision['ticket'] ?? null;
-            if (null !== $ticketKey && '' !== $ticketKey) {
-                $ticket = $this->lookup->ticket($ticketKey);
-                $activity = new Activity($ticket->getProject(), ActivityType::Decision, $text)->setTicket($ticket);
+            $subject = trim((string) ($decision['subject'] ?? $decision['ticket'] ?? ''));
+            if ('' !== $subject) {
+                $activity = $this->activityOn($subject, ActivityType::Decision, $text);
             } elseif (null !== $defaultProject) {
-                $activity = new Activity($defaultProject, ActivityType::Decision, $text);
+                $activity = $this->actor->stamp(new Activity($defaultProject, ActivityType::Decision, $text));
             } else {
-                throw new ToolError(\sprintf('decisions[%d] : préciser "ticket", ou "project" pour les décisions générales.', $i));
+                throw new ToolError(\sprintf('decisions[%d] : préciser "subject" (ticket, epic ou initiative), ou "project" pour les décisions générales.', $i));
             }
-            $entities[] = $this->actor->stamp($activity);
+            $entities[] = $activity;
             ++$created;
         }
 

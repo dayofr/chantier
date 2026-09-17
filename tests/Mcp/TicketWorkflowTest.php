@@ -158,6 +158,27 @@ final class TicketWorkflowTest extends McpTestCase
         self::assertCount(2, $this->callTool('get_ticket', ['ticket' => 'CHANT-1'])['links']);
     }
 
+    public function testDecisionsOnEpicsAndInitiatives(): void
+    {
+        $this->seedProject();
+        $this->callTool('create_tickets', ['project' => 'CHANT', 'epic' => 'CHANT-E1', 'tickets' => [['title' => 'Ticket de l\'epic']]]);
+
+        $onInitiative = $this->callTool('log_activity', ['subject' => 'chant-i1', 'type' => 'decision', 'message' => 'Pas de login.']);
+        self::assertSame('CHANT-I1', $onInitiative['subject']);
+        $this->callTool('log_activity', ['subject' => 'CHANT-E1', 'type' => 'decision', 'message' => 'SQLite.']);
+        $this->callTool('log_activity', ['ticket' => 'CHANT-1', 'type' => 'decision', 'message' => 'Ancien paramètre ticket.']);
+        $this->callTool('save_session_summary', ['summary' => 'x', 'decisions' => [['text' => 'Via le résumé.', 'subject' => 'CHANT-E1']]]);
+
+        self::assertStringContainsString('invalide', $this->callToolError('log_activity', ['subject' => 'CHANT-X1', 'message' => 'x']));
+
+        // Filtre sur l'initiative : décisions de l'initiative, de ses epics et de leurs tickets.
+        $all = array_column($this->callTool('list_activity', ['ticket' => 'CHANT-I1', 'type' => ['decision']])['activities'], 'message');
+        self::assertEqualsCanonicalizing(['Pas de login.', 'SQLite.', 'Ancien paramètre ticket.', 'Via le résumé.'], $all);
+        // Sur l'epic : pas la décision de l'initiative.
+        $epic = array_column($this->callTool('list_activity', ['ticket' => 'CHANT-E1', 'type' => ['decision']])['activities'], 'message');
+        self::assertEqualsCanonicalizing(['SQLite.', 'Ancien paramètre ticket.', 'Via le résumé.'], $epic);
+    }
+
     public function testDependencyCycleIsRejected(): void
     {
         $this->seedProject();

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Activity;
 use App\Activity\ActivityFilter;
+use App\Entity\Epic;
 use App\Entity\Project;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -99,9 +100,10 @@ class ActivityRepository extends ServiceEntityRepository
             $qb->andWhere('a.sessionId = :session')->setParameter('session', $filter->session);
         }
         if (null !== $subject = $filter->subject()) {
-            // Ticket, epic ou initiative : entrées du sujet lui-même et des tickets qu'il contient.
+            // Ticket, epic ou initiative : entrées du sujet lui-même, de ses tickets et, pour une initiative, de ses epics.
             $qb->leftJoin('t.epic', 'se')->leftJoin('se.initiative', 'si')
-                ->andWhere('a.subjectKey = :subject OR se.key = :subject OR si.key = :subject')
+                ->andWhere('a.subjectKey = :subject OR se.key = :subject OR si.key = :subject OR a.subjectKey IN ('
+                    .'SELECT sub_e.key FROM '.Epic::class.' sub_e JOIN sub_e.initiative sub_i WHERE sub_i.key = :subject)')
                 ->setParameter('subject', $subject);
         }
         if (null !== $since) {
