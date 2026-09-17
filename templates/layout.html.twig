@@ -9,7 +9,7 @@
 {% set current_project = project ?? null %}
 
 {% block body %}
-<div class="flex min-h-screen" data-live data-live-url="{{ path('live_version') }}" data-live-version="{{ live_version() }}">
+<div class="flex min-h-screen" data-live data-live-url="{{ path('live_version') }}" data-live-version="{{ live_version() }}" data-latest-activity="{{ latest_activity_id() }}">
     {# ---------- Barre latérale (réductible en rail d'icônes) ---------- #}
     <aside id="sidebar" class="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-outline-variant/40 bg-surface-low transition-[width] duration-200 collapsed:w-16 lg:flex">
         <a href="{{ path('portfolio') }}" class="flex items-center gap-3 px-5 py-4 collapsed:justify-center collapsed:px-0" title="{{ 'app.name'|trans }}">
@@ -26,8 +26,9 @@
             <a href="{{ path('portfolio') }}" class="nav-link" title="{{ 'nav.portfolio'|trans }}" {{ route == 'portfolio' ? 'aria-current="page"' }}>
                 <span class="icon text-[19px]">grid_view</span><span class="nav-label">{{ 'nav.portfolio'|trans }}</span>
             </a>
-            <a href="{{ path('activity') }}" class="nav-link" title="{{ 'nav.all_activity'|trans }}" {{ route == 'activity' ? 'aria-current="page"' }}>
+            <a href="{{ path('activity') }}" class="nav-link relative" title="{{ 'nav.all_activity'|trans }}" {{ route == 'activity' ? 'aria-current="page"' }}>
                 <span class="icon text-[19px]">history</span><span class="nav-label">{{ 'nav.all_activity'|trans }}</span>
+                <span data-new-count hidden title="{{ 'activity.new.count_title'|trans }}" class="ml-auto rounded-full bg-primary-container px-1.5 font-mono text-[10px] font-semibold leading-4 text-white collapsed:absolute collapsed:top-1 collapsed:right-1 collapsed:ml-0 collapsed:size-2 collapsed:overflow-hidden collapsed:p-0 collapsed:text-[0px]"></span>
             </a>
         </nav>
 
@@ -82,7 +83,7 @@
                 </summary>
                 <nav class="absolute left-0 top-11 z-40 flex w-64 flex-col gap-0.5 rounded-xl border border-outline-variant/50 bg-surface-lowest p-2 shadow-card-hover">
                     <a href="{{ path('portfolio') }}" class="nav-link">{{ 'nav.portfolio'|trans }}</a>
-                    <a href="{{ path('activity') }}" class="nav-link">{{ 'nav.all_activity'|trans }}</a>
+                    <a href="{{ path('activity') }}" class="nav-link">{{ 'nav.all_activity'|trans }}<span data-new-count hidden title="{{ 'activity.new.count_title'|trans }}" class="ml-auto rounded-full bg-primary-container px-1.5 font-mono text-[10px] font-semibold leading-4 text-white"></span></a>
                     <hr class="my-1 border-outline-variant/50">
                     {% for p in sidebar_projects() %}
                         <a href="{{ path('project_show', {key: p.key}) }}" class="nav-link"><span class="key">{{ p.key }}</span>{{ p.name }}</a>

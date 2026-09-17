@@ -25,6 +25,7 @@ document.addEventListener('click', async (event) => {
 
         feed.append(...items.children);
         feed.dataset.count = String(feed.querySelectorAll('[data-entry]').length);
+        document.dispatchEvent(new CustomEvent('chantier:feed-extended'));
 
         const next = fragment.querySelector('[data-load-more-wrap]');
         const wrap = link.closest('[data-load-more-wrap]');

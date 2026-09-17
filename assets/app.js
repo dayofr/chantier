@@ -5,3 +5,4 @@ import './sidebar.js';
 import './filters.js';
 import './feed.js';
 import './live.js';
+import './new-since.js';

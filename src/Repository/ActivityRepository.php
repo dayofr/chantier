@@ -181,4 +181,9 @@ class ActivityRepository extends ServiceEntityRepository
 
         return $result;
     }
+
+    public function latestId(): int
+    {
+        return (int) $this->createQueryBuilder('a')->select('MAX(a.id)')->getQuery()->getSingleScalarResult();
+    }
 }

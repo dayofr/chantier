@@ -79,6 +79,17 @@ final class PagesTest extends WebTestCase
         self::assertSelectorNotExists('svg[role="img"]');
     }
 
+    public function testNewSinceLastVisitHooks(): void
+    {
+        $crawler = $this->client->request('GET', '/fr/activity');
+
+        $latest = (int) $crawler->filter('[data-live]')->attr('data-latest-activity');
+        $ids = $crawler->filter('#activity-feed [data-entry]')->each(static fn ($n) => (int) $n->attr('data-entry'));
+        self::assertSame(max($ids), $latest);
+        self::assertSame('Déjà vu lors de votre dernière visite', $crawler->filter('#activity-feed')->attr('data-label-seen'));
+        self::assertCount(1, $crawler->filter('aside a[href="/fr/activity"] [data-new-count][hidden]'));
+    }
+
     public function testSidebarCanBeCollapsed(): void
     {
         $this->client->request('GET', '/en');

@@ -160,6 +160,10 @@ activity:
         apply: Appliquer
         no_match: Aucune entrée ne correspond aux filtres.
     open_session: Fiche de la session
+    new:
+        badge: Nouveau
+        separator: Déjà vu lors de votre dernière visite
+        count_title: Entrées ajoutées depuis votre dernière visite
     load_more: Plus ancien
     event:
         created: '{kind, select, project {Projet créé} initiative {Initiative créée} epic {Epic créé} other {Ticket créé}}'

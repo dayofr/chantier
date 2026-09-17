@@ -82,7 +82,7 @@
             {% if entries is empty %}
                 <p class="text-body-sm text-outline">{{ 'activity.empty'|trans }}</p>
             {% else %}
-                <ol id="activity-feed" data-feed data-page-size="{{ constant('App\\Activity\\ActivityFilter::PAGE_SIZE') }}" data-count="{{ entries|length }}" aria-live="polite">
+                <ol id="activity-feed" data-feed data-label-seen="{{ 'activity.new.separator'|trans }}" data-page-size="{{ constant('App\\Activity\\ActivityFilter::PAGE_SIZE') }}" data-count="{{ entries|length }}" aria-live="polite">
                     {% include 'activity/_entries.html.twig' with {continued: false} %}
                 </ol>
                 {% if hasMore %}{% include 'activity/_load_more.html.twig' %}{% endif %}

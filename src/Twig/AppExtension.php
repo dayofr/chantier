@@ -7,6 +7,7 @@ use App\Enum\PlanStatus;
 use App\Live\DataVersion;
 use App\Enum\ProjectStatus;
 use App\Enum\TicketStatus;
+use App\Repository\ActivityRepository;
 use App\Repository\ProjectRepository;
 use App\Service\ProjectAlerts;
 use App\Service\TicketStats;
@@ -27,7 +28,15 @@ final class AppExtension
         private readonly TranslatorInterface $translator,
         private readonly DataVersion $dataVersion,
         private readonly ProjectAlerts $alerts,
+        private readonly ActivityRepository $activities,
     ) {
+    }
+
+    /** Id de la dernière entrée du journal, pour le compteur de nouveautés. */
+    #[AsTwigFunction('latest_activity_id')]
+    public function latestActivityId(): int
+    {
+        return $this->activities->latestId();
     }
 
     /** @return list<array<string, mixed>> */

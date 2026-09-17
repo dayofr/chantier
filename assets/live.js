@@ -53,7 +53,10 @@ if (root) {
 
         const title = html.querySelector('title');
         if (title) document.title = title.textContent;
+        const latest = html.querySelector('[data-live]')?.dataset.latestActivity;
+        if (latest) root.dataset.latestActivity = latest;
         lastRender = Date.now();
+        document.dispatchEvent(new CustomEvent('chantier:refreshed'));
     };
 
     const tick = async () => {
