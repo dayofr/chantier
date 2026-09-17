@@ -20,7 +20,7 @@
             {{ ui.progress(s.progress) }}
             <div class="text-body-sm text-on-surface-variant">{{ 'project.kpi.progress_hint'|trans({done: s.done, total: s.total}) }}</div>
         </div>
-        {{ ui.kpi('project.kpi.remaining'|trans, s.remaining, 'project.kpi.remaining_hint'|trans({points: s.points - s.pointsDone}), 'pending_actions') }}
+        {{ ui.kpi('project.kpi.remaining'|trans, s.remaining, 'project.kpi.remaining_hint'|trans, 'pending_actions') }}
         {{ ui.kpi('project.kpi.in_progress'|trans, s.inProgress, 'project.kpi.in_progress_hint'|trans({count: s.inReview}), 'motion_play') }}
         {{ ui.kpi('project.kpi.blocked'|trans, s.blocked, 'project.kpi.blocked_hint'|trans, 'block', s.blocked > 0 ? 'blocked') }}
     </section>

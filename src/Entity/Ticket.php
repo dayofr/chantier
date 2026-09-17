@@ -100,9 +100,8 @@ class Ticket
     #[Groups(['read', 'write'])]
     private Priority $priority = Priority::Medium;
 
+    /** Points d'effort : plus utilisés (le travail est fait par l'agent). Colonne conservée pour ne pas perdre l'historique. */
     #[ORM\Column(nullable: true)]
-    #[Groups(['read', 'write'])]
-    #[Assert\PositiveOrZero]
     private ?int $storyPoints = null;
 
     /** @var list<string> */

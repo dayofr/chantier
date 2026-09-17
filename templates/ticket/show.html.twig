@@ -23,7 +23,6 @@
             {% if ticket.blocked and ticket.status.value != 'blocked' and not ticket.status.closed %}{{ ui.chip('ticket.blocked_badge'|trans, 'blocked', 'block') }}{% endif %}
             {{ ui.priority(ticket.priority) }}
             {{ ui.chip(ticket.type|trans, 'muted', 'category') }}
-            {% if ticket.storyPoints is not null %}{{ ui.chip(ticket.storyPoints ~ ' ' ~ 'ticket.points'|trans|lower, 'muted', 'bolt') }}{% endif %}
             {% for label in ticket.labels %}{{ ui.chip(label, 'review', 'sell') }}{% endfor %}
         </div>
     </div>

@@ -2,7 +2,6 @@ account_tree
 add_circle
 arrow_forward
 block
-bolt
 call_split
 category
 check_box

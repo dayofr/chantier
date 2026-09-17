@@ -36,7 +36,6 @@ final class CreateTickets
                 'type' => ['type' => 'string', 'enum' => ['feature', 'bug', 'chore', 'refactor', 'spike', 'docs', 'test']],
                 'status' => ['type' => 'string', 'enum' => ['backlog', 'todo', 'in_progress', 'in_review', 'blocked', 'done', 'cancelled']],
                 'priority' => ['type' => 'string', 'enum' => ['low', 'medium', 'high', 'urgent']],
-                'storyPoints' => ['type' => 'integer', 'minimum' => 0],
                 'labels' => ['type' => 'array', 'items' => ['type' => 'string']],
                 'epic' => ['type' => 'string', 'description' => 'Remplace l\'epic par défaut ; "none" pour aucun.'],
                 'subTasks' => ['type' => 'array', 'items' => ['type' => 'string']],

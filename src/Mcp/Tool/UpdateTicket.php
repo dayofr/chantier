@@ -36,8 +36,6 @@ final class UpdateTicket
     #[ApiProperty(schema: ['type' => 'string', 'enum' => ['feature', 'bug', 'chore', 'refactor', 'spike', 'docs', 'test']])]
     public ?string $type = null;
 
-    public ?int $storyPoints = null;
-
     /** Remplace la liste des labels. */
     #[ApiProperty(schema: ['type' => 'array', 'items' => ['type' => 'string']])]
     public ?array $labels = null;

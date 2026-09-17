@@ -21,6 +21,7 @@ final class TicketApiTest extends ApiTestCase
         $client->request('POST', '/api/tickets', ['json' => ['project' => '/api/projects/AETH', 'title' => 'Premier', 'priority' => 'high']]);
         self::assertResponseStatusCodeSame(201);
         self::assertJsonContains(['@id' => '/api/tickets/AETH-1', 'key' => 'AETH-1', 'status' => 'todo', 'project' => '/api/projects/AETH']);
+        self::assertArrayNotHasKey('storyPoints', $client->getResponse()->toArray());
 
         $client->request('PATCH', '/api/tickets/AETH-1', [
             'json' => ['status' => 'in_progress'],

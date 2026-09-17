@@ -16,15 +16,13 @@ final readonly class TicketStats
         public int $inProgress,
         public int $inReview,
         public int $blocked,
-        public int $points,
-        public int $pointsDone,
     ) {
     }
 
     /** @param iterable<Ticket> $tickets */
     public static function of(iterable $tickets): self
     {
-        $total = $done = $inProgress = $inReview = $blocked = $points = $pointsDone = 0;
+        $total = $done = $inProgress = $inReview = $blocked = 0;
 
         foreach ($tickets as $ticket) {
             $status = $ticket->getStatus();
@@ -32,10 +30,8 @@ final readonly class TicketStats
                 continue;
             }
             ++$total;
-            $points += $ticket->getStoryPoints() ?? 0;
             if (TicketStatus::Done === $status) {
                 ++$done;
-                $pointsDone += $ticket->getStoryPoints() ?? 0;
                 continue;
             }
             match (true) {
@@ -46,7 +42,7 @@ final readonly class TicketStats
             };
         }
 
-        return new self($total, $done, $inProgress, $inReview, $blocked, $points, $pointsDone);
+        return new self($total, $done, $inProgress, $inReview, $blocked);
     }
 
     public function progress(): int
@@ -69,8 +65,6 @@ final readonly class TicketStats
             'inReview' => $this->inReview,
             'blocked' => $this->blocked,
             'progress' => $this->progress(),
-            'points' => $this->points,
-            'pointsDone' => $this->pointsDone,
         ];
     }
 }

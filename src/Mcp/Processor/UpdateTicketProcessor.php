@@ -36,9 +36,6 @@ final class UpdateTicketProcessor extends AbstractToolProcessor
         if (null !== $type = $this->enum(TicketType::class, $data->type, 'type')) {
             $ticket->setType($type);
         }
-        if (null !== $data->storyPoints) {
-            $ticket->setStoryPoints($data->storyPoints);
-        }
         if (null !== $data->labels) {
             $ticket->setLabels($data->labels);
         }

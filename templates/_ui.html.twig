@@ -117,7 +117,6 @@
             {% if sub|length %}
                 <span class="flex items-center gap-1"><span class="icon text-[16px]">check_box</span>{{ sub|filter(s => s.done)|length }}/{{ sub|length }}</span>
             {% endif %}
-            {% if ticket.storyPoints is not null %}<span class="flex items-center gap-1"><span class="icon text-[16px]">bolt</span>{{ ticket.storyPoints }}</span>{% endif %}
             {% if ticket.links|length %}<span class="flex items-center gap-1"><span class="icon text-[16px]">link</span>{{ ticket.links|length }}</span>{% endif %}
             {% if ticket.status.value == 'done' and ticket.completedAt %}
                 <span class="ml-auto flex items-center gap-1" title="{{ 'ticket.completed'|trans }} {{ ticket.completedAt|format_datetime('medium', 'short') }}"><span class="icon text-[16px] text-done">check_circle</span>{{ ticket.completedAt|ago }}</span>

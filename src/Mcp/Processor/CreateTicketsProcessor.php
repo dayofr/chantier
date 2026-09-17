@@ -30,7 +30,6 @@ final class CreateTicketsProcessor extends AbstractToolProcessor
                     ->setType($this->enum(TicketType::class, $input['type'] ?? null, $field('type')) ?? TicketType::Feature)
                     ->setStatus($this->enum(TicketStatus::class, $input['status'] ?? null, $field('status')) ?? TicketStatus::Todo)
                     ->setPriority($this->enum(Priority::class, $input['priority'] ?? null, $field('priority')) ?? Priority::Medium)
-                    ->setStoryPoints(isset($input['storyPoints']) ? (int) $input['storyPoints'] : null)
                     ->setLabels((array) ($input['labels'] ?? []))
                     ->setEpic($this->epicFor($input['epic'] ?? null, $defaultEpic));
                 foreach ((array) ($input['subTasks'] ?? []) as $title) {

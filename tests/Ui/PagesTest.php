@@ -32,7 +32,7 @@ final class PagesTest extends WebTestCase
         $project = new Project('DEMO', 'Démo')->setDescription("Projet **démo**\n\n<script>alert(1)</script>");
         $initiative = new Initiative($project, 'Socle');
         $epic = new Epic($initiative, 'API');
-        $a = new Ticket($project, 'Premier')->setEpic($epic)->setStatus(TicketStatus::InProgress)->setStoryPoints(3)->setLabels(['ui'])->setAssignee('claude-code');
+        $a = new Ticket($project, 'Premier')->setEpic($epic)->setStatus(TicketStatus::InProgress)->setLabels(['ui'])->setAssignee('claude-code');
         $b = new Ticket($project, 'Second')->setEpic($epic);
         $orphan = new Ticket($project, 'Orphelin');
         $a->addSubTask('Étape 1')->setDone(true);

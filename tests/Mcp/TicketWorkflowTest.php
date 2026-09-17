@@ -15,6 +15,8 @@ final class TicketWorkflowTest extends McpTestCase
             self::assertArrayHasKey($name, $tools);
         }
         self::assertSame(['low', 'medium', 'high', 'urgent'], $tools['update_ticket']['inputSchema']['properties']['priority']['enum']);
+        // Pas de points d'effort : le travail est fait par l'agent.
+        self::assertStringNotContainsString('storyPoints', json_encode($tools));
     }
 
     public function testFullWorkflow(): void
@@ -25,7 +27,7 @@ final class TicketWorkflowTest extends McpTestCase
             'project' => 'CHANT',
             'epic' => 'CHANT-E1',
             'tickets' => [
-                ['title' => 'Entités', 'priority' => 'high', 'subTasks' => ['Project', 'Ticket'], 'storyPoints' => 3],
+                ['title' => 'Entités', 'priority' => 'high', 'subTasks' => ['Project', 'Ticket']],
                 ['title' => 'Outils', 'blockedBy' => ['#0'], 'priority' => 'urgent'],
                 ['title' => 'Orphelin', 'epic' => 'none', 'priority' => 'low'],
             ],
