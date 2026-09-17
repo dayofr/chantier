@@ -49,6 +49,25 @@ docker compose up -d --build
 Écoute sur le port 8080 de toutes les interfaces. La base vit dans le volume `chantier-data`.
 Port différent : `CHANTIER_PORT=9000 docker compose up -d`.
 
+### NAS (base SQLite hors Docker)
+
+```bash
+CHANTIER_DATA_DIR=/volume1/docker/chantier docker compose -f compose.nas.yaml up -d --build
+```
+
+- `chantier.db` est créée (ou migrée) dans `CHANTIER_DATA_DIR` au démarrage ; défaut : `./data`.
+- Le dossier doit être sur un disque local du NAS, pas sur un partage SMB/NFS monté : SQLite a besoin de verrous fiables.
+- Variables : `CHANTIER_PORT` (8080), `APP_TIMEZONE` (Europe/Paris), `DEFAULT_URI`.
+- Sauvegarde : copier `chantier.db` conteneur arrêté, ou `sqlite3 chantier.db ".backup chantier-sauvegarde.db"` à chaud.
+- Construit depuis les sources sur le NAS (image FrankenPHP disponible en amd64 et arm64).
+
+Reprendre les données d'une installation Docker existante (volume `chantier_chantier-data`) :
+
+```bash
+docker compose stop
+docker run --rm -v chantier_chantier-data:/src -v /volume1/docker/chantier:/dst alpine cp /src/chantier.db /dst/
+```
+
 ### Dev local
 
 ```bash

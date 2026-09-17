@@ -63,7 +63,15 @@ Puis fusionner la configuration dans les réglages Claude Code
 - **`Stop`** : dans `~/.claude/settings.json` (tous les projets). Sans effet sur les séances qui n'utilisent pas Chantier.
 - **`SessionStart`** : dans `.claude/settings.json` de chaque projet suivi, sinon le rappel apparaît partout.
 
-Les scripts n'utilisent que `sh`, `sed`, `grep`, `tail` et `wc` (testés avec le `sh` de macOS et `dash`).
+Les scripts n'utilisent que `sh`, `sed`, `grep`, `tail` et `wc`.
+
+| Système | Statut |
+|---|---|
+| macOS | Testé (`sh` de macOS) |
+| Linux | Testé (`dash`, le `sh` de Debian/Ubuntu) |
+| Windows avec Git Bash | Devrait fonctionner : Claude Code lance les hooks dans Git Bash quand il est installé. Non testé. Remplacer `$HOME/.claude/hooks/...` par le chemin Git Bash si besoin. |
+| Windows sans Git Bash | Non pris en charge : Claude Code utilise alors PowerShell, les scripts `sh` ne tournent pas. |
+| WSL | Comme Linux, si Claude Code tourne dans WSL. |
 
 ### Réglages
 
