@@ -66,7 +66,10 @@ jobs:
           done
           docker logs chantier
           [ "$status" = healthy ] || { echo "Conteneur non sain : $status"; exit 1; }
-          test "$(docker exec chantier sh -c 'id -u')" != 0
+          # L'application (processus 1) ne doit pas tourner en root ; docker exec, lui, ouvre un shell root.
+          uid=$(docker exec chantier sh -c 'grep ^Uid /proc/1/status | cut -f2')
+          echo "uid du processus 1 : $uid"
+          test "$uid" != 0
           curl -fsS -o /dev/null http://localhost:8080/fr
           curl -fsS -o /dev/null http://localhost:8080/api/docs
           # Appel MCP en révision 2026-07-28, comme Claude Code.
