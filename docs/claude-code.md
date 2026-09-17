@@ -57,6 +57,17 @@ curl -fsSL http://chantier.local:8080/claude-code/chantier-stop.sh -o ~/.claude/
 curl -fsSL http://chantier.local:8080/claude-code/chantier-session-start.sh -o ~/.claude/hooks/chantier-session-start.sh
 ```
 
+Windows (PowerShell) :
+
+```powershell
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\hooks" | Out-Null
+Invoke-WebRequest http://chantier.local:8080/claude-code/chantier-stop.ps1 -OutFile "$env:USERPROFILE\.claude\hooks\chantier-stop.ps1"
+Invoke-WebRequest http://chantier.local:8080/claude-code/chantier-session-start.ps1 -OutFile "$env:USERPROFILE\.claude\hooks\chantier-session-start.ps1"
+```
+
+Modèle de réglages Windows : `/claude-code/settings.windows.example.json`. Les commandes passent `-ExecutionPolicy Bypass`,
+car un script téléchargé est bloqué par la stratégie d'exécution par défaut.
+
 Puis fusionner la configuration dans les réglages Claude Code
 ([modèle](../public/claude-code/settings.example.json), aussi servi sur `/claude-code/settings.example.json`) :
 
@@ -69,9 +80,12 @@ Les scripts n'utilisent que `sh`, `sed`, `grep`, `tail` et `wc`.
 |---|---|
 | macOS | Testé (`sh` de macOS) |
 | Linux | Testé (`dash`, le `sh` de Debian/Ubuntu) |
-| Windows avec Git Bash | Devrait fonctionner : Claude Code lance les hooks dans Git Bash quand il est installé. Non testé. Remplacer `$HOME/.claude/hooks/...` par le chemin Git Bash si besoin. |
-| Windows sans Git Bash | Non pris en charge : Claude Code utilise alors PowerShell, les scripts `sh` ne tournent pas. |
+| Windows avec Git Bash | Scripts `sh` : devraient fonctionner, Claude Code lance les hooks dans Git Bash. Non testé. Ou utiliser la version PowerShell ci-dessous. |
+| Windows sans Git Bash | Scripts PowerShell `chantier-stop.ps1` et `chantier-session-start.ps1`. Testés avec PowerShell 7.4 ; écrits pour Windows PowerShell 5.1 mais non testés sur Windows. |
 | WSL | Comme Linux, si Claude Code tourne dans WSL. |
+
+Tests des scripts : `tests/ClaudeCode/StopHookTest.php` (version `sh`, dans la suite PHPUnit)
+et `tests/ClaudeCode/powershell-hooks.ps1` (version PowerShell, commande en tête du fichier).
 
 ### Réglages
 
