@@ -23,9 +23,35 @@ nav:
     board: Kanban
     activity: Activité
     all_activity: Toute l'activité
+    help: Aide
     collapse: Réduire le menu
     expand: Déplier le menu
     no_projects: Aucun projet
+
+help:
+    title: Brancher un agent
+    subtitle: Connectez Claude Code, Codex, OpenCode ou un autre client MCP à ce serveur Chantier.
+    server:
+        title: Adresse du serveur
+        text: Serveur MCP (Streamable HTTP). Cette adresse est celle du serveur actuel.
+    claude:
+        title: Claude Code
+        text: Depuis n'importe quelle machine du réseau.
+    codex:
+        title: Codex
+        text: Via la CLI ou ~/.codex/config.toml.
+    opencode:
+        title: OpenCode
+        text: Dans opencode.json (projet ou ~/.config/opencode).
+    other:
+        title: Autres agents
+        text: Tout client MCP compatible Streamable HTTP (Cursor, Gemini, etc.).
+    instructions:
+        title: Consignes du projet suivi
+        text: À copier dans le CLAUDE.md ou AGENTS.md du projet suivi. Remplacez XXX par la clé du projet.
+    hooks:
+        title: Hooks Claude Code
+        text: Recommandé pour le résumé de séance. Spécifique à Claude Code. Stop dans ~/.claude/settings.json, SessionStart dans .claude/settings.json du projet suivi.
 
 portfolio:
     title: Projets

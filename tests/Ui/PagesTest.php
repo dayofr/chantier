@@ -59,6 +59,7 @@ final class PagesTest extends WebTestCase
             yield "$locale ticket" => ["/$locale/tickets/DEMO-1", 'abc123'];
             yield "$locale project activity" => ["/$locale/projects/DEMO/activity", 'SQLite'];
             yield "$locale activity" => ["/$locale/activity?session=11111111-2222-3333-4444-555555555555", '#11111111'];
+            yield "$locale help" => ["/$locale/help", 'mcp'];
         }
     }
 

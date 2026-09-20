@@ -28,6 +28,7 @@ folder_code
 fork_right
 gavel
 grid_view
+help
 history
 hourglass_empty
 inbox

@@ -1,0 +1,106 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}{{ 'help.title'|trans }} · {{ parent() }}{% endblock %}
+
+{% block breadcrumb %}
+    <a href="{{ path('portfolio') }}" class="hover:text-on-surface">{{ 'nav.portfolio'|trans }}</a>
+    <span class="icon text-[16px] text-outline">chevron_right</span>
+    <span class="font-medium text-on-surface">{{ 'help.title'|trans }}</span>
+{% endblock %}
+
+{% block header %}
+    <div>
+        <h1 class="font-display text-headline-lg font-bold">{{ 'help.title'|trans }}</h1>
+        <p class="mt-1 text-body-md text-on-surface-variant">{{ 'help.subtitle'|trans }}</p>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="flex max-w-4xl flex-col gap-6">
+    <section class="card p-5">
+        <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
+            <span class="icon text-primary">link</span>{{ 'help.server.title'|trans }}
+        </h2>
+        <p class="mt-1 text-body-sm text-on-surface-variant">{{ 'help.server.text'|trans }}</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-surface-low p-3 font-mono text-code-sm">{{ mcpUrl }}</pre>
+    </section>
+
+    <section class="card p-5">
+        <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
+            <span class="icon text-primary">terminal</span>{{ 'help.claude.title'|trans }}
+        </h2>
+        <p class="mt-1 text-body-sm text-on-surface-variant">{{ 'help.claude.text'|trans }}</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-surface-low p-3 font-mono text-code-sm">claude mcp add --transport http --scope user chantier {{ mcpUrl }}</pre>
+    </section>
+
+    <section class="card p-5">
+        <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
+            <span class="icon text-primary">terminal</span>{{ 'help.codex.title'|trans }}
+        </h2>
+        <p class="mt-1 text-body-sm text-on-surface-variant">{{ 'help.codex.text'|trans }}</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-surface-low p-3 font-mono text-code-sm">codex mcp add chantier --url {{ mcpUrl }}</pre>
+        <pre class="mt-2 overflow-x-auto rounded-lg bg-surface-low p-3 font-mono text-code-sm">[mcp_servers.chantier]
+url = "{{ mcpUrl }}"</pre>
+    </section>
+
+    <section class="card p-5">
+        <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
+            <span class="icon text-primary">terminal</span>{{ 'help.opencode.title'|trans }}
+        </h2>
+        <p class="mt-1 text-body-sm text-on-surface-variant">{{ 'help.opencode.text'|trans }}</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-surface-low p-3 font-mono text-code-sm">{
+  "mcp": {
+    "chantier": {
+      "type": "remote",
+      "url": "{{ mcpUrl }}",
+      "enabled": true
+    }
+  }
+}</pre>
+    </section>
+
+    <section class="card p-5">
+        <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
+            <span class="icon text-primary">smart_toy</span>{{ 'help.other.title'|trans }}
+        </h2>
+        <p class="mt-1 text-body-sm text-on-surface-variant">{{ 'help.other.text'|trans }}</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-surface-low p-3 font-mono text-code-sm">{
+  "mcpServers": {
+    "chantier": {
+      "type": "http",
+      "url": "{{ mcpUrl }}"
+    }
+  }
+}</pre>
+    </section>
+
+    <section class="card p-5">
+        <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
+            <span class="icon text-primary">description</span>{{ 'help.instructions.title'|trans }}
+        </h2>
+        <p class="mt-1 text-body-sm text-on-surface-variant">{{ 'help.instructions.text'|trans }}</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-surface-low p-3 font-mono text-code-sm">## Suivi de projet
+Ce projet est suivi dans Chantier (MCP `chantier`, clé projet `XXX`).
+- Début de séance : `start_session` avec l'objectif, puis `get_next_ticket`.
+- Si plusieurs agents travaillent en parallèle : passer `session` (id renvoyé par `start_session`) aux outils qui écrivent.
+- Avant de coder : passer le ticket en `in_progress`. Pas de travail hors ticket : sinon `create_tickets`.
+- Pendant : `log_activity` pour décisions, blocages, commits, résultats de tests.
+- Une décision qui vaut pour tout un epic ou une initiative : `log_activity` avec `subject` = sa clé (ex. `XXX-E3`).
+- Fin : cocher les sous-tâches, `add_link` pour commits/PR, statut `in_review` ou `done`.
+- Après chaque étape importante et en fin de séance : `save_session_summary` (résumé complet + décisions).</pre>
+    </section>
+
+    <section class="card p-5">
+        <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
+            <span class="icon text-primary">history</span>{{ 'help.hooks.title'|trans }}
+        </h2>
+        <p class="mt-1 text-body-sm text-on-surface-variant">{{ 'help.hooks.text'|trans }}</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-surface-low p-3 font-mono text-code-sm">mkdir -p ~/.claude/hooks
+curl -fsSL {{ baseUrl }}/claude-code/chantier-stop.sh -o ~/.claude/hooks/chantier-stop.sh
+curl -fsSL {{ baseUrl }}/claude-code/chantier-session-start.sh -o ~/.claude/hooks/chantier-session-start.sh</pre>
+        <p class="mt-3 text-body-sm text-on-surface-variant">
+            <a href="{{ baseUrl }}/claude-code/settings.example.json" class="font-medium text-primary hover:underline">settings.example.json</a>
+        </p>
+    </section>
+</div>
+{% endblock %}
