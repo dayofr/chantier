@@ -23,9 +23,35 @@ nav:
     board: Board
     activity: Activity
     all_activity: All activity
+    help: Help
     collapse: Collapse menu
     expand: Expand menu
     no_projects: No projects
+
+help:
+    title: Connect an agent
+    subtitle: Connect Claude Code, Codex, OpenCode or another MCP client to this Chantier server.
+    server:
+        title: Server address
+        text: MCP server (Streamable HTTP). This address is the current server.
+    claude:
+        title: Claude Code
+        text: From any machine on the network.
+    codex:
+        title: Codex
+        text: Via the CLI or ~/.codex/config.toml.
+    opencode:
+        title: OpenCode
+        text: In opencode.json (project or ~/.config/opencode).
+    other:
+        title: Other agents
+        text: Any Streamable HTTP compatible MCP client (Cursor, Gemini, etc.).
+    instructions:
+        title: Tracked project instructions
+        text: Copy into the CLAUDE.md or AGENTS.md of the tracked project. Replace XXX with the project key.
+    hooks:
+        title: Claude Code hooks
+        text: Recommended for session summaries. Claude Code only. Stop in ~/.claude/settings.json, SessionStart in the tracked project's .claude/settings.json.
 
 portfolio:
     title: Projects

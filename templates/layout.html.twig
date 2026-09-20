@@ -61,6 +61,12 @@
             </nav>
         </div>
 
+        <div class="px-3 pb-2 collapsed:px-2">
+            <a href="{{ path('help') }}" class="nav-link" title="{{ 'nav.help'|trans }}" {{ route == 'help' ? 'aria-current="page"' }}>
+                <span class="icon text-[19px]">help</span><span class="nav-label">{{ 'nav.help'|trans }}</span>
+            </a>
+        </div>
+
         <div class="flex items-center gap-2 border-t border-outline-variant/40 px-3 py-2 collapsed:flex-col collapsed:px-2">
             <p class="flex flex-1 items-center gap-2 px-2 text-label-md text-on-surface-variant collapsed:px-0" title="{{ 'app.read_only_hint'|trans }}">
                 <span class="icon text-[16px]">visibility</span><span class="nav-label">{{ 'app.read_only'|trans }}</span>
@@ -84,6 +90,7 @@
                 <nav class="absolute left-0 top-11 z-40 flex w-64 flex-col gap-0.5 rounded-xl border border-outline-variant/50 bg-surface-lowest p-2 shadow-card-hover">
                     <a href="{{ path('portfolio') }}" class="nav-link">{{ 'nav.portfolio'|trans }}</a>
                     <a href="{{ path('activity') }}" class="nav-link">{{ 'nav.all_activity'|trans }}<span data-new-count hidden title="{{ 'activity.new.count_title'|trans }}" class="ml-auto rounded-full bg-primary-container px-1.5 font-mono text-[10px] font-semibold leading-4 text-white"></span></a>
+                    <a href="{{ path('help') }}" class="nav-link">{{ 'nav.help'|trans }}</a>
                     <hr class="my-1 border-outline-variant/50">
                     {% for p in sidebar_projects() %}
                         <a href="{{ path('project_show', {key: p.key}) }}" class="nav-link"><span class="key">{{ p.key }}</span>{{ p.name }}</a>
