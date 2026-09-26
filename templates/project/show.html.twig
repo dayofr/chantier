@@ -37,7 +37,7 @@
         {% for initiative in project.initiatives %}
             {% set tickets = initiative.epics|reduce((carry, e) => carry|merge(e.tickets), []) %}
             {% set is = ticket_stats(tickets) %}
-            <details class="card group/init overflow-hidden" {{ initiative.status.value != 'done' ? 'open' }}>
+            <details class="card group/init overflow-hidden" {{ initiative.status.value != 'done' and is.progress < 100 ? 'open' }}>
                 <summary class="flex cursor-pointer list-none flex-wrap items-center gap-x-4 gap-y-2 p-5 hover:bg-surface-low/60">
                     <span class="icon text-outline transition-transform group-open/init:rotate-90">chevron_right</span>
                     <div class="min-w-0 flex-1">
@@ -67,7 +67,7 @@
                     {% endif %}
                     {% for epic in initiative.epics %}
                         {% set es = ticket_stats(epic.tickets) %}
-                        <details class="card group/epic" {{ epic.status.value not in ['done', 'cancelled'] ? 'open' }}>
+                        <details class="card group/epic" {{ epic.status.value not in ['done', 'cancelled'] and es.progress < 100 ? 'open' }}>
                             <summary class="flex cursor-pointer list-none flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
                                 <span class="icon text-[18px] text-outline transition-transform group-open/epic:rotate-90">chevron_right</span>
                                 <div class="min-w-0 flex-1">
