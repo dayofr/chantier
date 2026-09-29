@@ -44,8 +44,8 @@ class AgentSessionRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('s')
             ->andWhere('s.client = :client')->setParameter('client', $client)
             ->andWhere('s.lastSeenAt >= :since')->setParameter('since', $since)
-            ->orderBy('s.lastSeenAt', 'DESC')
-            ->addOrderBy('s.id', 'DESC')
+            ->orderBy('s.lastSeenAt', \SortDirection::Descending)
+            ->addOrderBy('s.id', \SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()->getOneOrNullResult();
     }

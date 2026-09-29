@@ -28,7 +28,7 @@ class ActivityRepository extends ServiceEntityRepository
         $qb = $this->filtered($filter, $project, $since)
             ->addSelect('t', 'p')
             ->join('a.project', 'p')
-            ->orderBy('a.id', 'DESC')
+            ->orderBy('a.id', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         if ([] !== $types = $filter->types()) {
@@ -130,7 +130,7 @@ class ActivityRepository extends ServiceEntityRepository
             ->select('a.sessionId, MAX(a.author) AS author, COUNT(a.id) AS entries, MIN(a.createdAt) AS firstAt, MAX(a.createdAt) AS lastAt')
             ->andWhere('a.sessionId IS NOT NULL')
             ->groupBy('a.sessionId')
-            ->orderBy('lastAt', 'DESC')
+            ->orderBy('lastAt', \SortDirection::Descending)
             ->setMaxResults($limit);
 
         if (null !== $project) {
