@@ -94,7 +94,7 @@ class Epic
 
     /** @var Collection<int, Ticket> */
     #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'epic')]
-    #[ORM\OrderBy(['number' => 'ASC'])]
+    #[ORM\OrderBy(['number' => \SortDirection::Ascending])]
     private Collection $tickets;
 
     public function __construct(?Initiative $initiative = null, string $title = '')

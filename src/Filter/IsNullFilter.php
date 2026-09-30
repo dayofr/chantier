@@ -5,7 +5,6 @@ namespace App\Filter;
 use ApiPlatform\Doctrine\Common\Filter\OpenApiFilterTrait;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Metadata\BackwardCompatibleFilterDescriptionTrait;
 use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use Doctrine\ORM\QueryBuilder;
@@ -16,8 +15,12 @@ use Doctrine\ORM\QueryBuilder;
  */
 final class IsNullFilter implements FilterInterface, OpenApiParameterFilterInterface
 {
-    use BackwardCompatibleFilterDescriptionTrait;
     use OpenApiFilterTrait;
+
+    public function getDescription(string $resourceClass): array
+    {
+        return [];
+    }
 
     public function apply(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {

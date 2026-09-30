@@ -83,7 +83,7 @@ class Initiative
 
     /** @var Collection<int, Epic> */
     #[ORM\OneToMany(targetEntity: Epic::class, mappedBy: 'initiative', cascade: ['remove'])]
-    #[ORM\OrderBy(['position' => 'ASC', 'number' => 'ASC'])]
+    #[ORM\OrderBy(['position' => \SortDirection::Ascending, 'number' => \SortDirection::Ascending])]
     private Collection $epics;
 
     public function __construct(?Project $project = null, string $title = '')

@@ -37,8 +37,8 @@ class TicketRepository extends ServiceEntityRepository
     ): array {
         $qb = $this->createQueryBuilder('t')
             ->addSelect("CASE t.priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END AS HIDDEN priorityRank")
-            ->orderBy('priorityRank', 'ASC')
-            ->addOrderBy('t.id', 'ASC')
+            ->orderBy('priorityRank', \SortDirection::Ascending)
+            ->addOrderBy('t.id', \SortDirection::Ascending)
             ->setMaxResults($limit);
 
         if (null !== $project) {

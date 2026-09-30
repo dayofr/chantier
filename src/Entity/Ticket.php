@@ -124,7 +124,7 @@ class Ticket
 
     /** @var Collection<int, SubTask> */
     #[ORM\OneToMany(targetEntity: SubTask::class, mappedBy: 'ticket', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['position' => 'ASC', 'id' => 'ASC'])]
+    #[ORM\OrderBy(['position' => \SortDirection::Ascending, 'id' => \SortDirection::Ascending])]
     #[Groups(['read'])]
     private Collection $subTasks;
 
@@ -138,7 +138,7 @@ class Ticket
 
     /** @var Collection<int, TicketLink> */
     #[ORM\OneToMany(targetEntity: TicketLink::class, mappedBy: 'ticket', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['id' => 'ASC'])]
+    #[ORM\OrderBy(['id' => \SortDirection::Ascending])]
     #[Groups(['read'])]
     private Collection $links;
 

@@ -21,8 +21,8 @@ class ProjectRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->addSelect('CASE WHEN p.status = :archived THEN 1 ELSE 0 END AS HIDDEN archivedRank')
             ->setParameter('archived', ProjectStatus::Archived->value)
-            ->orderBy('archivedRank', 'ASC')
-            ->addOrderBy('p.name', 'ASC')
+            ->orderBy('archivedRank', \SortDirection::Ascending)
+            ->addOrderBy('p.name', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }
@@ -34,8 +34,8 @@ class ProjectRepository extends ServiceEntityRepository
             ->leftJoin('p.tickets', 't')->addSelect('t')
             ->addSelect('CASE WHEN p.status = :archived THEN 1 ELSE 0 END AS HIDDEN archivedRank')
             ->setParameter('archived', ProjectStatus::Archived->value)
-            ->orderBy('archivedRank', 'ASC')
-            ->addOrderBy('p.name', 'ASC')
+            ->orderBy('archivedRank', \SortDirection::Ascending)
+            ->addOrderBy('p.name', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }

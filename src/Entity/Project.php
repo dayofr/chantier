@@ -84,12 +84,12 @@ class Project
 
     /** @var Collection<int, Initiative> */
     #[ORM\OneToMany(targetEntity: Initiative::class, mappedBy: 'project', cascade: ['remove'])]
-    #[ORM\OrderBy(['position' => 'ASC', 'number' => 'ASC'])]
+    #[ORM\OrderBy(['position' => \SortDirection::Ascending, 'number' => \SortDirection::Ascending])]
     private Collection $initiatives;
 
     /** @var Collection<int, Ticket> */
     #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'project', cascade: ['remove'])]
-    #[ORM\OrderBy(['number' => 'ASC'])]
+    #[ORM\OrderBy(['number' => \SortDirection::Ascending])]
     private Collection $tickets;
 
     public function __construct(string $key = '', string $name = '')

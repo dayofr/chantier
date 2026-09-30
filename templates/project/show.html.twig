@@ -118,18 +118,21 @@
     </section>
 
     <aside class="flex flex-col gap-4">
-        <section class="card p-5">
-            {% set serious = alerts|filter(a => a.severity != 'low') %}
-            {% set minor = alerts|filter(a => a.severity == 'low') %}
-            <h2 class="flex items-center gap-2 font-display text-headline-sm font-semibold">
+        {% set serious = alerts|filter(a => a.severity != 'low') %}
+        {% set minor = alerts|filter(a => a.severity == 'low') %}
+        {# Titre hors carte, comme « Initiatives », pour que les deux colonnes partent de la même ligne. #}
+        <div class="flex items-center gap-3">
+            <h2 class="flex items-center gap-2 font-display text-headline-md font-semibold">
                 <span class="icon text-primary">notifications_active</span>{{ 'project.alerts.title'|trans }}
-                {% if serious|length %}<span class="ml-auto">{{ ui.chip(serious|length, serious|filter(a => a.severity == 'high')|length ? 'blocked' : 'progress') }}</span>{% endif %}
             </h2>
+            {% if serious|length %}<span class="ml-auto">{{ ui.chip(serious|length, serious|filter(a => a.severity == 'high')|length ? 'blocked' : 'progress') }}</span>{% endif %}
+        </div>
+        <section class="card p-5">
             {% if alerts is empty %}
-                <p class="mt-3 flex items-center gap-2 text-body-sm text-on-surface-variant"><span class="icon text-[18px] text-done">check_circle</span>{{ 'project.alerts.none'|trans }}</p>
+                <p class="flex items-center gap-2 text-body-sm text-on-surface-variant"><span class="icon text-[18px] text-done">check_circle</span>{{ 'project.alerts.none'|trans }}</p>
             {% else %}
                 {% if serious|length %}
-                    <ul class="mt-3 flex flex-col gap-2">
+                    <ul class="flex flex-col gap-2">
                         {% for alert in serious %}
                             {% include 'project/_alert.html.twig' %}
                         {% endfor %}
@@ -139,7 +142,7 @@
                 {% for type in ['bottleneck', 'stale', 'blocked', 'orphan'] %}
                     {% set group = minor|filter(a => a.type == type) %}
                     {% if group|length %}
-                        <div class="mt-3 rounded-lg border border-outline-variant/60 bg-surface-low px-3 py-2">
+                        <div class="mt-3 first:mt-0 rounded-lg border border-outline-variant/60 bg-surface-low px-3 py-2">
                             <p class="flex items-center gap-1.5 text-label-md font-semibold uppercase tracking-wide text-on-surface-variant">
                                 <span class="icon text-[16px]">{{ {bottleneck: 'call_split', stale: 'hourglass_empty', blocked: 'block', orphan: 'link_off'}[type] }}</span>
                                 {{ ('project.alerts.type.' ~ type)|trans }} · {{ group|length }}
