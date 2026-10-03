@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0a6f9d61e036140dcc606ddf30917d7c",
+    "content-hash": "386ece0975132a609633b93cb4f4c48d",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
@@ -98,16 +98,16 @@
         },
         {
             "name": "api-platform/doctrine-orm",
-            "version": "v4.4.0",
+            "version": "v4.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/doctrine-orm.git",
-                "reference": "37ab75984b0a82ce0e489488f07430b688e99fb9"
+                "reference": "a16ec69d5ae06a50fb12f4aa039ffa9df27a6de4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/doctrine-orm/zipball/37ab75984b0a82ce0e489488f07430b688e99fb9",
-                "reference": "37ab75984b0a82ce0e489488f07430b688e99fb9",
+                "url": "https://api.github.com/repos/api-platform/doctrine-orm/zipball/a16ec69d5ae06a50fb12f4aa039ffa9df27a6de4",
+                "reference": "a16ec69d5ae06a50fb12f4aa039ffa9df27a6de4",
                 "shasum": ""
             },
             "require": {
@@ -181,9 +181,9 @@
                 "rest"
             ],
             "support": {
-                "source": "https://github.com/api-platform/doctrine-orm/tree/v4.4.0"
+                "source": "https://github.com/api-platform/doctrine-orm/tree/v4.4.3"
             },
-            "time": "2026-09-16T09:03:39+00:00"
+            "time": "2026-09-30T06:54:20+00:00"
         },
         {
             "name": "api-platform/documentation",
@@ -578,16 +578,16 @@
         },
         {
             "name": "api-platform/mcp",
-            "version": "v4.4.0",
+            "version": "v4.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/mcp.git",
-                "reference": "75fffef28d78010595144664cdd6ea678692fff2"
+                "reference": "6a3f1abe3835a818b51bfa61a3e468873e2fd587"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/mcp/zipball/75fffef28d78010595144664cdd6ea678692fff2",
-                "reference": "75fffef28d78010595144664cdd6ea678692fff2",
+                "url": "https://api.github.com/repos/api-platform/mcp/zipball/6a3f1abe3835a818b51bfa61a3e468873e2fd587",
+                "reference": "6a3f1abe3835a818b51bfa61a3e468873e2fd587",
                 "shasum": ""
             },
             "require": {
@@ -657,9 +657,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/mcp/issues",
-                "source": "https://github.com/api-platform/mcp/tree/v4.4.0"
+                "source": "https://github.com/api-platform/mcp/tree/v4.4.3"
             },
-            "time": "2026-09-16T09:03:39+00:00"
+            "time": "2026-09-23T14:19:16+00:00"
         },
         {
             "name": "api-platform/metadata",
@@ -1046,16 +1046,16 @@
         },
         {
             "name": "api-platform/symfony",
-            "version": "v4.4.0",
+            "version": "v4.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/symfony.git",
-                "reference": "943fc50030584390342457d0ab5b245239b2445d"
+                "reference": "ca37d429120cbe7739adbd2e1a57ae979c03c054"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/symfony/zipball/943fc50030584390342457d0ab5b245239b2445d",
-                "reference": "943fc50030584390342457d0ab5b245239b2445d",
+                "url": "https://api.github.com/repos/api-platform/symfony/zipball/ca37d429120cbe7739adbd2e1a57ae979c03c054",
+                "reference": "ca37d429120cbe7739adbd2e1a57ae979c03c054",
                 "shasum": ""
             },
             "require": {
@@ -1170,9 +1170,9 @@
                 "symfony"
             ],
             "support": {
-                "source": "https://github.com/api-platform/symfony/tree/v4.4.0"
+                "source": "https://github.com/api-platform/symfony/tree/v4.4.3"
             },
-            "time": "2026-09-16T09:03:39+00:00"
+            "time": "2026-09-29T20:09:09+00:00"
         },
         {
             "name": "api-platform/validator",
