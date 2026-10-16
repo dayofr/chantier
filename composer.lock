@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0a6f9d61e036140dcc606ddf30917d7c",
+    "content-hash": "8892b0320e367c85ee6f2a145ab744b4",
     "packages": [
         {
             "name": "api-platform/doctrine-common",
-            "version": "v4.4.0",
+            "version": "v4.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/doctrine-common.git",
-                "reference": "40a877ab28b7034f12498ceb09e08401ba533b23"
+                "reference": "c0215e4458c26fdc23f56de0b960b3d292cd8207"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/doctrine-common/zipball/40a877ab28b7034f12498ceb09e08401ba533b23",
-                "reference": "40a877ab28b7034f12498ceb09e08401ba533b23",
+                "url": "https://api.github.com/repos/api-platform/doctrine-common/zipball/c0215e4458c26fdc23f56de0b960b3d292cd8207",
+                "reference": "c0215e4458c26fdc23f56de0b960b3d292cd8207",
                 "shasum": ""
             },
             "require": {
@@ -92,26 +92,26 @@
                 "rest"
             ],
             "support": {
-                "source": "https://github.com/api-platform/doctrine-common/tree/v4.4.0"
+                "source": "https://github.com/api-platform/doctrine-common/tree/v4.4.5"
             },
-            "time": "2026-09-16T09:03:39+00:00"
+            "time": "2026-10-13T13:41:08+00:00"
         },
         {
             "name": "api-platform/doctrine-orm",
-            "version": "v4.4.0",
+            "version": "v4.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/doctrine-orm.git",
-                "reference": "37ab75984b0a82ce0e489488f07430b688e99fb9"
+                "reference": "b0ac449f42959de87484301508cee666c888cb17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/doctrine-orm/zipball/37ab75984b0a82ce0e489488f07430b688e99fb9",
-                "reference": "37ab75984b0a82ce0e489488f07430b688e99fb9",
+                "url": "https://api.github.com/repos/api-platform/doctrine-orm/zipball/b0ac449f42959de87484301508cee666c888cb17",
+                "reference": "b0ac449f42959de87484301508cee666c888cb17",
                 "shasum": ""
             },
             "require": {
-                "api-platform/doctrine-common": "^4.4",
+                "api-platform/doctrine-common": "^4.4.5",
                 "api-platform/metadata": "^4.4",
                 "api-platform/serializer": "^4.4",
                 "api-platform/state": "^4.4",
@@ -181,9 +181,9 @@
                 "rest"
             ],
             "support": {
-                "source": "https://github.com/api-platform/doctrine-orm/tree/v4.4.0"
+                "source": "https://github.com/api-platform/doctrine-orm/tree/v4.4.5"
             },
-            "time": "2026-09-16T09:03:39+00:00"
+            "time": "2026-10-13T13:41:08+00:00"
         },
         {
             "name": "api-platform/documentation",
@@ -578,16 +578,16 @@
         },
         {
             "name": "api-platform/mcp",
-            "version": "v4.4.0",
+            "version": "v4.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/mcp.git",
-                "reference": "75fffef28d78010595144664cdd6ea678692fff2"
+                "reference": "f3a444618ecc6528b5773a74c618274c4fdd2df1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/mcp/zipball/75fffef28d78010595144664cdd6ea678692fff2",
-                "reference": "75fffef28d78010595144664cdd6ea678692fff2",
+                "url": "https://api.github.com/repos/api-platform/mcp/zipball/f3a444618ecc6528b5773a74c618274c4fdd2df1",
+                "reference": "f3a444618ecc6528b5773a74c618274c4fdd2df1",
                 "shasum": ""
             },
             "require": {
@@ -657,9 +657,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/mcp/issues",
-                "source": "https://github.com/api-platform/mcp/tree/v4.4.0"
+                "source": "https://github.com/api-platform/mcp/tree/v4.4.5"
             },
-            "time": "2026-09-16T09:03:39+00:00"
+            "time": "2026-10-12T14:38:14+00:00"
         },
         {
             "name": "api-platform/metadata",
@@ -1046,16 +1046,16 @@
         },
         {
             "name": "api-platform/symfony",
-            "version": "v4.4.0",
+            "version": "v4.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/symfony.git",
-                "reference": "943fc50030584390342457d0ab5b245239b2445d"
+                "reference": "acc6a8674fc28282e8583bec6a70b83c3fd2200e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/symfony/zipball/943fc50030584390342457d0ab5b245239b2445d",
-                "reference": "943fc50030584390342457d0ab5b245239b2445d",
+                "url": "https://api.github.com/repos/api-platform/symfony/zipball/acc6a8674fc28282e8583bec6a70b83c3fd2200e",
+                "reference": "acc6a8674fc28282e8583bec6a70b83c3fd2200e",
                 "shasum": ""
             },
             "require": {
@@ -1170,9 +1170,9 @@
                 "symfony"
             ],
             "support": {
-                "source": "https://github.com/api-platform/symfony/tree/v4.4.0"
+                "source": "https://github.com/api-platform/symfony/tree/v4.4.5"
             },
-            "time": "2026-09-16T09:03:39+00:00"
+            "time": "2026-10-16T11:12:30+00:00"
         },
         {
             "name": "api-platform/validator",
