@@ -3,7 +3,7 @@
 # Versions figées en clair dans les FROM : Dependabot propose les mises à jour.
 # Garder les deux images FrankenPHP à la même version.
 
-FROM composer:2.10.3 AS composer
+FROM composer:2.11.0 AS composer
 
 # ---------------------------------------------------------------------------
 # Construction : dépendances, cache Symfony, CSS Tailwind, assets compilés.
